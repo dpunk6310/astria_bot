@@ -1,3 +1,18 @@
 from django.contrib import admin
 
-# Register your models here.
+from unfold.admin import ModelAdmin
+
+from .models import TGUser
+
+
+@admin.register(TGUser)
+class TGUserAdmin(ModelAdmin):
+    list_display = [
+        "id", "tg_user_id", "username", "first_name", "last_name"
+    ]
+    list_display_links = ["tg_user_id", "username",]
+    search_fields = [
+        "tg_user_id", "username",
+    ]
+    save_as = True
+    save_on_top = True
