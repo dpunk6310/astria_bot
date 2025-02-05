@@ -6,7 +6,7 @@ WORKDIR /app
 COPY app/bot/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY .env .
-COPY logo_p.png .
+COPY media/logo_p.png media/
 # Копируем все файлы бота в контейнер
 COPY app/bot/ .
 
