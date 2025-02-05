@@ -141,26 +141,26 @@ async def upl_img_next_callback(call: types.CallbackQuery):
 
 @user_router.callback_query(F.data == "learn_model")
 async def learn_model_callback(call: types.CallbackQuery):
-    # await call.message.answer(
-    #     text="Запустил обучение модели",
-    # )
-    # images = await get_user_images(str(call.message.chat.id))
-    # imgs = []
-    # for i in images:
-    #     imgs.append(i.get("path"))
-    # response = await learn_model_api(imgs)
-    # tune_id = response.get("id")
-    # await call.message.answer(f"Модель обучается... Tune ID: {tune_id}")
+    await call.message.answer(
+        text="Запустил обучение модели",
+    )
+    images = await get_user_images(str(call.message.chat.id))
+    imgs = []
+    for i in images:
+        imgs.append(i.get("path"))
+    response = await learn_model_api(imgs)
+    tune_id = response.get("id")
+    await call.message.answer(f"Модель обучается... Tune ID: {tune_id}")
 
-    # training_complete = await wait_for_training(tune_id)
+    training_complete = await wait_for_training(tune_id)
 
-    # if training_complete:
-    #     await call.message.answer("✅ Обучение модели завершено! Начинаю генерировать изображения 🎨")
-    # else:
-    #     await call.message.answer("❌ Обучение модели не удалось завершить. Попробуйте позже.")
+    if training_complete:
+        await call.message.answer("✅ Обучение модели завершено! Начинаю генерировать изображения 🎨")
+    else:
+        await call.message.answer("❌ Обучение модели не удалось завершить. Попробуйте позже.")
     
     user_prompt = "a painting of sks man / woman in the style of Van Gogh"      
-    tune_id = 2104287
+    # tune_id = 2104287
     gen_response = await generate_images(tune_id=tune_id, promt=user_prompt)
     
     if not gen_response or "id" not in gen_response:

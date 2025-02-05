@@ -45,9 +45,9 @@ async def generate_images(tune_id: int, promt: str):
     data = {
         'prompt[text]': f'<lora:{tune_id}:1> {promt}',
         'prompt[steps]': 40,
-        'scheduler': "dpm++2m_karras",
-        'super_resolution': "true",
-        'inpaint_faces': "true",
+        # 'prompt[scheduler]': "dpm++2m_karras",
+        'prompt[super_resolution]': "true",
+        'prompt[inpaint_faces]': "true",
     }
 
     async with httpx.AsyncClient() as client:
