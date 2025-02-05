@@ -1,0 +1,12 @@
+services:
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./.docker-volumes/idx_pg_data:/var/lib/postgresql/data
+    env_file:
+      - .env
