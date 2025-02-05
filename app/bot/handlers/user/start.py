@@ -16,7 +16,7 @@ from core.backend.api import (
     delete_user_images, 
     get_user_images,
 )
-from core.generation.photo import learn_model_api, wait_for_training
+from core.generation.photo import learn_model_api, wait_for_training, generate_images, wait_for_generation
 from loader import bot
 
 
@@ -141,25 +141,51 @@ async def upl_img_next_callback(call: types.CallbackQuery):
 
 @user_router.callback_query(F.data == "learn_model")
 async def learn_model_callback(call: types.CallbackQuery):
-    await call.message.answer(
-        text="Запустил обучение модели",
-    )
-    images = await get_user_images(str(call.message.chat.id))
-    log.debug(images)
-    imgs = []
-    for i in images:
-        imgs.append(i.get("path"))
-    response = await learn_model_api(imgs)
-    log.debug(response)
-    tune_id = response.get("id")
-    await call.message.answer(f"Модель обучается... Tune ID: {tune_id}")
+    # await call.message.answer(
+    #     text="Запустил обучение модели",
+    # )
+    # images = await get_user_images(str(call.message.chat.id))
+    # imgs = []
+    # for i in images:
+    #     imgs.append(i.get("path"))
+    # response = await learn_model_api(imgs)
+    # tune_id = response.get("id")
+    # await call.message.answer(f"Модель обучается... Tune ID: {tune_id}")
 
-    training_complete = await wait_for_training(tune_id)
+    # training_complete = await wait_for_training(tune_id)
 
-    if training_complete:
-        await call.message.answer("✅ Обучение модели завершено! Можно генерировать изображения 🎨")
+    # if training_complete:
+    #     await call.message.answer("✅ Обучение модели завершено! Начинаю генерировать изображения 🎨")
+    # else:
+    #     await call.message.answer("❌ Обучение модели не удалось завершить. Попробуйте позже.")
+    
+    user_prompt = "a painting of sks man / woman in the style of Van Gogh"      
+    tune_id = 2104287
+    gen_response = await generate_images(tune_id=tune_id, promt=user_prompt)
+    
+    if not gen_response or "id" not in gen_response:
+        await call.message.answer("❌ Ошибка при запуске генерации изображений.")
+        return
+
+    prompt_id = gen_response["id"]
+    await call.message.answer(f"🖼 Генерация изображения... Prompt ID: {prompt_id}")
+
+    image_urls = await wait_for_generation(prompt_id)
+    
+    img_msg = ""
+    for i in image_urls:
+        img_msg += f"{i}\n"
+    
+    if image_urls:
+        await call.message.answer(img_msg)
     else:
-        await call.message.answer("❌ Обучение модели не удалось завершить. Попробуйте позже.")
+        await call.message.answer("❌ Ошибка генерации изображения.")
+    
+    await delete_user_images(str(call.message.chat.id))
+    
+    
+        
+    
 
     
 

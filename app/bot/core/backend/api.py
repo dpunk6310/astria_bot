@@ -44,7 +44,7 @@ async def get_user_images(
 async def delete_user_images(
     tg_user_id: str,
 ) -> dict:
-    response = await client.get_request(
+    response = await client.delete_request(
         url=DJANGO_URL+f"/api/main/delete-user-images/{tg_user_id}"
     )
     return response
