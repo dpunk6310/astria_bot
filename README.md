@@ -52,7 +52,7 @@ docker-compose -f docker-compose.db.yml up --build -d
 После того как база данных запустится, можно запускать основной контейнер с приложением Django:
 
 ```bash
-docker-compose up -d
+docker-compose up --build -d
 ```
 
 #### 5. Создание суперпользователя Django
