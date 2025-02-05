@@ -13,6 +13,8 @@ services:
     restart: always
     volumes:
       - ./static:/app/static
+      - ./db.sqlite3:/app/db.sqlite3
+
 
   nginx:
     build:

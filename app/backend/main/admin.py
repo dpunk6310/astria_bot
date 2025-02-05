@@ -2,7 +2,20 @@ from django.contrib import admin
 
 from unfold.admin import ModelAdmin
 
-from .models import TGUser
+from .models import TGUser, Image
+
+
+@admin.register(Image)
+class ImageAdmin(ModelAdmin):
+    list_display = [
+        "id", "tg_user", "img_path"
+    ]
+    list_display_links = ["tg_user",]
+    search_fields = [
+        "tg_user",
+    ]
+    save_as = True
+    save_on_top = True
 
 
 @admin.register(TGUser)

@@ -28,9 +28,32 @@ class TGUser(models.Model):
     )
     
     def __str__(self):
-        return self.tg_user_id
+        return str(self.tg_user_id)
     
     class Meta:
         verbose_name = "TG User"
         verbose_name_plural = "TG user"
         db_table = "tg_users"
+
+
+class Image(models.Model):
+    tg_user = models.ForeignKey(
+        TGUser, 
+        on_delete=models.CASCADE, 
+        related_name="images", 
+        verbose_name="TG User"
+    )
+    img_path = models.CharField(
+        max_length=500, 
+        null=True, 
+        blank=True, 
+        verbose_name="Image path",
+    )
+    
+    def __str__(self):
+        return str(self.tg_user)
+    
+    class Meta:
+        verbose_name = "Image"
+        verbose_name_plural = "Images"
+        db_table = "images"

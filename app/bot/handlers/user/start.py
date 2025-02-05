@@ -1,20 +1,32 @@
 from pathlib import Path
-from typing import List
+from uuid import uuid4
 import os
 
-from aiogram import types, Router
+from aiogram import types, Router, F
 from aiogram.filters import CommandStart
 from aiogram.types import FSInputFile
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from loguru import logger as log
 
 from data.messages import use_messages
-from core.backend.api import create_user_db
+from core.backend.api import (
+    create_user_db, 
+    create_img_path, 
+    delete_user_images, 
+    get_user_images,
+)
+from core.generation.photo import learn_model_api, wait_for_training
 from loader import bot
 
 
 user_router = Router()
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+
+class UploadImage(StatesGroup):
+    photo = State()
 
 
 @user_router.message(CommandStart())
@@ -38,25 +50,116 @@ async def start_handler(message: types.Message, messages):
             callback_data="pay"
         ),
     )
+    builder.add(
+        types.InlineKeyboardButton(
+            text="Загрузить фото",
+            callback_data="upload_images"
+        ),
+    )
     
     photo_path = BASE_DIR / "media/logo_p.png"
-    
-    await message.answer_photo(
-        photo=FSInputFile(photo_path),
-        caption=messages["start"],
-        reply_markup=builder.as_markup()
-    )
+    await message.answer(messages["start"], reply_markup=builder.as_markup())
+    # await message.answer_photo(
+    #     photo=FSInputFile(photo_path),
+    #     caption=messages["start"],
+    #     reply_markup=builder.as_markup()
+    # )
     
 
 @user_router.message()
 async def handle_albums(message: types.Message):
+    photos_path = BASE_DIR / "media" / "photos"
     photos = message.photo
     if photos:
-        if not os.path.exists(BASE_DIR / "media" / "photos"):
-            os.makedirs(BASE_DIR / "media/photos/")
+        
+        # Добавить проверку баланса
+        
+        if not os.path.exists(photos_path):
+            os.makedirs(photos_path)
+            
         photo = await bot.get_file(photos[-1].file_id)
-        await message.bot.download_file(photo.file_path, destination=BASE_DIR / "media" / photo.file_path)
-        await bot.send_photo(
-            message.chat.id, FSInputFile(BASE_DIR / "media" / photo.file_path), caption="Вот оно"
+        photo_file = photo.file_path
+        output_filename = f"{photos_path}/{uuid4()}_{photo_file.replace('photos/', '')}"
+        
+        await message.bot.download_file(
+            photo_file, destination=output_filename
         )
-        # os.remove(photo.file_path)
+        response = await create_img_path(
+            tg_user_id=str(message.chat.id),
+            path=output_filename
+        )
+        # log.debug(images)
+        # await bot.send_photo(
+        #     message.chat.id, FSInputFile(BASE_DIR / "media" / photo.file_path), caption="Вот оно"
+        # )
+
+@user_router.callback_query(F.data == "upload_images")
+async def upload_images_callback(call: types.CallbackQuery):
+    builder = InlineKeyboardBuilder()
+    builder.add(
+        types.InlineKeyboardButton(
+            text="Дальше!",
+            callback_data="upl_img_next"
+        ),
+    )
+    await call.message.answer(
+        text="Подойдут фотографии любого качества, но студийные могут дать лучший результат!",
+        reply_markup=builder.as_markup()
+    )
+    
+    
+@user_router.callback_query(F.data == "upl_img_next")
+async def upl_img_next_callback(call: types.CallbackQuery):
+    builder = InlineKeyboardBuilder()
+    builder.add(
+        types.InlineKeyboardButton(
+            text="Обучение модели",
+            callback_data="learn_model"
+        ),
+    )
+    await call.message.answer(
+        text="""
+        ИНСТРУКЦИЯ
+
+Загрузи 10 фото, чтобы обучить бота и получить доступ к генерации 📲
+
+Важно:
+    – Загружайте строго 10 фото. Не 5, не 8 и не 16.
+    – Используй крупные планы своего лица или селфи, избегай снимков с дальнего расстояния.
+    – На фото должен(на) быть только ты — без родителей, бабушек и домашних животных.
+    – Не выбирайте фото с резкими эмоциями, максимум легкая улыбка.
+    – Загружай фото в прямой позе, без наклонов головы или шеи.
+    – Убедитесь в хорошем освещении фотографии для получения качественного результата.
+
+Загрузить фото и обучить бота можно только один раз! Подходите внимательно к выбору фото и строго следуйте инструкции!
+
+После загрузки нажми на кнопку "Обучение модели"
+        """,
+        reply_markup=builder.as_markup()
+    )
+
+
+@user_router.callback_query(F.data == "learn_model")
+async def learn_model_callback(call: types.CallbackQuery):
+    await call.message.answer(
+        text="Запустил обучение модели",
+    )
+    images = await get_user_images(str(call.message.chat.id))
+    log.debug(images)
+    imgs = []
+    for i in images:
+        imgs.append(i.get("path"))
+    response = await learn_model_api(imgs)
+    log.debug(response)
+    tune_id = response.get("id")
+    await call.message.answer(f"Модель обучается... Tune ID: {tune_id}")
+
+    training_complete = await wait_for_training(tune_id)
+
+    if training_complete:
+        await call.message.answer("✅ Обучение модели завершено! Можно генерировать изображения 🎨")
+    else:
+        await call.message.answer("❌ Обучение модели не удалось завершить. Попробуйте позже.")
+
+    
+
