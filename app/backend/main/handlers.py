@@ -20,5 +20,5 @@ def create_user(request, create_user: CreateUserDTO):
     try:
         cln = TGUser.objects.create(**create_user.dict().get("user"))
     except IntegrityError as err:
-        return 400, {"message": "such a tg user already exists", "err": err}
+        return 400, {"message": "error", "err": "such a tg user already exists"}
     return 201, cln
