@@ -25,13 +25,13 @@ services:
     depends_on:
       - backend
 
-  # bot:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.bot
-  #   container_name: bot
-  #   depends_on:
-  #     - backend
-  #   env_file:
-  #     - .env
-  #   restart: always
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    container_name: bot
+    depends_on:
+      - backend
+    env_file:
+      - .env
+    restart: always
