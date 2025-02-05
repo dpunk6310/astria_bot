@@ -1,0 +1,16 @@
+FROM python:3.12-slim
+
+WORKDIR /app/bot
+
+# Копируем requirements.txt и устанавливаем зависимости
+COPY bot/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Копируем все файлы бота в контейнер
+COPY app/bot/ .
+
+# Устанавливаем переменные окружения для общения с backend
+ENV BACKEND_API_URL=http://backend:8000
+
+# Запускаем бота
+CMD ["python", "main.py"]
