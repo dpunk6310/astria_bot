@@ -7,13 +7,13 @@ import environ
 BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 
 env = environ.Env()
-env.read_env(str(BASE_DIR / ".env"))
+env.read_env(".env")
 
 SECRET_KEY = env.str("DJANGO_SECRET_KEY", default="django_secret_key_75uYGHJGJKYFKUIy")
 
 DEBUG = env.bool("DJANGO_DEBUG", default=True)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 DJANGO_APPS = [
@@ -82,12 +82,12 @@ DATABASES = {
 
 # DATABASES = {
 #     'default': {
-#     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#     'NAME': env.str("POSTGRES_DB_NAME", default="postgres"),
-#     'USER': env.str("POSTGRES_USER", default="vasya"),
-#     'PASSWORD': env.str("POSTGRES_PASSWORD", default="qwe123qwetwe"),
-#     'HOST' : env.str("POSTGRES_HOST", default="127.0.0.1"),
-#     'PORT' : env.str("POSTGRES_PORT", default="5432"),
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': env.str("POSTGRES_DB_NAME"),
+#         'USER': env.str("POSTGRES_USER"),
+#         'PASSWORD': env.str("POSTGRES_PASSWORD"),
+#         'HOST': env.str("POSTGRES_HOST", default="postgres"),  # Use service name "postgres"
+#         'PORT': env.str("POSTGRES_PORT", default="5432"),  # Default PostgreSQL port
 #     }
 # }
 

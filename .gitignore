@@ -7,3 +7,4 @@ __pycache__/
 .envs/
 *.sqlite3
 .venv/
+.docker-volumes
