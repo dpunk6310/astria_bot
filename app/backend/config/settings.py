@@ -73,23 +73,23 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = "config.asgi.application"
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': env.str("POSTGRES_DB_NAME"),
-#         'USER': env.str("POSTGRES_USER"),
-#         'PASSWORD': env.str("POSTGRES_PASSWORD"),
-#         'HOST': env.str("POSTGRES_HOST", default="postgres"),  # Use service name "postgres"
-#         'PORT': env.str("POSTGRES_PORT", default="5432"),  # Default PostgreSQL port
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env.str("POSTGRES_DB_NAME"),
+        'USER': env.str("POSTGRES_USER"),
+        'PASSWORD': env.str("POSTGRES_PASSWORD"),
+        'HOST': env.str("POSTGRES_HOST", default="postgres"),  # Use service name "postgres"
+        'PORT': env.str("POSTGRES_PORT", default="5432"),  # Default PostgreSQL port
+    }
+}
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -119,3 +119,5 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+BOT_TOKEN = env.str("BOT_TOKEN", default="norm")

@@ -1,4 +1,4 @@
-from typing import Optional 
+from typing import Optional, Any
 
 from ninja import Schema
 
@@ -17,3 +17,9 @@ class UpdateUserDTO(Schema):
 
 class CreateUserDTO(Schema):
     user: UserDTO
+
+
+class PaymentNotificationDTO(Schema):
+    OutSum: Any
+    InvId: Any
+    SignatureValue: Any
