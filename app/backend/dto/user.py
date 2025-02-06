@@ -20,6 +20,15 @@ class CreateUserDTO(Schema):
 
 
 class PaymentNotificationDTO(Schema):
-    OutSum: Any
-    InvId: Any
-    SignatureValue: Any
+    out_summ: float
+    out_sum: float
+    inv_id: int
+    inv_id2: int
+    crc: str
+    signature_value: str
+    payment_method: str
+    inc_sum: float
+    inc_curr_label: str
+    is_test: bool
+    email: str
+    fee: float

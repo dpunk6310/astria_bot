@@ -1,4 +1,4 @@
-from ..telegram_api import TelegramSyncClient
+from telegram_api import TelegramSyncClient
 from .settings import BOT_TOKEN
 
 # api

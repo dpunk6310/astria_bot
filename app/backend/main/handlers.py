@@ -1,14 +1,17 @@
-from typing import Dict
+import json
+from typing import Dict, Any
 
 from ninja import Router
 from django.db.utils import IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
 
+from config.settings import SUCCESS_PAYMENT_GENERATIONS
 from dto.user import CreateUserDTO, UserDTO, UpdateUserDTO, PaymentNotificationDTO
 from dto.image import CreateImageDTO, ImageDTO
 from dto.payment import PaymentDTO, CreatePaymentDTO
-from dto.err import ErrorDTO
+from dto.err import ErrorDTO, SuccessDTO
 from .models import TGUser, Image, Payment
+from config.loader import telegram_api
 
 
 router = Router()
@@ -28,20 +31,37 @@ def create_user(request, create_user: CreateUserDTO):
     return 201, cln
 
 
-@router.post("/payment", response={200: PaymentNotificationDTO, 400: ErrorDTO})
-def payment_received(request, req: PaymentNotificationDTO):
+@router.post("/payment", response={200: SuccessDTO, 400: ErrorDTO})
+def payment_received(request):
     try:
-        payment = Payment.objects.get(payment_id=req.InvId)
+        raw_body = request.body.decode("utf-8", errors="ignore")  # Декодируем в строку
+        content_type = request.headers.get("Content-Type", "Unknown")  # Проверяем заголовок
+        print(f"Content-Type: {content_type}")
+        print(f"Raw body: {raw_body}")
+        data = request.POST.dict()
+        payment = Payment.objects.get(payment_id=data["inv_id"])
         payment.status = True
         payment.save()
+        result = telegram_api.send_message_inline(
+            chat_id=payment.tg_user_id,
+            text="""Поздравляю! Оплата завершена успешно ❤️
 
-        return 200, PaymentNotificationDTO(
-            OutSum=req.OutSum,
-            InvId=req.InvId,
-            SignatureValue=req.SignatureValue
+Теперь доверься и последуй одному важному совету: внимательно прочитай инструкцию и действуй согласно ей, ведь именно это будет влиять на твой результат""",
+            button_text="Инструкция",
+            callback_data="upl_img_next"
         )
-    except Exception:
+        tg_user: TGUser = TGUser.objects.get(
+            tg_user_id=payment.tg_user_id,
+        )
+        tg_user.count_generations += SUCCESS_PAYMENT_GENERATIONS
+        tg_user.save()
+
+        return 200, {"status": "ok", "message": "Success"}
+    except Payment.DoesNotExist:
         return 400, {"message": "error", "err": "payment not found"}
+    except TGUser.DoesNotExist:
+        return 400, {"message": "error", "err": "user not found"}
+
 
 
 

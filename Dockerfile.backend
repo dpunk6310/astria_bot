@@ -4,12 +4,12 @@ WORKDIR /app
 
 COPY app/backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install gunicorn
 
 COPY .env .
 COPY app/backend/ .
 
 ENV DJANGO_SETTINGS_MODULE=config.settings
 
-RUN pip install gunicorn
 
 ENTRYPOINT ["sh", "/app/entrypoint.sh"]
