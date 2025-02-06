@@ -25,7 +25,16 @@ def create_user(request, create_user: CreateUserDTO):
     return 201, cln
 
 
-@router.post("/update")
+@router.get("/get-user", response={200: UserDTO, 400: ErrorDTO})
+def get_user(request, tg_user_id: str):
+    try:
+        cln = TGUser.objects.get(tg_user_id=tg_user_id)
+    except IntegrityError as err:
+        return 400, {"message": "error", "err": "not user in db"}
+    return 200, cln
+
+
+@router.post("/update-count-gen")
 def update_user(request, req: UpdateUserDTO):
     try:
         tg_user = TGUser.objects.get(tg_user_id=req.tg_user_id)

@@ -60,3 +60,25 @@ class Image(models.Model):
         verbose_name = "Image"
         verbose_name_plural = "Images"
         db_table = "images"
+        
+        
+class Payment(models.Model):
+    tg_user_id = models.CharField(
+        max_length=30,
+        # unique=True,
+        verbose_name="TG User ID"
+    )
+    payment_id = models.CharField(
+        max_length=200,
+        unique=True,
+        verbose_name="Payment ID"
+    )
+    status = models.BooleanField(verbose_name="Status", default=False)
+    
+    def __str__(self):
+        return str(self.payment_id)
+    
+    class Meta:
+        verbose_name = "Payment"
+        verbose_name_plural = "Payments"
+        db_table = "payments"
