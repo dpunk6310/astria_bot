@@ -1,10 +1,13 @@
 from pathlib import Path
 from uuid import uuid4
 import os
+from aiogram_media_group import media_group_handler
+
 
 from aiogram import types, Router, F
 from aiogram.filters import CommandStart
 from aiogram.types import FSInputFile
+from aiogram.utils.media_group import MediaGroupBuilder
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from loguru import logger as log
@@ -50,12 +53,6 @@ async def start_handler(message: types.Message, messages):
             callback_data="pay"
         ),
     )
-    builder.add(
-        types.InlineKeyboardButton(
-            text="Загрузить фото",
-            callback_data="upload_images"
-        ),
-    )
     
     photo_path = BASE_DIR / "media/logo_p.png"
     await message.answer(messages["start"], reply_markup=builder.as_markup())
@@ -66,35 +63,44 @@ async def start_handler(message: types.Message, messages):
     # )
     
 
-@user_router.message()
-async def handle_albums(message: types.Message):
+@user_router.message(F.media_group_id)
+@media_group_handler
+async def handle_albums(messages: list[types.Message]):
     photos_path = BASE_DIR / "media" / "photos"
-    photos = message.photo
-    if photos:
+    
+    if len(messages) != 10:
+        await messages[-1].answer("Загрузить можно только 10 фото")
+        return
+    
+    log.debug(len(messages))
+    
+    for m in messages:
+        if m.photo:
+            photo = await bot.get_file(m.photo[-1].file_id)
+            output_filename = f"{photos_path}/{uuid4()}_{photo.file_path.replace('photos/', '')}"
+            await m.bot.download_file(
+                photo.file_path, destination=output_filename
+            )
+            response = await create_img_path(
+                tg_user_id=str(m.chat.id),
+                path=output_filename
+            )
+    builder = InlineKeyboardBuilder()
+    builder.add(
+        types.InlineKeyboardButton(
+            text="Обучение модели",
+            callback_data="learn_model"
+        ),
+    )
+    await messages[-1].answer("Фото успешно сохранены! Можно приступать к обучению", reply_markup=builder.as_markup())
         
-        # Добавить проверку баланса
-        
-        if not os.path.exists(photos_path):
-            os.makedirs(photos_path)
-            
-        photo = await bot.get_file(photos[-1].file_id)
-        photo_file = photo.file_path
-        output_filename = f"{photos_path}/{uuid4()}_{photo_file.replace('photos/', '')}"
-        
-        await message.bot.download_file(
-            photo_file, destination=output_filename
-        )
-        response = await create_img_path(
-            tg_user_id=str(message.chat.id),
-            path=output_filename
-        )
         # log.debug(images)
         # await bot.send_photo(
         #     message.chat.id, FSInputFile(BASE_DIR / "media" / photo.file_path), caption="Вот оно"
         # )
 
-@user_router.callback_query(F.data == "upload_images")
-async def upload_images_callback(call: types.CallbackQuery):
+@user_router.callback_query(F.data == "inst")
+async def inst_callback(call: types.CallbackQuery):
     builder = InlineKeyboardBuilder()
     builder.add(
         types.InlineKeyboardButton(
@@ -110,13 +116,13 @@ async def upload_images_callback(call: types.CallbackQuery):
     
 @user_router.callback_query(F.data == "upl_img_next")
 async def upl_img_next_callback(call: types.CallbackQuery):
-    builder = InlineKeyboardBuilder()
-    builder.add(
-        types.InlineKeyboardButton(
-            text="Обучение модели",
-            callback_data="learn_model"
-        ),
-    )
+    # builder = InlineKeyboardBuilder()
+    # builder.add(
+    #     types.InlineKeyboardButton(
+    #         text="Все понятно, загрузить фото!",
+    #         callback_data="learn"
+    #     ),
+    # )
     await call.message.answer(
         text="""
         ИНСТРУКЦИЯ
@@ -135,7 +141,7 @@ async def upl_img_next_callback(call: types.CallbackQuery):
 
 После загрузки нажми на кнопку "Обучение модели"
         """,
-        reply_markup=builder.as_markup()
+        # reply_markup=builder.as_markup()
     )
 
 
@@ -155,12 +161,26 @@ async def learn_model_callback(call: types.CallbackQuery):
     training_complete = await wait_for_training(tune_id)
 
     if training_complete:
-        await call.message.answer("✅ Обучение модели завершено! Начинаю генерировать изображения 🎨")
+        builder = InlineKeyboardBuilder()
+        builder.add(
+            types.InlineKeyboardButton(
+                text="Генерация",
+                callback_data=f"generation_{tune_id}"
+            ),
+        )
+        await call.message.answer(
+            "✅ Обучение модели завершено! Начинаю генерировать изображения 🎨", 
+            reply_markup=builder.as_markup()
+        )
     else:
         await call.message.answer("❌ Обучение модели не удалось завершить. Попробуйте позже.")
     
+    
+@user_router.callback_query(F.data.contains("generation"))
+async def generation_callback(call: types.CallbackQuery):
+    tune_id = call.data.split("_")[1]
+    # tune_id = 2105824
     user_prompt = "a painting of sks man / woman in the style of Van Gogh"      
-    # tune_id = 2104287
     gen_response = await generate_images(tune_id=tune_id, promt=user_prompt)
     
     if not gen_response or "id" not in gen_response:
@@ -171,21 +191,17 @@ async def learn_model_callback(call: types.CallbackQuery):
     await call.message.answer(f"🖼 Генерация изображения... Prompt ID: {prompt_id}")
 
     image_urls = await wait_for_generation(prompt_id)
-    
-    img_msg = ""
-    for i in image_urls:
-        img_msg += f"{i}\n"
-    
+    media_group = MediaGroupBuilder(caption="🖼 Ваши фото успешно сгенерированы")
     if image_urls:
-        await call.message.answer(img_msg)
+        for i in image_urls:
+            media_group.add(type="photo", media=i)
+
     else:
         await call.message.answer("❌ Ошибка генерации изображения.")
+        
+    await bot.send_media_group(chat_id=call.message.chat.id, media=media_group.build())
     
     await delete_user_images(str(call.message.chat.id))
-    
-    
-        
-    
 
     
 

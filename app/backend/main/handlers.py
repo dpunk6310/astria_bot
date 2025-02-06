@@ -70,12 +70,12 @@ def delete_user_images(request, tg_user_id: str):
         deleted_count, _ = Image.objects.filter(tg_user=user).delete()
         
         if deleted_count == 0:
-            return 404, {"message": "No images found for this user."}
+            return 404, {"message": "error", "err": "No images found for this user."}
         
-        return 200, {"message": f"Deleted {deleted_count} images successfully."}
+        return 200, {"message": "error", "err": f"Deleted {deleted_count} images successfully."}
 
     except TGUser.DoesNotExist:
-        return 404, {"message": "User not found"}
+        return 404, {"message": "error", "err": "User not found"}
     except Exception as err:
         return 400, {"message": "Error deleting images", "err": str(err)}
 
