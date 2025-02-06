@@ -4,8 +4,9 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from dto.user import CreateUserDTO, UserDTO, UpdateUserDTO
 from dto.image import CreateImageDTO, ImageDTO
+from dto.payment import PaymentDTO, CreatePaymentDTO
 from dto.err import ErrorDTO
-from .models import TGUser, Image
+from .models import TGUser, Image, Payment
 
 
 router = Router()
@@ -23,6 +24,15 @@ def create_user(request, create_user: CreateUserDTO):
     except IntegrityError as err:
         return 400, {"message": "error", "err": "such a tg user already exists"}
     return 201, cln
+
+
+@router.post("/create-payment", response={201: PaymentDTO, 400: ErrorDTO})
+def create_payment(request, create_payment: CreatePaymentDTO):
+    try:
+        payment = Payment.objects.create(**create_payment.dict())
+    except IntegrityError as err:
+        return 400, {"message": "error", "err": "such a tg payment already exists"}
+    return 201, payment
 
 
 @router.get("/get-user", response={200: UserDTO, 400: ErrorDTO})
