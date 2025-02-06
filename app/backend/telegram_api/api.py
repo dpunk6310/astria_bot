@@ -59,7 +59,7 @@ class TelegramSyncClient:
         """Send message."""
 
         reply_markup = {
-            "inline_keyboard": [[{"text": button_text, "url": button_url}]]
+            "inline_keyboard": [[{"text": button_text, "callback_data": button_url}]]
         }
 
         return self._request(
@@ -69,7 +69,7 @@ class TelegramSyncClient:
                 "text": text,
                 "reply_markup": reply_markup,
             }
-        )["result"]
+        )
 
     def pin_chat_message(
         self,

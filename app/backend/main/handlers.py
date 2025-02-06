@@ -9,6 +9,7 @@ from dto.image import CreateImageDTO, ImageDTO
 from dto.payment import PaymentDTO, CreatePaymentDTO
 from dto.err import ErrorDTO
 from .models import TGUser, Image, Payment
+from config.loader import telegram_api
 
 
 router = Router()
@@ -34,13 +35,22 @@ def payment_received(request, req: PaymentNotificationDTO):
         payment = Payment.objects.get(payment_id=req.InvId)
         payment.status = True
         payment.save()
+        result = telegram_api.send_message_inline(
+            chat_id=payment.tg_user_id,
+            text="""Поздравляю! Оплата завершена успешно ❤️
+
+Теперь доверься и последуй одному важному совету: внимательно прочитай инструкцию и действуй согласно ей, ведь именно это будет влиять на твой результат""",
+            button_text="Инструкция",
+            button_url="upl_img_next"
+        )
+        print(result)
 
         return 200, PaymentNotificationDTO(
             OutSum=req.OutSum,
             InvId=req.InvId,
             SignatureValue=req.SignatureValue
         )
-    except Exception:
+    except Payment.DoesNotExist:
         return 400, {"message": "error", "err": "payment not found"}
 
 
