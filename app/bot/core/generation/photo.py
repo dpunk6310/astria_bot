@@ -16,7 +16,7 @@ headers = {
 async def learn_model_api(images: list[str]):
     data = {
         "tune[title]": str(uuid4()),
-        "tune[name]": "man",
+        "tune[name]": "man", # выбор man/woman
         "tune[base_tune_id]": 1504944,
         "tune[model_type]": "lora",
         "tune[preset]": "flux-lora-portrait",
