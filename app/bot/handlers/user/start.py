@@ -80,14 +80,36 @@ async def handle_albums(messages: list[types.Message]):
                 tg_user_id=str(m.chat.id),
                 path=output_filename
             )
-    builder = InlineKeyboardBuilder()
-    builder.add(
-        types.InlineKeyboardButton(
-            text="Обучение модели",
-            callback_data="learn_model"
-        ),
+    
+    await messages[-1].answer(
+        """Мы получили твои фото и запустили разработку твоего персонального аватара, это займёт около 5 минут … 🔄
+
+А ты пока обязательно подпишись на наш канал @…
+
+Там мы публикуем оригинальные идеи стилей и промтов для твоих новых фотографий, а также актуальные новости.
+""", 
     )
-    await messages[-1].answer("Фото успешно сохранены! Можно приступать к обучению", reply_markup=builder.as_markup())
+    images = await get_user_images(str(messages[-1].chat.id))
+    imgs = []
+    for i in images:
+        imgs.append(i.get("path"))
+    response = await learn_model_api(imgs)
+    tune_id = response.get("id")
+    training_complete = await wait_for_training(tune_id)
+    if training_complete:
+        keyboard = types.InlineKeyboardButton(
+        keyboard=[
+            [types.InlineKeyboardButton(text="Стили", callback_data="styles"), types.InlineKeyboardButton(text="Режим бога", callback_data="god_mod")],
+            [types.InlineKeyboardButton(text="Аватар", callback_data="avatar"), types.InlineKeyboardButton(text="Генерации", callback_data="generation")],
+            [types.InlineKeyboardButton(text="Настройки", callback_data="settings"), types.InlineKeyboardButton(text="Служба заботы", callback_data="service")],
+        ],
+        resize_keyboard=True
+    )
+        await messages[-1].answer(
+            """Твой аватар создан ☑️
+Теперь можно приступать к генерациям! Для этого нажми на кнопки "Стили" или "Режим бога" внизу экрана.
+""", reply_markup=keyboard
+        )
 
 
 @user_router.callback_query(F.data == "inst")
@@ -109,7 +131,7 @@ async def inst_callback(call: types.CallbackQuery):
 async def upl_img_next_callback(call: types.CallbackQuery):
     await call.message.answer(
         text="""
-        ИНСТРУКЦИЯ
+        ИНСТРУКЦИЯ...
 
 Загрузи 10 фото, чтобы обучить бота и получить доступ к генерации 📲
 
@@ -122,42 +144,44 @@ async def upl_img_next_callback(call: types.CallbackQuery):
     – Убедитесь в хорошем освещении фотографии для получения качественного результата.
 
 Загрузить фото и обучить бота можно только один раз! Подходите внимательно к выбору фото и строго следуйте инструкции!
+
+Если iPhone предложит «Конвертировать в JPEG», соглашайся 👍
+
+Теперь просто отправь 10 фотографий в бота ⬇️
+
         """,
     )
 
 
-@user_router.callback_query(F.data == "learn_model")
-async def learn_model_callback(call: types.CallbackQuery):
-    await call.message.answer(
-        text="Запустил обучение модели",
-    )
-    images = await get_user_images(str(call.message.chat.id))
-    imgs = []
-    for i in images:
-        imgs.append(i.get("path"))
-    response = await learn_model_api(imgs)
-    tune_id = response.get("id")
-    await call.message.answer(f"Модель обучается... Tune ID: {tune_id}")
+# @user_router.callback_query(F.data == "learn_model")
+# async def learn_model_callback(call: types.CallbackQuery):
+#     images = await get_user_images(str(call.message.chat.id))
+#     imgs = []
+#     for i in images:
+#         imgs.append(i.get("path"))
+#     response = await learn_model_api(imgs)
+#     tune_id = response.get("id")
+#     # await call.message.answer(f"Модель обучается... Tune ID: {tune_id}")
 
-    training_complete = await wait_for_training(tune_id)
+#     training_complete = await wait_for_training(tune_id)
 
-    if training_complete:
-        builder = InlineKeyboardBuilder()
-        builder.add(
-            types.InlineKeyboardButton(
-                text="Генерация",
-                callback_data=f"generation_{tune_id}"
-            ),
-        )
-        await call.message.answer(
-            "✅ Обучение модели завершено! Начинаю генерировать изображения 🎨", 
-            reply_markup=builder.as_markup()
-        )
-    else:
-        await call.message.answer("❌ Обучение модели не удалось завершить. Попробуйте позже.")
+#     if training_complete:
+#         builder = InlineKeyboardBuilder()
+#         builder.add(
+#             types.InlineKeyboardButton(
+#                 text="Генерация",
+#                 callback_data=f"generation_{tune_id}"
+#             ),
+#         )
+#         await call.message.answer(
+#             "✅ Обучение модели завершено! Начинаю генерировать изображения 🎨", 
+#             reply_markup=builder.as_markup()
+#         )
+#     else:
+#         await call.message.answer("❌ Обучение модели не удалось завершить. Попробуйте позже.")
     
     
-@user_router.callback_query(F.data.contains("generation"))
+@user_router.message(F.text == "Стили")
 async def generation_callback(call: types.CallbackQuery):
     tune_id = call.data.split("_")[1]
     user_prompt = "a painting of sks man / woman in the style of Van Gogh"      
