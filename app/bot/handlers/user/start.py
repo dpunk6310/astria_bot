@@ -192,8 +192,9 @@ async def generation_callback(call: types.CallbackQuery):
         return
 
     prompt_id = gen_response["id"]
-    await call.message.answer(f"🖼 Генерация изображения... Prompt ID: {prompt_id}")
+    await call.message.answer("Создаем ваше фото, немного подождите")
 
+    # tg://resolve?domain=YOUR_BOT_USERNAME&start=start
     image_urls = await wait_for_generation(prompt_id)
     media_group = MediaGroupBuilder(caption="🖼 Ваши фото успешно сгенерированы")
     if image_urls:
