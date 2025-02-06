@@ -1,8 +1,10 @@
+from typing import Dict
+
 from ninja import Router
 from django.db.utils import IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
 
-from dto.user import CreateUserDTO, UserDTO, UpdateUserDTO
+from dto.user import CreateUserDTO, UserDTO, UpdateUserDTO, PaymentNotificationDTO
 from dto.image import CreateImageDTO, ImageDTO
 from dto.payment import PaymentDTO, CreatePaymentDTO
 from dto.err import ErrorDTO
@@ -26,13 +28,21 @@ def create_user(request, create_user: CreateUserDTO):
     return 201, cln
 
 
-@router.post("/create-payment", response={201: PaymentDTO, 400: ErrorDTO})
-def create_payment(request, create_payment: CreatePaymentDTO):
+@router.post("/payment", response={200: PaymentNotificationDTO, 400: ErrorDTO})
+def payment_received(request, req: PaymentNotificationDTO):
     try:
-        payment = Payment.objects.create(**create_payment.dict())
-    except IntegrityError as err:
-        return 400, {"message": "error", "err": "such a tg payment already exists"}
-    return 201, payment
+        payment = Payment.objects.get(payment_id=req.InvId)
+        payment.status = True
+        payment.save()
+
+        return 200, PaymentNotificationDTO(
+            OutSum=req.OutSum,
+            InvId=req.InvId,
+            SignatureValue=req.SignatureValue
+        )
+    except Exception:
+        return 400, {"message": "error", "err": "payment not found"}
+
 
 
 @router.get("/get-user", response={200: UserDTO, 400: ErrorDTO})
@@ -107,4 +117,3 @@ def delete_user_images(request, tg_user_id: str):
         return 404, {"message": "error", "err": "User not found"}
     except Exception as err:
         return 400, {"message": "Error deleting images", "err": str(err)}
-
