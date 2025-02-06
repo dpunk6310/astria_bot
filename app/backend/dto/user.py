@@ -9,7 +9,11 @@ class UserDTO(Schema):
     last_name: Optional[str]
     username: Optional[str]
     
+    
+class UpdateUserDTO(Schema):
+    tg_user_id: str
+    count_generations: int
+    
 
 class CreateUserDTO(Schema):
     user: UserDTO
-    

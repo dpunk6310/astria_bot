@@ -26,6 +26,9 @@ class TGUser(models.Model):
         verbose_name="Username",
         unique=True,
     )
+    count_generations = models.PositiveIntegerField(
+        verbose_name="Кол-во генераций", default=0
+    )
     
     def __str__(self):
         return str(self.tg_user_id)

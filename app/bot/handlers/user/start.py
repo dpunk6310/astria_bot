@@ -6,7 +6,6 @@ from aiogram_media_group import media_group_handler
 
 from aiogram import types, Router, F
 from aiogram.filters import CommandStart
-from aiogram.types import FSInputFile
 from aiogram.utils.media_group import MediaGroupBuilder
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
@@ -19,7 +18,12 @@ from core.backend.api import (
     delete_user_images, 
     get_user_images,
 )
-from core.generation.photo import learn_model_api, wait_for_training, generate_images, wait_for_generation
+from core.generation.photo import (
+    learn_model_api, 
+    wait_for_training, 
+    generate_images, 
+    wait_for_generation
+)
 from loader import bot
 
 
@@ -53,14 +57,7 @@ async def start_handler(message: types.Message, messages):
             callback_data="pay"
         ),
     )
-    
-    photo_path = BASE_DIR / "media/logo_p.png"
     await message.answer(messages["start"], reply_markup=builder.as_markup())
-    # await message.answer_photo(
-    #     photo=FSInputFile(photo_path),
-    #     caption=messages["start"],
-    #     reply_markup=builder.as_markup()
-    # )
     
 
 @user_router.message(F.media_group_id)
@@ -71,9 +68,7 @@ async def handle_albums(messages: list[types.Message]):
     if len(messages) != 10:
         await messages[-1].answer("Загрузить можно только 10 фото")
         return
-    
-    log.debug(len(messages))
-    
+        
     for m in messages:
         if m.photo:
             photo = await bot.get_file(m.photo[-1].file_id)
@@ -93,11 +88,7 @@ async def handle_albums(messages: list[types.Message]):
         ),
     )
     await messages[-1].answer("Фото успешно сохранены! Можно приступать к обучению", reply_markup=builder.as_markup())
-        
-        # log.debug(images)
-        # await bot.send_photo(
-        #     message.chat.id, FSInputFile(BASE_DIR / "media" / photo.file_path), caption="Вот оно"
-        # )
+
 
 @user_router.callback_query(F.data == "inst")
 async def inst_callback(call: types.CallbackQuery):
@@ -116,13 +107,6 @@ async def inst_callback(call: types.CallbackQuery):
     
 @user_router.callback_query(F.data == "upl_img_next")
 async def upl_img_next_callback(call: types.CallbackQuery):
-    # builder = InlineKeyboardBuilder()
-    # builder.add(
-    #     types.InlineKeyboardButton(
-    #         text="Все понятно, загрузить фото!",
-    #         callback_data="learn"
-    #     ),
-    # )
     await call.message.answer(
         text="""
         ИНСТРУКЦИЯ
@@ -138,10 +122,7 @@ async def upl_img_next_callback(call: types.CallbackQuery):
     – Убедитесь в хорошем освещении фотографии для получения качественного результата.
 
 Загрузить фото и обучить бота можно только один раз! Подходите внимательно к выбору фото и строго следуйте инструкции!
-
-После загрузки нажми на кнопку "Обучение модели"
         """,
-        # reply_markup=builder.as_markup()
     )
 
 
@@ -179,7 +160,6 @@ async def learn_model_callback(call: types.CallbackQuery):
 @user_router.callback_query(F.data.contains("generation"))
 async def generation_callback(call: types.CallbackQuery):
     tune_id = call.data.split("_")[1]
-    # tune_id = 2105824
     user_prompt = "a painting of sks man / woman in the style of Van Gogh"      
     gen_response = await generate_images(tune_id=tune_id, promt=user_prompt)
     

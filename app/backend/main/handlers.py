@@ -2,7 +2,7 @@ from ninja import Router
 from django.db.utils import IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
 
-from dto.user import CreateUserDTO, UserDTO
+from dto.user import CreateUserDTO, UserDTO, UpdateUserDTO
 from dto.image import CreateImageDTO, ImageDTO
 from dto.err import ErrorDTO
 from .models import TGUser, Image
@@ -23,6 +23,19 @@ def create_user(request, create_user: CreateUserDTO):
     except IntegrityError as err:
         return 400, {"message": "error", "err": "such a tg user already exists"}
     return 201, cln
+
+
+@router.post("/update")
+def update_user(request, req: UpdateUserDTO):
+    try:
+        tg_user = TGUser.objects.get(tg_user_id=req.tg_user_id)
+        tg_user.count_generations = req.count_generations 
+        tg_user.save()
+        return {"message": "success", "user": tg_user.tg_user_id, "count_generations": tg_user.count_generations}
+    except TGUser.DoesNotExist:
+        return {"message": "error", "err": "User not found"}
+    except Exception as err:
+        return {"message": "error", "err": str(err)}
 
 
 @router.post("/create-img-path", response={201: ImageDTO, 400: ErrorDTO, 403: ErrorDTO})
@@ -49,11 +62,8 @@ def create_img_path(request, create_image: CreateImageDTO):
 def get_user_images(request, tg_user_id: str):
     try:
         tg_user = TGUser.objects.get(tg_user_id=tg_user_id)
-        
         images = Image.objects.filter(tg_user=tg_user)
-        
         image_dto_list = [ImageDTO(path=image.img_path, tg_user_id=image.tg_user.tg_user_id) for image in images]
-        
         return 200, image_dto_list
     
     except TGUser.DoesNotExist:
