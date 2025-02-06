@@ -1,5 +1,6 @@
 # third-party imports
 import requests
+import json
 
 # standart imports
 from typing import Union
@@ -54,12 +55,13 @@ class TelegramSyncClient:
         chat_id: Union[int, str],
         text: str,
         button_text: str,
-        button_url: str
+        callback_data: str
     ):
         """Send message."""
-
         reply_markup = {
-            "inline_keyboard": [[{"text": button_text, "callback_data": button_url}]]
+            "inline_keyboard": [[
+                {"text": button_text, "callback_data": callback_data}
+            ]]
         }
 
         return self._request(
@@ -67,7 +69,7 @@ class TelegramSyncClient:
             params={
                 "chat_id": chat_id,
                 "text": text,
-                "reply_markup": reply_markup,
+                "reply_markup": json.dumps(reply_markup),
             }
         )
 

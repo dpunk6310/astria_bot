@@ -121,3 +121,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 BOT_TOKEN = env.str("BOT_TOKEN", default="norm")
+
+SUCCESS_PAYMENT_GENERATIONS = 100
