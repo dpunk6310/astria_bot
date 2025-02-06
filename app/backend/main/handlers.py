@@ -6,9 +6,10 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from dto.user import CreateUserDTO, UserDTO, UpdateUserDTO, PaymentNotificationDTO
 from dto.image import CreateImageDTO, ImageDTO
+from dto.payment import PaymentDTO, CreatePaymentDTO
 from dto.err import ErrorDTO
 from .models import TGUser, Image, Payment
-from django.shortcuts import get_object_or_404
+
 
 router = Router()
 
@@ -41,6 +42,7 @@ def payment_received(request, req: PaymentNotificationDTO):
         )
     except Exception:
         return 400, {"message": "error", "err": "payment not found"}
+
 
 
 @router.get("/get-user", response={200: UserDTO, 400: ErrorDTO})
