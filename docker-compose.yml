@@ -4,8 +4,8 @@ services:
   postgres:
     image: postgres:15
     restart: always
-    expose:
-      - 5432
+    ports:
+      - "5435:5432"
     volumes:
       - ./.docker-volumes/idx_pg_data:/var/lib/postgresql/data
     env_file:
@@ -32,7 +32,6 @@ services:
     restart: always
     volumes:
       - ./static:/app/static
-      - ./db.sqlite3:/app/backend/db.sqlite3
     depends_on:
       - postgres
       - redis
@@ -61,6 +60,6 @@ services:
     volumes:
       - ./media:/app/media
 
-networks:
-  default:
-    driver: bridge
+# networks:
+#   default:
+#     driver: bridge
