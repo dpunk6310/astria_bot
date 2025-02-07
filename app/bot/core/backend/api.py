@@ -32,6 +32,28 @@ async def create_img_path(
     return response
 
 
+async def create_payment(
+    tg_user_id: str,
+    payment_id: str,
+    сount_generations: int,
+    amount: str
+) -> dict:
+    response = await client.post_request(url=DJANGO_URL+"/api/main/create-payment", data={
+        "tg_user_id": tg_user_id,
+        "payment_id": payment_id,
+        "сount_generations": сount_generations,
+        "amount": amount,
+    })
+    return response
+
+
+async def get_payment(
+    payment_id: str,
+) -> dict:
+    response = await client.get_request(url=DJANGO_URL+f"/api/main/get-payment/{payment_id}")
+    return response
+
+
 async def get_user_images(
     tg_user_id: str,
 ) -> dict:

@@ -1,22 +1,27 @@
 from pathlib import Path
 from uuid import uuid4
+import random
 import os
+
 from aiogram_media_group import media_group_handler
-
-
 from aiogram import types, Router, F
 from aiogram.filters import CommandStart
 from aiogram.utils.media_group import MediaGroupBuilder
 from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from loguru import logger as log
 
+from data.config import ROBOKASSA_MERCHANT_ID, ROBOKASSA_TEST_PASSWORD1
+from core.utils.robokassa import generate_payment_link
 from data.messages import use_messages
 from core.backend.api import (
     create_user_db, 
     create_img_path, 
     delete_user_images, 
     get_user_images,
+    create_payment,
+    get_payment,
 )
 from core.generation.photo import (
     learn_model_api, 
@@ -29,11 +34,11 @@ from loader import bot
 
 user_router = Router()
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
-class UploadImage(StatesGroup):
-    photo = State()
+
+class UploadPhotoState(StatesGroup):
+    gender = State()
 
 
 @user_router.message(CommandStart())
@@ -46,6 +51,15 @@ async def start_handler(message: types.Message, messages):
         username=message.from_user.username
     )
     
+    payment_link = generate_payment_link(
+        ROBOKASSA_MERCHANT_ID,
+        ROBOKASSA_TEST_PASSWORD1,
+        100,
+        random.randint(999, 99999),
+        "Описание платежа",
+        is_test=1,
+    )
+    
     builder = InlineKeyboardBuilder()
     builder.add(
         types.InlineKeyboardButton(
@@ -54,7 +68,7 @@ async def start_handler(message: types.Message, messages):
         ),
         types.InlineKeyboardButton(
             text="Оплатить",
-            callback_data="pay"
+            callback_data="inst_payment"
         ),
     )
     await message.answer(messages["start"], reply_markup=builder.as_markup())
@@ -62,8 +76,20 @@ async def start_handler(message: types.Message, messages):
 
 @user_router.message(F.media_group_id)
 @media_group_handler
-async def handle_albums(messages: list[types.Message]):
+async def handle_albums(messages: list[types.Message], state: FSMContext):
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    log.debug(BASE_DIR)
+    data = await state.get_data()
+    gender = data.get("gender")
+    log.debug(gender)
+    if not gender:
+        await messages[-1].answer("Пожалуйста, сначала укажите пол")
+        return
+    
     photos_path = BASE_DIR / "media" / "photos"
+    
+    if not os.path.exists(photos_path):
+        os.makedirs(photos_path)
     
     if len(messages) != 10:
         await messages[-1].answer("Загрузить можно только 10 фото")
@@ -72,9 +98,11 @@ async def handle_albums(messages: list[types.Message]):
     for m in messages:
         if m.photo:
             photo = await bot.get_file(m.photo[-1].file_id)
-            output_filename = f"{photos_path}/{uuid4()}_{photo.file_path.replace('photos/', '')}"
+            file_path = photo.file_path
+            log.debug(file_path)
+            output_filename = f"{photos_path}/{uuid4()}_{file_path.replace('photos/', '')}"
             await m.bot.download_file(
-                photo.file_path, destination=output_filename
+                file_path, destination=output_filename
             )
             response = await create_img_path(
                 tg_user_id=str(m.chat.id),
@@ -92,12 +120,14 @@ async def handle_albums(messages: list[types.Message]):
     images = await get_user_images(str(messages[-1].chat.id))
     imgs = []
     for i in images:
-        imgs.append(i.get("path"))
-    response = await learn_model_api(imgs)
+        i = i.get("path")
+        log.debug(i)
+        imgs.append(i)
+    response = await learn_model_api(imgs, gender)
     tune_id = response.get("id")
     training_complete = await wait_for_training(tune_id)
     if training_complete:
-        keyboard = types.InlineKeyboardButton(
+        keyboard = types.InlineKeyboardMarkup(
         keyboard=[
             [types.InlineKeyboardButton(text="Стили", callback_data="styles"), types.InlineKeyboardButton(text="Режим бога", callback_data="god_mod")],
             [types.InlineKeyboardButton(text="Аватар", callback_data="avatar"), types.InlineKeyboardButton(text="Генерации", callback_data="generation")],
@@ -118,7 +148,7 @@ async def inst_callback(call: types.CallbackQuery):
     builder.add(
         types.InlineKeyboardButton(
             text="Дальше!",
-            callback_data="upl_img_next"
+            callback_data="how_price"
         ),
     )
     await call.message.answer(
@@ -127,10 +157,32 @@ async def inst_callback(call: types.CallbackQuery):
     )
     
     
-@user_router.callback_query(F.data == "upl_img_next")
-async def upl_img_next_callback(call: types.CallbackQuery):
+@user_router.callback_query(F.data == "how_price")
+async def how_price_callback(call: types.CallbackQuery):
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="А сколько стоит?",
+        callback_data="inst_payment"
+    )
+    builder.button(
+        text="Загрузить фото",
+        callback_data="start_upload_photo"
+    )
     await call.message.answer(
-        text="""
+        text="""Наши основатели сделали два режима:
+
+1. С уже готовыми идеями. Там уже 70+ стилей. От принцессы до Халка!
+2. Но если ты хочешь что-то свое, есть режим бога, где ты сам решаешь, кем быть! Просто пишешь краткое описание и получаешь крутую картину!""",
+        reply_markup=builder.as_markup()
+    )
+    
+    
+@user_router.callback_query(F.data.in_(["man", "woman"]))
+async def gender_selection(call: types.CallbackQuery, state: FSMContext):
+    gender = call.data
+    await state.update_data(gender=gender)
+    
+    await call.message.answer("""
         ИНСТРУКЦИЯ...
 
 Загрузи 10 фото, чтобы обучить бота и получить доступ к генерации 📲
@@ -149,40 +201,96 @@ async def upl_img_next_callback(call: types.CallbackQuery):
 
 Теперь просто отправь 10 фотографий в бота ⬇️
 
-        """,
+        """)
+    
+    
+@user_router.callback_query(F.data == "start_upload_photo")
+async def start_upload_photo_callback(call: types.CallbackQuery):
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Мужчина",
+        callback_data="man"
+    )
+    builder.button(
+        text="Женщина",
+        callback_data="woman"
+    )
+    await call.message.answer(
+        text="""Укажите свой пол""",
+        reply_markup=builder.as_markup()
+    )
+    
+    
+@user_router.callback_query(F.data == "inst_payment")
+async def inst_payment_callback(call: types.CallbackQuery):
+    сount_generations = 100
+    amount = 100
+    payment_id = random.randint(999, 99999)
+    await create_payment(
+        tg_user_id=str(call.message.chat.id),
+        amount=str(amount),
+        payment_id=str(payment_id),
+        сount_generations=сount_generations,
+    )
+    payment_link = generate_payment_link(
+        ROBOKASSA_MERCHANT_ID,
+        ROBOKASSA_TEST_PASSWORD1,
+        amount,
+        int(payment_id),
+        f"{payment_id}",
+        is_test=1,
+    )
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Карта РФ",
+        url=payment_link
+    )
+    builder.button(
+        text="На главную",
+        callback_data="home"
+    )
+    await call.message.answer(
+        text="""Теперь самое время перейти к оплате! Можно оплатить как с карты РФ, так и с зарубежной.
+
+Сейчас мы снизили стоимость на 52%! 
+1390₽ вместо 2890₽
+
+И за это ты получаешь:
+✔️ 100 фотографий
+✔️ 100 стилей на ваш выбор
+✔️ 1 модель
+✔️ режим бога!""",
+        reply_markup=builder.as_markup()
     )
 
 
-# @user_router.callback_query(F.data == "learn_model")
-# async def learn_model_callback(call: types.CallbackQuery):
-#     images = await get_user_images(str(call.message.chat.id))
-#     imgs = []
-#     for i in images:
-#         imgs.append(i.get("path"))
-#     response = await learn_model_api(imgs)
-#     tune_id = response.get("id")
-#     # await call.message.answer(f"Модель обучается... Tune ID: {tune_id}")
-
-#     training_complete = await wait_for_training(tune_id)
-
-#     if training_complete:
-#         builder = InlineKeyboardBuilder()
-#         builder.add(
-#             types.InlineKeyboardButton(
-#                 text="Генерация",
-#                 callback_data=f"generation_{tune_id}"
-#             ),
-#         )
-#         await call.message.answer(
-#             "✅ Обучение модели завершено! Начинаю генерировать изображения 🎨", 
-#             reply_markup=builder.as_markup()
-#         )
-#     else:
-#         await call.message.answer("❌ Обучение модели не удалось завершить. Попробуйте позже.")
+@user_router.callback_query(F.data == "home")
+async def home_callback(call: types.CallbackQuery):
+    payment_link = generate_payment_link(
+        ROBOKASSA_MERCHANT_ID,
+        ROBOKASSA_TEST_PASSWORD1,
+        100,
+        random.randint(999, 99999),
+        "Описание платежа",
+        is_test=1,
+    )
     
+    builder = InlineKeyboardBuilder()
+    builder.add(
+        types.InlineKeyboardButton(
+            text="Инструкция",
+            callback_data="inst"
+        ),
+        types.InlineKeyboardButton(
+            text="Оплатить",
+            url=payment_link
+        ),
+    )
+    await call.message.answer("Привет! На связи Пингвин бот. \nРассказать тебе как здесь все работает?\nЕсли ты уже в курсе, нужно просто внести оплату - и вперед!\n\nНаши преимущества перед другими ботами:\nВместо 25 шаблонов - неограниченное количество\nК каждому фото в «Стили» ты можешь добавить фильтры\nЧат-бот ассистент который поможет составить промт из загруженого фото\nРеферальная система: приглашай друзей и получай бесплатные генерации\nЦена всего 990 руб.\n", reply_markup=builder.as_markup())
+
     
 @user_router.message(F.text == "Стили")
-async def generation_callback(call: types.CallbackQuery):
+async def styles_handler(call: types.CallbackQuery):
     tune_id = call.data.split("_")[1]
     user_prompt = "a painting of sks man / woman in the style of Van Gogh"      
     gen_response = await generate_images(tune_id=tune_id, promt=user_prompt)

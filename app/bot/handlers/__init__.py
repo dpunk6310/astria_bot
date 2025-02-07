@@ -1,7 +1,7 @@
 from aiogram import Dispatcher
 
-from . import user
+from . import handlers
 
 
 def setup(dp: Dispatcher):
-    user.setup(dp)
+    handlers.setup(dp)

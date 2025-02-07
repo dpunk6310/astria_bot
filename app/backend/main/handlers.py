@@ -1,17 +1,15 @@
-import json
-from typing import Dict, Any
-
 from ninja import Router
 from django.db.utils import IntegrityError
-from django.core.exceptions import ObjectDoesNotExist
+from loguru import logger as log
 
-from config.settings import SUCCESS_PAYMENT_GENERATIONS
-from dto.user import CreateUserDTO, UserDTO, UpdateUserDTO, PaymentNotificationDTO
+from telegram_api.api import send_message_successfully_pay
+from config.settings import BOT_TOKEN
+from dto.user import CreateUserDTO, UserDTO, UpdateUserDTO
 from dto.image import CreateImageDTO, ImageDTO
 from dto.payment import PaymentDTO, CreatePaymentDTO
 from dto.err import ErrorDTO, SuccessDTO
 from .models import TGUser, Image, Payment
-from config.loader import telegram_api
+# from config.loader import telegram_api
 
 
 router = Router()
@@ -31,29 +29,43 @@ def create_user(request, create_user: CreateUserDTO):
     return 201, cln
 
 
+@router.post("/create-payment", response={201: PaymentDTO, 400: ErrorDTO})
+def create_payment(request, cr_pay: CreatePaymentDTO):
+    try:
+        payment = Payment.objects.create(**cr_pay.dict())
+        return 201, payment
+    except Exception as err:
+        log.error(err)
+        return 400, {"message": "error", "err": str(err)}
+    
+    
+@router.post("/get-payment/{payment_id}", response={200: PaymentDTO, 400: ErrorDTO})
+def get_payment(request, payment_id: str):
+    try:
+        payment = Payment.objects.get(payment_id=payment_id)
+        return 200, payment
+    except Exception as err:
+        log.error(err)
+        return 400, {"message": "error", "err": str(err)}
+
+
 @router.post("/payment", response={200: SuccessDTO, 400: ErrorDTO})
 def payment_received(request):
     try:
         raw_body = request.body.decode("utf-8", errors="ignore")  # Декодируем в строку
         content_type = request.headers.get("Content-Type", "Unknown")  # Проверяем заголовок
-        print(f"Content-Type: {content_type}")
-        print(f"Raw body: {raw_body}")
+        log.debug(f"Content-Type: {content_type}")
+        log.debug(f"Raw body: {raw_body}")
         data = request.POST.dict()
         payment = Payment.objects.get(payment_id=data["inv_id"])
         payment.status = True
         payment.save()
-        result = telegram_api.send_message_inline(
-            chat_id=payment.tg_user_id,
-            text="""Поздравляю! Оплата завершена успешно ❤️
-
-Теперь доверься и последуй одному важному совету: внимательно прочитай инструкцию и действуй согласно ей, ведь именно это будет влиять на твой результат""",
-            button_text="Инструкция",
-            callback_data="upl_img_next"
-        )
+        # result = send_message_successfully_pay(BOT_TOKEN, payment.tg_user_id)
+        log.debug("ОПЛАТА УСПЕШНА!")
         tg_user: TGUser = TGUser.objects.get(
             tg_user_id=payment.tg_user_id,
         )
-        tg_user.count_generations += SUCCESS_PAYMENT_GENERATIONS
+        tg_user.count_generations += payment.сount_generations
         tg_user.save()
 
         return 200, {"status": "ok", "message": "Success"}
@@ -61,8 +73,6 @@ def payment_received(request):
         return 400, {"message": "error", "err": "payment not found"}
     except TGUser.DoesNotExist:
         return 400, {"message": "error", "err": "user not found"}
-
-
 
 
 @router.get("/get-user", response={200: UserDTO, 400: ErrorDTO})
@@ -87,13 +97,13 @@ def update_user(request, req: UpdateUserDTO):
         return {"message": "error", "err": str(err)}
 
 
-@router.post("/create-img-path", response={201: ImageDTO, 400: ErrorDTO, 403: ErrorDTO})
+@router.post("/create-img-path", response={201: ImageDTO, 400: ErrorDTO})
 def create_img_path(request, create_image: CreateImageDTO):
     try:
         user = TGUser.objects.get(tg_user_id=create_image.image.tg_user_id)
-        
-        if Image.objects.filter(tg_user=user).count() >= 10:
-            return 403, {"message": "error", "err": "You can upload a maximum of 10 images."}
+        images = Image.objects.filter(tg_user=user)
+        if images.count() >= 10:
+            images.delete
         
         cln = Image.objects.create(
             tg_user=user,

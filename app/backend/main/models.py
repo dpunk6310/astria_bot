@@ -29,6 +29,10 @@ class TGUser(models.Model):
     count_generations = models.PositiveIntegerField(
         verbose_name="Кол-во генераций", default=0
     )
+    is_learn_model = models.BooleanField(
+        verbose_name="Использование обучения модели",
+        default=True
+    )
     
     def __str__(self):
         return str(self.tg_user_id)
@@ -65,7 +69,6 @@ class Image(models.Model):
 class Payment(models.Model):
     tg_user_id = models.CharField(
         max_length=30,
-        # unique=True,
         verbose_name="TG User ID"
     )
     payment_id = models.CharField(
@@ -74,6 +77,10 @@ class Payment(models.Model):
         verbose_name="Payment ID"
     )
     status = models.BooleanField(verbose_name="Status", default=False)
+    сount_generations = models.PositiveIntegerField(
+        verbose_name="Кол-во генераций", default=0
+    )
+    amount = models.CharField(max_length=20, verbose_name="Сумма")
     
     def __str__(self):
         return str(self.payment_id)

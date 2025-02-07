@@ -100,27 +100,27 @@ def check_success_payment(merchant_password_1: str, request: str) -> str:
     return "bad sign"
 
 
-if __name__ == "__main__":
-    import environ
-    from pathlib import Path
+# if __name__ == "__main__":
+#     import environ
+#     from pathlib import Path
 
-    BASE_DIR = Path(__file__).resolve().parent.parent.parent
+#     BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-    env = environ.Env()
-    env.read_env(str(BASE_DIR / ".env"))
-    ROBOKASSA_MERCHANT_ID = env.str("ROBOKASSA_MERCHANT_ID", "")
-    ROBOKASSA_PASSWORD1 = env.str("ROBOKASSA_PASSWORD1", "")
-    ROBOKASSA_PASSWORD2 = env.str("ROBOKASSA_PASSWORD2", "")
-    ROBOKASSA_TEST_PASSWORD1 = env.str("ROBOKASSA_TEST_PASSWORD1", "")
-    ROBOKASSA_TEST_PASSWORD2 = env.str("ROBOKASSA_TEST_PASSWORD2", "")
+#     env = environ.Env()
+#     env.read_env(str(BASE_DIR / ".env"))
+#     ROBOKASSA_MERCHANT_ID = env.str("ROBOKASSA_MERCHANT_ID", "")
+#     ROBOKASSA_PASSWORD1 = env.str("ROBOKASSA_PASSWORD1", "")
+#     ROBOKASSA_PASSWORD2 = env.str("ROBOKASSA_PASSWORD2", "")
+#     ROBOKASSA_TEST_PASSWORD1 = env.str("ROBOKASSA_TEST_PASSWORD1", "")
+#     ROBOKASSA_TEST_PASSWORD2 = env.str("ROBOKASSA_TEST_PASSWORD2", "")
 
 
-    payment_link = generate_payment_link(
-        ROBOKASSA_MERCHANT_ID,
-        ROBOKASSA_TEST_PASSWORD1,
-        100,
-        1,
-        "descr",
-        is_test=1,
-    )
-    print(payment_link)
+#     payment_link = generate_payment_link(
+#         ROBOKASSA_MERCHANT_ID,
+#         ROBOKASSA_TEST_PASSWORD1,
+#         100,
+#         1,
+#         "descr",
+#         is_test=1,
+#     )
+#     print(payment_link)

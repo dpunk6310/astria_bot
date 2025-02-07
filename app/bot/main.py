@@ -3,7 +3,7 @@ import asyncio
 from loguru import logger as log
 
 import loader
-from handlers.user.start import user_router
+from handlers.handlers import user_router
 
 
 async def on_startup():

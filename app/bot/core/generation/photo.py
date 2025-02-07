@@ -1,5 +1,6 @@
 import asyncio
 from uuid import uuid4
+import os
 
 import httpx
 from core.client.client import post_request
@@ -13,10 +14,10 @@ headers = {
 }
 
 
-async def learn_model_api(images: list[str]):
+async def learn_model_api(images: list[str], gender: str):
     data = {
         "tune[title]": str(uuid4()),
-        "tune[name]": "man", # выбор man/woman
+        "tune[name]": gender,
         "tune[base_tune_id]": 1504944,
         "tune[model_type]": "lora",
         "tune[preset]": "flux-lora-portrait",
@@ -25,10 +26,10 @@ async def learn_model_api(images: list[str]):
         "tune[callback]": "https://webhook.site/f9674fa9-1bd3-4e31-b6b5-624dd7f045e9",
     }
     files = []
-    log.debug(images)
     for image in images:
         image_data = load_image(image)  
         files.append(("tune[images][]", image_data))
+        os.remove(image)
                         
     async with httpx.AsyncClient() as client:
         response = await client.post(API_URL, data=data, files=files, headers=headers)
