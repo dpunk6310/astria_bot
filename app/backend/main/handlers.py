@@ -60,8 +60,7 @@ def payment_received(request):
         payment = Payment.objects.get(payment_id=data["inv_id"])
         payment.status = True
         payment.save()
-        # result = send_message_successfully_pay(BOT_TOKEN, payment.tg_user_id)
-        log.debug("ОПЛАТА УСПЕШНА!")
+        result = send_message_successfully_pay(BOT_TOKEN, payment.tg_user_id)
         tg_user: TGUser = TGUser.objects.get(
             tg_user_id=payment.tg_user_id,
         )
@@ -69,9 +68,11 @@ def payment_received(request):
         tg_user.save()
 
         return 200, {"status": "ok", "message": "Success"}
-    except Payment.DoesNotExist:
+    except Payment.DoesNotExist as err:
+        log.debug(err)
         return 400, {"message": "error", "err": "payment not found"}
-    except TGUser.DoesNotExist:
+    except TGUser.DoesNotExist as err:
+        log.debug(err)
         return 400, {"message": "error", "err": "user not found"}
 
 
@@ -84,13 +85,20 @@ def get_user(request, tg_user_id: str):
     return 200, cln
 
 
-@router.post("/update-count-gen")
+@router.post("/update-user")
 def update_user(request, req: UpdateUserDTO):
     try:
         tg_user = TGUser.objects.get(tg_user_id=req.tg_user_id)
-        tg_user.count_generations = req.count_generations 
+        if req.count_generations is not None:
+            tg_user.count_generations = req.count_generations
+        if req.is_learn_model is not None:
+            tg_user.is_learn_model = req.is_learn_model 
         tg_user.save()
-        return {"message": "success", "user": tg_user.tg_user_id, "count_generations": tg_user.count_generations}
+        return {
+            "tg_user_id": tg_user.tg_user_id, 
+            "count_generations": tg_user.count_generations, 
+            "is_learn_model": tg_user.is_learn_model
+        }
     except TGUser.DoesNotExist:
         return {"message": "error", "err": "User not found"}
     except Exception as err:
@@ -103,7 +111,7 @@ def create_img_path(request, create_image: CreateImageDTO):
         user = TGUser.objects.get(tg_user_id=create_image.image.tg_user_id)
         images = Image.objects.filter(tg_user=user)
         if images.count() >= 10:
-            images.delete
+            images.delete()
         
         cln = Image.objects.create(
             tg_user=user,

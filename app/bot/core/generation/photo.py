@@ -42,13 +42,16 @@ def load_image(file_path):
         return f.read()
     
     
-async def generate_images(tune_id: int, promt: str):
+async def generate_images(tune_id: int, promt: str, effect: str = None):
     data = {
         'prompt[text]': f'<lora:{tune_id}:1> {promt}',
         'prompt[steps]': 40,
         'prompt[super_resolution]': "true",
         'prompt[inpaint_faces]': "true",
+        'promt[num_images]': 3
     }
+    if effect is not None:
+        data['promt[style]'] = effect
 
     async with httpx.AsyncClient() as client:
         response = await client.post(f"https://api.astria.ai/tunes/{tune_id}/prompts", data=data, headers=headers)

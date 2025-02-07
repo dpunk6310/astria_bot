@@ -39,6 +39,8 @@ user_router = Router()
 
 class UploadPhotoState(StatesGroup):
     gender = State()
+    effect = State()
+    tune_id = State()
 
 
 @user_router.message(CommandStart())
@@ -49,15 +51,6 @@ async def start_handler(message: types.Message, messages):
         first_name=message.from_user.first_name,
         last_name=message.from_user.last_name,
         username=message.from_user.username
-    )
-    
-    payment_link = generate_payment_link(
-        ROBOKASSA_MERCHANT_ID,
-        ROBOKASSA_TEST_PASSWORD1,
-        100,
-        random.randint(999, 99999),
-        "Описание платежа",
-        is_test=1,
     )
     
     builder = InlineKeyboardBuilder()
@@ -78,10 +71,8 @@ async def start_handler(message: types.Message, messages):
 @media_group_handler
 async def handle_albums(messages: list[types.Message], state: FSMContext):
     BASE_DIR = Path(__file__).resolve().parent.parent
-    log.debug(BASE_DIR)
     data = await state.get_data()
     gender = data.get("gender")
-    log.debug(gender)
     if not gender:
         await messages[-1].answer("Пожалуйста, сначала укажите пол")
         return
@@ -99,7 +90,6 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
         if m.photo:
             photo = await bot.get_file(m.photo[-1].file_id)
             file_path = photo.file_path
-            log.debug(file_path)
             output_filename = f"{photos_path}/{uuid4()}_{file_path.replace('photos/', '')}"
             await m.bot.download_file(
                 file_path, destination=output_filename
@@ -121,20 +111,19 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
     imgs = []
     for i in images:
         i = i.get("path")
-        log.debug(i)
         imgs.append(i)
     response = await learn_model_api(imgs, gender)
     tune_id = response.get("id")
     training_complete = await wait_for_training(tune_id)
     if training_complete:
+        await state.update_data(tune_id=tune_id)
         keyboard = types.InlineKeyboardMarkup(
-        keyboard=[
-            [types.InlineKeyboardButton(text="Стили", callback_data="styles"), types.InlineKeyboardButton(text="Режим бога", callback_data="god_mod")],
-            [types.InlineKeyboardButton(text="Аватар", callback_data="avatar"), types.InlineKeyboardButton(text="Генерации", callback_data="generation")],
-            [types.InlineKeyboardButton(text="Настройки", callback_data="settings"), types.InlineKeyboardButton(text="Служба заботы", callback_data="service")],
-        ],
-        resize_keyboard=True
-    )
+            inline_keyboard=[
+                [types.InlineKeyboardButton(text="Стили", callback_data="styles"), types.InlineKeyboardButton(text="Режим бога", callback_data="god_mod")],
+                [types.InlineKeyboardButton(text="Аватар", callback_data="avatar"), types.InlineKeyboardButton(text="Генерации", callback_data="generation")],
+                [types.InlineKeyboardButton(text="Настройки", callback_data="settings"), types.InlineKeyboardButton(text="Служба заботы", callback_data="service")],
+            ],
+        )
         await messages[-1].answer(
             """Твой аватар создан ☑️
 Теперь можно приступать к генерациям! Для этого нажми на кнопки "Стили" или "Режим бога" внизу экрана.
@@ -177,10 +166,10 @@ async def how_price_callback(call: types.CallbackQuery):
     )
     
     
-@user_router.callback_query(F.data.in_(["man", "woman"]))
+@user_router.callback_query(F.data.contains("_effect"))
 async def gender_selection(call: types.CallbackQuery, state: FSMContext):
-    gender = call.data
-    await state.update_data(gender=gender)
+    effect = call.data
+    await state.update_data(effect=effect)
     
     await call.message.answer("""
         ИНСТРУКЦИЯ...
@@ -206,6 +195,7 @@ async def gender_selection(call: types.CallbackQuery, state: FSMContext):
     
 @user_router.callback_query(F.data == "start_upload_photo")
 async def start_upload_photo_callback(call: types.CallbackQuery):
+    # TODO: Проверка на is_learn_model
     builder = InlineKeyboardBuilder()
     builder.button(
         text="Мужчина",
@@ -217,6 +207,29 @@ async def start_upload_photo_callback(call: types.CallbackQuery):
     )
     await call.message.answer(
         text="""Укажите свой пол""",
+        reply_markup=builder.as_markup()
+    )
+    
+    
+@user_router.callback_query(F.data.in_(["man", "woman"]))
+async def start_upload_photo_callback(call: types.CallbackQuery, state: FSMContext):
+    gender = call.data
+    await state.update_data(gender=gender)
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Киноэффект",
+        callback_data="Cinematic_effect"
+    )
+    builder.button(
+        text="Неон",
+        callback_data="Neonpunk_effect"
+    )
+    builder.button(
+        text="Без эффекта",
+        callback_data="no_effect"
+    )
+    await call.message.answer(
+        text="""Выберите эффект""",
         reply_markup=builder.as_markup()
     )
     
@@ -266,15 +279,6 @@ async def inst_payment_callback(call: types.CallbackQuery):
 
 @user_router.callback_query(F.data == "home")
 async def home_callback(call: types.CallbackQuery):
-    payment_link = generate_payment_link(
-        ROBOKASSA_MERCHANT_ID,
-        ROBOKASSA_TEST_PASSWORD1,
-        100,
-        random.randint(999, 99999),
-        "Описание платежа",
-        is_test=1,
-    )
-    
     builder = InlineKeyboardBuilder()
     builder.add(
         types.InlineKeyboardButton(
@@ -283,17 +287,39 @@ async def home_callback(call: types.CallbackQuery):
         ),
         types.InlineKeyboardButton(
             text="Оплатить",
-            url=payment_link
+            callback_data="inst_payment"
         ),
     )
     await call.message.answer("Привет! На связи Пингвин бот. \nРассказать тебе как здесь все работает?\nЕсли ты уже в курсе, нужно просто внести оплату - и вперед!\n\nНаши преимущества перед другими ботами:\nВместо 25 шаблонов - неограниченное количество\nК каждому фото в «Стили» ты можешь добавить фильтры\nЧат-бот ассистент который поможет составить промт из загруженого фото\nРеферальная система: приглашай друзей и получай бесплатные генерации\nЦена всего 990 руб.\n", reply_markup=builder.as_markup())
 
     
-@user_router.message(F.text == "Стили")
-async def styles_handler(call: types.CallbackQuery):
-    tune_id = call.data.split("_")[1]
-    user_prompt = "a painting of sks man / woman in the style of Van Gogh"      
-    gen_response = await generate_images(tune_id=tune_id, promt=user_prompt)
+@user_router.callback_query(F.data == "styles")
+async def styles_handler(call: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    gender: str = data.get("gender")
+    effect: str = data.get("effect")
+    tune_id: int = data.get("tune_id")
+    if gender is None or effect is None or tune_id is None:
+        builder = InlineKeyboardBuilder()
+        builder.button(
+            text="На главную",
+            callback_data="home"
+        )
+        await call.message.answer("❌ Произошла ошибка. Повторите позже!", reply_markup=builder.as_markup())
+        return
+    log.debug(f"TUNE ID = {tune_id}")
+    user_prompt = f"a painting of sks {gender} in the style of Van Gogh"      
+    
+    if effect != "no_effect":
+        effect = effect.split("_")[0]
+    else:
+        effect = None
+    log.debug(f"EFFECT = {effect}")
+    gen_response = await generate_images(
+        tune_id=int(tune_id), 
+        promt=user_prompt,
+        effect=effect
+    )
     
     if not gen_response or "id" not in gen_response:
         await call.message.answer("❌ Ошибка при запуске генерации изображений.")

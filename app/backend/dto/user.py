@@ -12,7 +12,8 @@ class UserDTO(Schema):
     
 class UpdateUserDTO(Schema):
     tg_user_id: str
-    count_generations: int
+    count_generations: int = None
+    is_learn_model: bool = None
     
 
 class CreateUserDTO(Schema):
