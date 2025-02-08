@@ -388,7 +388,7 @@ async def handle_effect_handler(call: types.CallbackQuery, state: FSMContext):
             text=c.get("name"),
             callback_data=c.get("slug")
         )
-    builder.adjust(2,2,2,2,2)
+    builder.adjust(2,2,2,2,2, repeat=True)
     builder.button(
         text="На главную",
         callback_data="home"
