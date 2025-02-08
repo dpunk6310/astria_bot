@@ -19,6 +19,46 @@ async def create_user_db(
     return response
 
 
+async def create_tune(
+    tg_user_id: str,
+    tune_id: str,
+    gender: str
+) -> dict:
+    response = await client.post_request(url=DJANGO_URL+"/api/main/create-tune", data={
+        "tg_user_id": tg_user_id,
+        "tune_id": tune_id,
+        "gender": gender
+    })
+    return response
+
+
+async def update_user(
+    tg_user_id: str,
+    count_generations: int = None,
+    is_learn_model: bool = None
+) -> dict:
+    response = await client.post_request(url=DJANGO_URL+"/api/main/update-user", data={
+        "tg_user_id": tg_user_id,
+        "count_generations": count_generations,
+        "is_learn_model": is_learn_model
+    })
+    return response
+
+
+async def get_tunes(
+    tg_user_id: str,
+) -> dict:
+    response = await client.get_request(url=DJANGO_URL+f"/api/main/get-tunes/{tg_user_id}")
+    return response
+
+
+async def get_tune(
+    tune_id: str,
+) -> dict:
+    response = await client.get_request(url=DJANGO_URL+f"/api/main/get-tune/{tune_id}")
+    return response
+
+
 async def create_img_path(
     tg_user_id: str,
     path: str,
@@ -59,6 +99,15 @@ async def get_user_images(
 ) -> dict:
     response = await client.get_request(
         url=DJANGO_URL+f"/api/main/user-images/{tg_user_id}"
+    )
+    return response
+
+
+async def get_user(
+    tg_user_id: str,
+) -> dict:
+    response = await client.get_request(
+        url=DJANGO_URL+f"/api/main/get-user/{tg_user_id}"
     )
     return response
 

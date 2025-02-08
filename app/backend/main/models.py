@@ -66,6 +66,27 @@ class Image(models.Model):
         db_table = "images"
         
         
+class Tune(models.Model):
+    tg_user_id = models.CharField(
+        max_length=30,
+        verbose_name="TG User ID"
+    )
+    tune_id = models.CharField(
+        max_length=200,
+        unique=True,
+        verbose_name="Tune ID"
+    )
+    gender = models.CharField(verbose_name="Пол", max_length=20)
+    
+    def __str__(self):
+        return str(self.tune_id)
+    
+    class Meta:
+        verbose_name = "Tune"
+        verbose_name_plural = "Tunes"
+        db_table = "tunes"
+        
+        
 class Payment(models.Model):
     tg_user_id = models.CharField(
         max_length=30,

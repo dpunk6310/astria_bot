@@ -8,12 +8,14 @@ class UserDTO(Schema):
     first_name: Optional[str]
     last_name: Optional[str]
     username: Optional[str]
+    count_generations: int
+    is_learn_model: bool
     
     
 class UpdateUserDTO(Schema):
     tg_user_id: str
-    count_generations: int = None
-    is_learn_model: bool = None
+    count_generations: Optional[int] = None
+    is_learn_model: Optional[bool] = None
     
 
 class CreateUserDTO(Schema):

@@ -51,7 +51,9 @@ async def generate_images(tune_id: int, promt: str, effect: str = None):
         'prompt[num_images]': 3
     }
     if effect is not None:
-        data['promt[style]'] = effect
+        data['prompt[style]'] = effect
+        
+    log.debug(data)
 
     async with httpx.AsyncClient() as client:
         response = await client.post(f"https://api.astria.ai/tunes/{tune_id}/prompts", data=data, headers=headers)
@@ -69,7 +71,7 @@ async def wait_for_generation(prompt_id):
     log.debug("\nОжидаем завершения генерации...")
     attempts = 0
     max_attempts = 400
-    delay = 15  # интервал проверки в секундах
+    delay = 8  # интервал проверки в секундах
 
     while attempts < max_attempts:
         try:
@@ -96,7 +98,6 @@ async def wait_for_generation(prompt_id):
 
         except Exception as e:
             log.debug(f"❌ Ошибка проверки статуса: {str(e)}")
-            raise e
             await asyncio.sleep(delay)
             attempts += 1
 

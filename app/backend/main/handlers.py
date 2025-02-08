@@ -7,8 +7,9 @@ from config.settings import BOT_TOKEN
 from dto.user import CreateUserDTO, UserDTO, UpdateUserDTO
 from dto.image import CreateImageDTO, ImageDTO
 from dto.payment import PaymentDTO, CreatePaymentDTO
+from dto.tune import TuneListDTO, CreateTuneDTO
 from dto.err import ErrorDTO, SuccessDTO
-from .models import TGUser, Image, Payment
+from .models import TGUser, Image, Payment, Tune
 # from config.loader import telegram_api
 
 
@@ -39,7 +40,7 @@ def create_payment(request, cr_pay: CreatePaymentDTO):
         return 400, {"message": "error", "err": str(err)}
     
     
-@router.post("/get-payment/{payment_id}", response={200: PaymentDTO, 400: ErrorDTO})
+@router.get("/get-payment/{payment_id}", response={200: PaymentDTO, 400: ErrorDTO})
 def get_payment(request, payment_id: str):
     try:
         payment = Payment.objects.get(payment_id=payment_id)
@@ -76,7 +77,7 @@ def payment_received(request):
         return 400, {"message": "error", "err": "user not found"}
 
 
-@router.get("/get-user", response={200: UserDTO, 400: ErrorDTO})
+@router.get("/get-user/{tg_user_id}", response={200: UserDTO, 400: ErrorDTO})
 def get_user(request, tg_user_id: str):
     try:
         cln = TGUser.objects.get(tg_user_id=tg_user_id)
@@ -85,8 +86,36 @@ def get_user(request, tg_user_id: str):
     return 200, cln
 
 
+@router.get("/get-tunes/{tg_user_id}", response={200: list[TuneListDTO], 400: ErrorDTO})
+def get_tunes(request, tg_user_id: str):
+    try:
+        tunes = Tune.objects.filter(tg_user_id=tg_user_id)
+    except IntegrityError as err:
+        return 400, {"message": "error", "err": "not tunes in db"}
+    return 200, tunes
+
+
+@router.get("/get-tune/{tune_id}", response={200: CreateTuneDTO, 400: ErrorDTO})
+def get_tunes(request, tune_id: str):
+    try:
+        tune = Tune.objects.get(tune_id=tune_id)
+    except IntegrityError as err:
+        return 400, {"message": "error", "err": "not tune in db"}
+    return 200, tune
+
+
+@router.post("/create-tune", response={201: CreateTuneDTO, 400: ErrorDTO})
+def create_tune(request, req: CreateTuneDTO):
+    try:
+        tune = Tune.objects.create(**req.dict())
+    except IntegrityError as err:
+        return 400, {"message": "error", "err": "not tunes in db"}
+    return 201, tune
+
+
+
 @router.post("/update-user")
-def update_user(request, req: UpdateUserDTO):
+def update_user(request, req: UpdateUserDTO):    
     try:
         tg_user = TGUser.objects.get(tg_user_id=req.tg_user_id)
         if req.count_generations is not None:
