@@ -33,6 +33,8 @@ class TGUser(models.Model):
         verbose_name="Использование обучения модели",
         default=True
     )
+    god_mod = models.BooleanField(verbose_name="Режим бога", default=False)
+    referal = models.CharField(verbose_name="Реферал", max_length=30, null=True, blank=True)
     
     def __str__(self):
         return str(self.tg_user_id)
@@ -41,6 +43,22 @@ class TGUser(models.Model):
         verbose_name = "TG User"
         verbose_name_plural = "TG user"
         db_table = "tg_users"
+        
+        
+class PriceList(models.Model):
+    price = models.CharField(verbose_name="Цена", max_length=20)
+    count = models.PositiveIntegerField(verbose_name="Кол-во", default=20)
+    learn_model = models.BooleanField(verbose_name="Обучение модели", default=False)
+    sale = models.CharField(verbose_name="Скидка", null=True, blank=True, default="", help_text="Например: 30%")
+    
+    def __str__(self):
+        return f"{self.price} - {self.count}"
+    
+    class Meta:
+        verbose_name = "Price List"
+        verbose_name_plural = "Prices List"
+        db_table = "prices_list"
+    
 
 
 class Image(models.Model):
@@ -102,6 +120,7 @@ class Payment(models.Model):
         verbose_name="Кол-во генераций", default=0
     )
     amount = models.CharField(max_length=20, verbose_name="Сумма")
+    learn_model = models.BooleanField(verbose_name="Обучение модели", default=False)
     
     def __str__(self):
         return str(self.payment_id)

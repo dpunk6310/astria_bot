@@ -9,12 +9,10 @@ async def create_user_db(
     username: str,
 ) -> dict:
     response = await client.post_request(url=DJANGO_URL+"/api/main/create", data={
-        "user": {
-            "tg_user_id": str(tg_user_id),
-            "first_name": first_name,
-            "last_name": last_name,
-            "username": username,
-        }
+        "tg_user_id": str(tg_user_id),
+        "first_name": first_name,
+        "last_name": last_name,
+        "username": username,
     })
     return response
 
@@ -49,6 +47,11 @@ async def get_tunes(
     tg_user_id: str,
 ) -> dict:
     response = await client.get_request(url=DJANGO_URL+f"/api/main/get-tunes/{tg_user_id}")
+    return response
+
+
+async def get_price_list() -> dict:
+    response = await client.get_request(url=DJANGO_URL+f"/api/main/get-prices-list")
     return response
 
 

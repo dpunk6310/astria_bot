@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from unfold.admin import ModelAdmin
 
-from .models import TGUser, Image, Payment, Tune
+from .models import TGUser, Image, Payment, Tune, PriceList
 
 
 @admin.register(Image)
@@ -13,6 +13,19 @@ class ImageAdmin(ModelAdmin):
     list_display_links = ["tg_user",]
     search_fields = [
         "tg_user",
+    ]
+    save_as = True
+    save_on_top = True
+    
+    
+@admin.register(PriceList)
+class PriceListAdmin(ModelAdmin):
+    list_display = [
+        "id", "price", "count", "learn_model"
+    ]
+    list_display_links = ["price",]
+    search_fields = [
+        "price",
     ]
     save_as = True
     save_on_top = True
@@ -47,7 +60,7 @@ class TuneAdmin(ModelAdmin):
 @admin.register(TGUser)
 class TGUserAdmin(ModelAdmin):
     list_display = [
-        "id", "tg_user_id", "username", "first_name", "last_name"
+        "id", "tg_user_id", "username", "first_name", "last_name", "god_mod"
     ]
     list_display_links = ["tg_user_id", "username",]
     search_fields = [

@@ -9,7 +9,8 @@ from dto.image import CreateImageDTO, ImageDTO
 from dto.payment import PaymentDTO, CreatePaymentDTO
 from dto.tune import TuneListDTO, CreateTuneDTO
 from dto.err import ErrorDTO, SuccessDTO
-from .models import TGUser, Image, Payment, Tune
+from dto.price_list import PriceListDTO
+from .models import TGUser, Image, Payment, Tune, PriceList
 # from config.loader import telegram_api
 
 
@@ -24,7 +25,7 @@ def healthcheck(request):
 @router.post("/create", response={201: UserDTO, 400: ErrorDTO})
 def create_user(request, create_user: CreateUserDTO):
     try:
-        cln = TGUser.objects.create(**create_user.dict().get("user"))
+        cln = TGUser.objects.create(**create_user.dict())
     except IntegrityError as err:
         return 400, {"message": "error", "err": "such a tg user already exists"}
     return 201, cln
@@ -58,6 +59,7 @@ def payment_received(request):
         log.debug(f"Content-Type: {content_type}")
         log.debug(f"Raw body: {raw_body}")
         data = request.POST.dict()
+        
         payment = Payment.objects.get(payment_id=data["inv_id"])
         payment.status = True
         payment.save()
@@ -66,6 +68,7 @@ def payment_received(request):
             tg_user_id=payment.tg_user_id,
         )
         tg_user.count_generations += payment.сount_generations
+        tg_user.is_learn_model = True if payment.learn_model else False
         tg_user.save()
 
         return 200, {"status": "ok", "message": "Success"}
@@ -96,12 +99,21 @@ def get_tunes(request, tg_user_id: str):
 
 
 @router.get("/get-tune/{tune_id}", response={200: CreateTuneDTO, 400: ErrorDTO})
-def get_tunes(request, tune_id: str):
+def get_tune(request, tune_id: str):
     try:
         tune = Tune.objects.get(tune_id=tune_id)
     except IntegrityError as err:
         return 400, {"message": "error", "err": "not tune in db"}
     return 200, tune
+
+
+@router.get("/get-prices-list", response={200: list[PriceListDTO], 400: ErrorDTO})
+def get_price_list(request):
+    try:
+        price_list = PriceList.objects.all()
+    except IntegrityError as err:
+        return 400, {"message": "error", "err": "not price_list in db"}
+    return 200, price_list
 
 
 @router.post("/create-tune", response={201: CreateTuneDTO, 400: ErrorDTO})
@@ -122,11 +134,17 @@ def update_user(request, req: UpdateUserDTO):
             tg_user.count_generations = req.count_generations
         if req.is_learn_model is not None:
             tg_user.is_learn_model = req.is_learn_model 
+        if req.referal is not None:
+            tg_user.referal = req.referal
+        if req.god_mod is not None:
+            tg_user.god_mod = req.god_mod 
         tg_user.save()
         return {
             "tg_user_id": tg_user.tg_user_id, 
             "count_generations": tg_user.count_generations, 
-            "is_learn_model": tg_user.is_learn_model
+            "is_learn_model": tg_user.is_learn_model,
+            "god_mod": tg_user.god_mod,
+            "referal": tg_user.referal,
         }
     except TGUser.DoesNotExist:
         return {"message": "error", "err": "User not found"}

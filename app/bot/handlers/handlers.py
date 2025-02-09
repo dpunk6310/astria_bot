@@ -23,7 +23,7 @@ from core.backend.api import (
     create_payment,
     get_user,
     get_tunes,
-    get_tune,
+    get_price_list,
     create_tune,
     update_user
 )
@@ -64,7 +64,7 @@ async def start_handler(message: types.Message, messages):
         ),
         types.InlineKeyboardButton(
             text="Оплатить",
-            callback_data="inst_payment"
+            callback_data="prices_photo"
         ),
     )
     await message.answer(messages["start"], reply_markup=builder.as_markup())
@@ -128,6 +128,8 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
 Теперь можно приступать к генерациям! Для этого нажми на кнопки "Стили" или "Режим бога" внизу экрана.
 """, reply_markup=keyboard
         )
+    
+    await update_user(tg_user_id=str(messages[0].chat.id), is_learn_model=False)
 
 
 @user_router.callback_query(F.data == "avatar")
@@ -183,23 +185,46 @@ async def generations_stat_callback(call: types.CallbackQuery):
     user_db = await get_user(call.message.chat.id)
     builder = InlineKeyboardBuilder()
     builder.button(
-        text="100 фото",
-        callback_data="photo"
-    )
-    builder.button(
-        text="500 фото",
-        callback_data="photo"
+        text="💳 Докупить фото",
+        callback_data="prices_photo"
     )
     await call.message.answer(
         text="""
-У вас {count_gen} генераций!
+Спасибо что ты с нами, ты такой талантливый! А талантливым людям надо держаться вместе 🖖🤝❤️
+
+У тебя осталось генераций фото: {count_gen}
+""".format(count_gen=user_db.get("count_generations")),
+        reply_markup=builder.as_markup()
+    )
+    
+    
+@user_router.callback_query(F.data == "prices_photo")
+async def prices_photo_callback(call: types.CallbackQuery):
+    price_list = await get_price_list()
+    builder = InlineKeyboardBuilder()
+    price_str = ""
+    for i in price_list:
+        if i.get("learn_model"):
+            continue
+        sale = i.get("sale", None)
+        builder.button(
+            text=f"{i.get('count')} фото",
+            callback_data=f"inst_payment_{i.get('price')}_{i.get('count')}_{i.get('learn_model')}"
+        )
+        if not sale or sale == "":
+            price_str += f"* {i.get('count')} фото: {i.get('price')}₽\n"
+        else:
+            price_str += f"* {i.get('count')} фото: {i.get('price')}₽ ({sale})\n"
+    builder.adjust(2,2,2)
+    await call.message.answer(
+        text="""
 Рады, что вам понравилось! 
 Хотите больше генераций? 📸
 Варианты:
-* 100 фото: 990₽
-* 500 фото: 3710₽ (скидка 25%!)
+{price_str}
 Выберите свой вариант!
-""".format(count_gen=user_db.count_generation),
+
+""".format(price_str=price_str),
         reply_markup=builder.as_markup()
     )
     
@@ -209,7 +234,7 @@ async def how_price_callback(call: types.CallbackQuery):
     builder = InlineKeyboardBuilder()
     builder.button(
         text="А сколько стоит?",
-        callback_data="inst_payment"
+        callback_data="prices_photo"
     )
     builder.button(
         text="Попробовать!",
@@ -279,8 +304,7 @@ async def start_upload_photo_callback(call: types.CallbackQuery):
     
     
 @user_router.callback_query(F.data == "styles_effect")
-async def styles_effect_callback(call: types.CallbackQuery, state: FSMContext):
-    
+async def styles_effect_callback(call: types.CallbackQuery):
     builder = InlineKeyboardBuilder()
     builder.button(
         text="Киноэффект",
@@ -300,10 +324,17 @@ async def styles_effect_callback(call: types.CallbackQuery, state: FSMContext):
     )
     
     
-@user_router.callback_query(F.data == "inst_payment")
+@user_router.callback_query(F.data.contains("inst_payment"))
 async def inst_payment_callback(call: types.CallbackQuery):
-    сount_generations = 100
-    amount = 100
+    data = call.data.split("_")
+    amount = int(data[2])
+    сount_generations = int(data[3])
+    learn_model = data[4]
+    
+    log.debug(amount)
+    log.debug(сount_generations)
+    log.debug(learn_model)
+
     payment_id = random.randint(999, 99999)
     await create_payment(
         tg_user_id=str(call.message.chat.id),
@@ -353,7 +384,7 @@ async def home_callback(call: types.CallbackQuery):
         ),
         types.InlineKeyboardButton(
             text="Оплатить",
-            callback_data="inst_payment"
+            callback_data="prices_photo"
         ),
     )
     await call.message.answer("Привет! На связи Пингвин бот. \nРассказать тебе как здесь все работает?\nЕсли ты уже в курсе, нужно просто внести оплату - и вперед!\n\nНаши преимущества перед другими ботами:\nВместо 25 шаблонов - неограниченное количество\nК каждому фото в «Стили» ты можешь добавить фильтры\nЧат-бот ассистент который поможет составить промт из загруженого фото\nРеферальная система: приглашай друзей и получай бесплатные генерации\nЦена всего 990 руб.\n", reply_markup=builder.as_markup())
@@ -416,7 +447,7 @@ async def handle_category_handler(call: types.CallbackQuery, state: FSMContext):
         builder = InlineKeyboardBuilder()
         builder.button(
             text="Купить",
-            callback_data="inst_payment"
+            callback_data="prices_photo"
         )
         await call.message.answer("У вас недостаточно генераций", reply_markup=builder.as_markup()) 
         return
@@ -431,7 +462,6 @@ async def handle_category_handler(call: types.CallbackQuery, state: FSMContext):
         gender = tunes[0].get("gender")
         tune_id = tunes[0].get("tune_id")
         await state.update_data(gender=gender, tune_id=tune_id)
-    log.debug(tune_id)
     if not effect:
         builder = InlineKeyboardBuilder()
         builder.button(
@@ -454,7 +484,7 @@ async def handle_category_handler(call: types.CallbackQuery, state: FSMContext):
     )
     
     if not gen_response or "id" not in gen_response:
-        await call.message.answer("❌ Ошибка при запуске генерации изображений.")
+        await call.message.answer("❌ Ошибка при запуске генерации изображений.", reply_markup=get_main_keyboard())
         return
 
     prompt_id = gen_response["id"]

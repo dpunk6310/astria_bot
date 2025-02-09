@@ -6,6 +6,7 @@ class CreatePaymentDTO(Schema):
     payment_id: str
     сount_generations: int
     amount: str
+    learn_model: bool
     
 
 class PaymentDTO(Schema):

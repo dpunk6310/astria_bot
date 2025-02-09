@@ -3,7 +3,6 @@ from uuid import uuid4
 import os
 
 import httpx
-from core.client.client import post_request
 from loguru import logger as log
 import requests
 
@@ -32,8 +31,11 @@ async def learn_model_api(images: list[str], gender: str):
         os.remove(image)
                         
     async with httpx.AsyncClient() as client:
-        response = await client.post(API_URL, data=data, files=files, headers=headers)
-        response.raise_for_status()
+        try:
+            response = await client.post(API_URL, data=data, files=files, headers=headers)
+        except Exception as err:
+            log.error(err)
+            return None
         return response.json()
 
 
@@ -48,16 +50,17 @@ async def generate_images(tune_id: int, promt: str, effect: str = None):
         'prompt[steps]': 40,
         'prompt[super_resolution]': "true",
         'prompt[inpaint_faces]': "true",
-        'prompt[num_images]': 3
+        'prompt[num_images]': 8
     }
     if effect is not None:
         data['prompt[style]'] = effect
-        
-    log.debug(data)
 
     async with httpx.AsyncClient() as client:
-        response = await client.post(f"https://api.astria.ai/tunes/{tune_id}/prompts", data=data, headers=headers)
-        response.raise_for_status()
+        try:
+            response = await client.post(f"https://api.astria.ai/tunes/{tune_id}/prompts", data=data, headers=headers)
+        except Exception as err:
+            log.error(err)
+            return None
         return response.json()
 
 

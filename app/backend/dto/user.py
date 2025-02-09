@@ -1,4 +1,4 @@
-from typing import Optional, Any
+from typing import Optional
 
 from ninja import Schema
 
@@ -8,18 +8,23 @@ class UserDTO(Schema):
     first_name: Optional[str]
     last_name: Optional[str]
     username: Optional[str]
-    count_generations: int
-    is_learn_model: bool
+    count_generations: Optional[int]
+    is_learn_model: Optional[bool]
     
     
 class UpdateUserDTO(Schema):
     tg_user_id: str
     count_generations: Optional[int] = None
     is_learn_model: Optional[bool] = None
+    god_mod: Optional[bool] = None
+    referal: Optional[str] = None
     
 
 class CreateUserDTO(Schema):
-    user: UserDTO
+    tg_user_id: str
+    first_name: Optional[str]
+    last_name: Optional[str]
+    username: Optional[str]
 
 
 class PaymentNotificationDTO(Schema):
