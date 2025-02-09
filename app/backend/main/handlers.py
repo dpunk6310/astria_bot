@@ -93,7 +93,8 @@ def get_avatar_pay(request):
 def get_user(request, tg_user_id: str):
     try:
         cln = TGUser.objects.get(tg_user_id=tg_user_id)
-    except IntegrityError as err:
+    except Exception as err:
+        log.error(err)
         return 400, {"message": "error", "err": "not user in db"}
     return 200, cln
 
@@ -102,7 +103,8 @@ def get_user(request, tg_user_id: str):
 def get_tunes(request, tg_user_id: str):
     try:
         tunes = Tune.objects.filter(tg_user_id=tg_user_id)
-    except IntegrityError as err:
+    except Exception as err:
+        log.error(err)
         return 400, {"message": "error", "err": "not tunes in db"}
     return 200, tunes
 
@@ -111,7 +113,8 @@ def get_tunes(request, tg_user_id: str):
 def get_tune(request, tune_id: str):
     try:
         tune = Tune.objects.get(tune_id=tune_id)
-    except IntegrityError as err:
+    except Exception as err:
+        log.error(err)
         return 400, {"message": "error", "err": "not tune in db"}
     return 200, tune
 
@@ -120,7 +123,8 @@ def get_tune(request, tune_id: str):
 def get_price_list(request):
     try:
         price_list = PriceList.objects.all()
-    except IntegrityError as err:
+    except Exception as err:
+        log.error(err)
         return 400, {"message": "error", "err": "not price_list in db"}
     return 200, price_list
 
@@ -129,10 +133,10 @@ def get_price_list(request):
 def create_tune(request, req: CreateTuneDTO):
     try:
         tune = Tune.objects.create(**req.dict())
-    except IntegrityError as err:
+    except Exception as err:
+        log.error(err)
         return 400, {"message": "error", "err": "not tunes in db"}
     return 201, tune
-
 
 
 @router.post("/update-user")

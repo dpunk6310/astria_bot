@@ -117,9 +117,12 @@ async def get_user_images(
 async def get_user(
     tg_user_id: str,
 ) -> dict:
-    response = await client.get_request(
-        url=DJANGO_URL+f"/api/main/get-user/{tg_user_id}"
-    )
+    try:
+        response = await client.get_request(
+            url=DJANGO_URL+f"/api/main/get-user/{tg_user_id}"
+        )
+    except Exception as err:
+        return None
     return response
 
 

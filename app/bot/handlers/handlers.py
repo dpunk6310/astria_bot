@@ -40,28 +40,32 @@ from loader import bot
 
 user_router = Router()
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+BUTTON_TEXTS = {"Стили", "Режим бога", "Выбор аватара", "Генерации", "Доп. опции", "Служба поддержки"}
+
 
 class UploadPhotoState(StatesGroup):
     gender = State()
     effect = State()
     tune_id = State()
     god_mod_text = State()
+    category = State()
     
-    
-BUTTON_TEXTS = {"Стили", "Режим бога", "Аватар", "Генерации", "Настройки", "Служба заботы"}
-
 
 @user_router.message(CommandStart())
 @use_messages
 async def start_handler(message: types.Message, messages):
-    await create_user_db(
-        tg_user_id=message.from_user.id,
-        first_name=message.from_user.first_name,
-        last_name=message.from_user.last_name,
-        username=message.from_user.username
-    )
-    
+    user_db = await get_user(str(message.chat.id))
+    if not user_db:
+        user_db = await create_user_db(
+            tg_user_id=message.from_user.id,
+            first_name=message.from_user.first_name,
+            last_name=message.from_user.last_name,
+            username=message.from_user.username
+        )
+        
     builder = InlineKeyboardBuilder()
+    
     builder.add(
         types.InlineKeyboardButton(
             text="Инструкция",
@@ -72,7 +76,127 @@ async def start_handler(message: types.Message, messages):
             callback_data="prices_photo"
         ),
     )
-    await message.answer(messages["start"], reply_markup=builder.as_markup())
+    
+    keyboard = builder.as_markup()
+    if user_db.get("count_generations") > 3:
+        keyboard = get_main_keyboard()
+    
+    await message.answer_photo(
+        photo=types.FSInputFile(BASE_DIR / "media" / "logo_p.png"),
+        caption="""<b>Привет! На связи Пингвин бот - усовершенствованная версия популярной нейронки</b> 🐧
+
+Рассказать тебе как здесь все работает? А если ты уже в курсе, нужно просто внести оплату - и вперед!
+
+Кстати, мои преимущества:
+🧊 Неограниченное количество шаблонов
+🧊 Фильтры к каждому фото в «Стили»
+🧊 Каждое фото ты можешь оживить в видео 🎞️ 
+🧊 Чат-бот ассистент помогает составить промт* из загруженого фото
+🧊 Удобная реферальная система: приглашай друзей и получай бесплатные генерации 
+🧊 Цена всего 1299 руб. ❣️
+
+*промт - это текстовый запрос пользователя к нейросети""",
+        reply_markup=keyboard,
+        parse_mode="HTML"
+    )
+    
+
+@user_router.callback_query(F.data == "inst")
+async def inst_callback(call: types.CallbackQuery):
+    builder = InlineKeyboardBuilder()
+    builder.add(
+        types.InlineKeyboardButton(
+            text="Все понятно!",
+            callback_data="inst_next2"
+        ),
+    )
+    await call.message.answer_photo(
+        photo=types.FSInputFile(BASE_DIR / "media" / "90.jpg"),
+        caption="""<b>Пингвин ИИ</b> - это нейросеть, которая учится на твоих фото и создаёт новые 📸 с твоими чертами лица 
+
+<b>Посмотри на результаты</b> 😍👇""",
+        reply_markup=builder.as_markup(),
+        parse_mode="HTML"
+    )
+    
+    
+@user_router.callback_query(F.data == "inst_next2")
+async def inst_next2_callback(call: types.CallbackQuery):
+    builder = InlineKeyboardBuilder()
+    builder.add(
+        types.InlineKeyboardButton(
+            text="Дальше!",
+            callback_data="inst_next3"
+        ),
+    )
+    await call.message.answer_photo(
+        photo=types.FSInputFile(BASE_DIR / "media" / "86.jpg"),
+        caption="Подойдут фотографии любого качества, но студийные могут дать лучший результат!",
+        reply_markup=builder.as_markup()
+    )
+    
+    
+@user_router.callback_query(F.data == "inst_next3")
+async def inst_next3_callback(call: types.CallbackQuery):
+    builder = InlineKeyboardBuilder()
+    builder.add(
+        types.InlineKeyboardButton(
+            text="Дальше!",
+            callback_data="inst_next4"
+        ),
+    )
+    await call.message.answer_photo(
+        photo=types.FSInputFile(BASE_DIR / "media" / "87.jpg"),
+        caption="Фотки нужны самые обычные. Но если будут студийные, результат по моим наблюдениям, может быть лучше!",
+        reply_markup=builder.as_markup()
+    )
+
+
+@user_router.callback_query(F.data == "inst_next4")
+async def inst_next4_callback(call: types.CallbackQuery):
+    builder = InlineKeyboardBuilder()
+    builder.add(
+        types.InlineKeyboardButton(
+            text="А сколько стоит?",
+            callback_data="inst_next5"
+        ),
+    )
+    await call.message.answer_photo(
+        photo=types.FSInputFile(BASE_DIR / "media" / "85.jpg"),
+        caption="""<b>Для тебя подготовили два режима на выбор:</b>
+
+1. Режим «Стили», где ты выбираешь кем быть: от ребенка до кинозвезды! 
+2. «Режим бога», где ты сам решаешь кем быть! Тебе нужно будет просто описать что ты хочешь в нескольких словах)""",
+        reply_markup=builder.as_markup(),
+        parse_mode="HTML"
+    )
+    
+    
+@user_router.callback_query(F.data == "inst_next5")
+async def inst_next5_callback(call: types.CallbackQuery):
+    builder = InlineKeyboardBuilder()
+    builder.add(
+        types.InlineKeyboardButton(
+            text="Купить!",
+            callback_data="prices_photo"
+        ),
+    )
+    await call.message.answer_photo(
+        photo=types.FSInputFile(BASE_DIR / "media" / "89.jpg"),
+        caption="""<b>Ты готов(а) создать свои новые фотографии? Тебе нужно будет просто внести оплату и начнём создание новых шедевров!</b>
+
+Поздравляю, тебе повезло, сейчас мы снизили стоимость на 72%: 1 290₽ вместо <s>4 490₽</s>
+
+Оплати сейчас картой РФ, либо зарубежной картой и получи:
+✔️ 90 фотографий 
+✔️ Неограниченнок количество шаблонов
+✔️ 1 модель
+✔️ Режим бога 
+
+🎁 <b>Если успеешь оплатить за 30 минут, получишь ещё 10 генераций в подарок</b>""",
+        reply_markup=builder.as_markup(),
+        parse_mode="HTML"
+    )
     
 
 @user_router.message(F.media_group_id)
@@ -88,7 +212,7 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
         )
         await messages[-1].answer("Оплатите создание аватара", reply_markup=builder.as_markup())
         return
-    BASE_DIR = Path(__file__).resolve().parent.parent
+    
     data = await state.get_data()
     gender = data.get("gender")
     if not gender:
@@ -103,7 +227,17 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
     if len(messages) != 10:
         await messages[-1].answer("Загрузить можно только 10 фото")
         return
-        
+    
+    await messages[-1].answer(
+        """Мы получили твои фото и запустили разработку твоего персонального аватара, это займёт около 5-10 минут … 🔄
+
+А ты пока обязательно подпишись на наш канал https://t.me/photopingvin_ai
+
+Там мы публикуем оригинальные идеи стилей и промтов для твоих новых фотографий, а также актуальные новости.
+""")
+    
+    await update_user(tg_user_id=str(messages[0].chat.id), is_learn_model=False)
+    
     for m in messages:
         if m.photo:
             photo = await bot.get_file(m.photo[-1].file_id)
@@ -117,19 +251,12 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
                 path=output_filename
             )
     
-    await messages[-1].answer(
-        """Мы получили твои фото и запустили разработку твоего персонального аватара, это займёт около 5 минут … 🔄
-
-А ты пока обязательно подпишись на наш канал @…
-
-Там мы публикуем оригинальные идеи стилей и промтов для твоих новых фотографий, а также актуальные новости.
-""", 
-    )
     images = await get_user_images(str(messages[-1].chat.id))
     imgs = []
     for i in images:
         i = i.get("path")
         imgs.append(i)
+    
     response = await learn_model_api(imgs, gender)
     tune_id = response.get("id")
     training_complete = await wait_for_training(tune_id)
@@ -137,17 +264,14 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
         response_tune = await create_tune(tune_id=str(tune_id), tg_user_id=str(messages[-1].chat.id), gender=gender)
         log.debug(response_tune)
         await state.update_data(tune_id=tune_id)
-        keyboard = get_main_keyboard()
         await messages[-1].answer(
             """Твой аватар создан ☑️
 Теперь можно приступать к генерациям! Для этого нажми на кнопки "Стили" или "Режим бога" внизу экрана.
-""", reply_markup=keyboard
+""", reply_markup=get_main_keyboard()
         )
-    
-    await update_user(tg_user_id=str(messages[0].chat.id), is_learn_model=False)
 
 
-@user_router.message(F.text == "Аватар")
+@user_router.message(F.text == "Выбор аватара")
 async def avatar_callback(message: types.Message):
     tunes = await get_tunes(str(message.chat.id))
     log.debug(tunes)
@@ -178,32 +302,6 @@ async def select_avatar_callback(call: types.CallbackQuery, state: FSMContext):
         text=f"Смена модели прошла успешно, теперь используется «Модель №{tune_num}» ✅",
         reply_markup=keyboard
     )
-
-
-@user_router.callback_query(F.data == "inst")
-async def inst_callback(call: types.CallbackQuery):
-    builder = InlineKeyboardBuilder()
-    builder.add(
-        types.InlineKeyboardButton(
-            text="Дальше!",
-            callback_data="inst_next"
-        ),
-    )
-    await call.message.answer(
-        text="Подойдут фотографии любого качества, но студийные могут дать лучший результат!",
-        reply_markup=builder.as_markup()
-    )
-    
-    
-@user_router.callback_query(F.data == "inst_next")
-async def inst_next_callback(call: types.CallbackQuery):
-    await call.message.answer(
-        text="""Для тебя подготовили два режима на выбор:
-
-1. Режим «Стили», где ты выбираешь кем быть: от ребенка до кинозвезды! 
-2. «Режим бога», где ты сам решаешь кем быть! Тебе нужно будет просто описать что ты хочешь в нескольких словах)""",
-        reply_markup=get_main_keyboard()
-    )
     
 
 @user_router.message(F.text == "Генерации")
@@ -216,11 +314,12 @@ async def generations_stat_callback(message: types.Message):
     )
     await message.answer(
         text="""
-Спасибо что ты с нами, ты такой талантливый! А талантливым людям надо держаться вместе 🖖🤝❤️
+<b>Спасибо что ты с нами, ты такой талантливый! А талантливым людям надо держаться вместе</b> 🖖🤝❤️
 
-У тебя осталось генераций фото: {count_gen}
+У тебя осталось генераций фото: <b>{count_gen}</b>
 """.format(count_gen=user_db.get("count_generations")),
-        reply_markup=builder.as_markup()
+        reply_markup=builder.as_markup(),
+        parse_mode="HTML"
     )
     
     
@@ -311,6 +410,10 @@ async def start_upload_photo_callback(call: types.CallbackQuery):
         
 @user_router.message(F.text == "Режим бога")
 async def god_mod_callback(message: types.Message):
+    tunes = await get_tunes(str(message.chat.id))
+    if not tunes:
+        await message.answer("У Вас нет аватара, создайте его!", reply_markup=get_main_keyboard())
+        return
     user_db = await get_user(str(message.chat.id))
     god_mod = user_db.get("god_mod", False)
     builder = InlineKeyboardBuilder()
@@ -369,7 +472,7 @@ async def off_god_mod_callback(call: types.CallbackQuery):
     
     
 @user_router.message(~F.text.in_(BUTTON_TEXTS))
-async def inst_god_mod_callback(message: types.Message, state: FSMContext):
+async def set_text_in_godmod_callback(message: types.Message, state: FSMContext):
     if message.text in BUTTON_TEXTS:
         # await bot.delete_message(message.chat.id, message.message_id)
         return
@@ -387,11 +490,19 @@ async def inst_god_mod_callback(message: types.Message, state: FSMContext):
     await state.update_data(god_mod_text=text)
     builder = InlineKeyboardBuilder()
     builder.button(
-        text="Выбрать эффект",
-        callback_data="styles_effect"
+        text="Киноэффект",
+        callback_data="Cinematic_effect"
+    )
+    builder.button(
+        text="Неон",
+        callback_data="Neonpunk_effect"
+    )
+    builder.button(
+        text="Без эффекта",
+        callback_data="no_effect"
     )
     await message.answer(
-        text="Ваш текст сохранен",
+        text="Ваш промт сохранен",
         reply_markup=builder.as_markup()
     )
     
@@ -415,24 +526,47 @@ async def inst_god_mod_callback(call: types.CallbackQuery):
     
     
 @user_router.message(F.text == "Стили")
-async def styles_effect_callback(message: types.Message):
+async def styles_effect_handler(message: types.Message, state: FSMContext):
+    user_db = await get_user(str(message.chat.id))
+    if user_db.get("god_mod"):
+        await message.answer(text="Вы в режиме бога!", reply_markup=get_main_keyboard())
+        return
+    
+    if user_db.get("count_generations") < 3:
+        builder = InlineKeyboardBuilder()
+        builder.button(
+            text="Купить",
+            callback_data="prices_photo"
+        )
+        await message.answer("У вас недостаточно генераций", reply_markup=builder.as_markup()) 
+        return
+    
+    json_file = BASE_DIR / "media" / "promts.json"
+    tunes = await get_tunes(str(message.chat.id))
+    if not tunes:
+        await message.answer("У Вас нет аватара, создайте его!", reply_markup=get_main_keyboard())
+        return
+    gender = tunes[0].get("gender")
+    tune_id = tunes[0].get("tune_id")
+    await state.update_data(gender=gender, tune_id=tune_id)
+    
+    categories = get_categories(gender=gender, json_file=json_file)
     builder = InlineKeyboardBuilder()
+    for c in categories:
+        builder.button(
+            text=c.get("name"),
+            callback_data=c.get("slug")
+        )
+    builder.adjust(2, 2, 2, 2, 2, repeat=True)
     builder.button(
-        text="Киноэффект",
-        callback_data="Cinematic_effect"
+        text="На главную",
+        callback_data="home"
     )
-    builder.button(
-        text="Неон",
-        callback_data="Neonpunk_effect"
-    )
-    builder.button(
-        text="Без эффекта",
-        callback_data="no_effect"
-    )
-    await message.answer(
-        text="Выберите эффект",
-        reply_markup=builder.as_markup()
-    )
+    # builder.adjust(2, 2, 3, repeat=True)
+    await message.answer(text="""Выбери понравившийся стиль и фильтр, получите 3 фото через 60 секунд.
+
+В каждом стиле содержится неограниченное количество фотографий, которые выбираются случайным образом.
+""", reply_markup=builder.as_markup())
     
     
 @user_router.callback_query(F.data.contains("inst_payment"))
@@ -479,7 +613,17 @@ async def inst_payment_callback(call: types.CallbackQuery):
 
 @user_router.callback_query(F.data == "home")
 async def home_callback(call: types.CallbackQuery):
+    user_db = await get_user(str(call.message.chat.id))
+    if not user_db:
+        user_db = await create_user_db(
+            tg_user_id=call.message.from_user.id,
+            first_name=call.message.from_user.first_name,
+            last_name=call.message.from_user.last_name,
+            username=call.message.from_user.username
+        )
+        
     builder = InlineKeyboardBuilder()
+    
     builder.add(
         types.InlineKeyboardButton(
             text="Инструкция",
@@ -490,17 +634,41 @@ async def home_callback(call: types.CallbackQuery):
             callback_data="prices_photo"
         ),
     )
-    await call.message.answer("Привет! На связи Пингвин бот. \nРассказать тебе как здесь все работает?\nЕсли ты уже в курсе, нужно просто внести оплату - и вперед!\n\nНаши преимущества перед другими ботами:\nВместо 25 шаблонов - неограниченное количество\nК каждому фото в «Стили» ты можешь добавить фильтры\nЧат-бот ассистент который поможет составить промт из загруженого фото\nРеферальная система: приглашай друзей и получай бесплатные генерации\nЦена всего 990 руб.\n", reply_markup=builder.as_markup())
+    
+    keyboard = builder.as_markup()
+    if user_db.get("count_generations") > 3:
+        keyboard = get_main_keyboard()
+    
+    await call.message.answer_photo(
+        photo=types.FSInputFile(BASE_DIR / "media" / "logo_p.png"),
+        caption="""<b>Привет! На связи Пингвин бот - усовершенствованная версия популярной нейронки</b> 🐧
+
+Рассказать тебе как здесь все работает? А если ты уже в курсе, нужно просто внести оплату - и вперед!
+
+Кстати, мои преимущества:
+🧊 Неограниченное количество шаблонов
+🧊 Фильтры к каждому фото в «Стили»
+🧊 Каждое фото ты можешь оживить в видео 🎞️ 
+🧊 Чат-бот ассистент помогает составить промт* из загруженого фото
+🧊 Удобная реферальная система: приглашай друзей и получай бесплатные генерации 
+🧊 Цена всего 1299 руб. ❣️
+
+*промт - это текстовый запрос пользователя к нейросети""",
+        reply_markup=keyboard,
+        parse_mode="HTML"
+    )
 
     
 @user_router.callback_query(F.data.contains("_effect"))
 async def handle_effect_handler(call: types.CallbackQuery, state: FSMContext):
-    
-    BASE_DIR = Path(__file__).resolve().parent.parent
-    json_file = BASE_DIR / "media" / "promts.json"
     effect = call.data
-    await state.update_data(effect=effect)
-    
+    if not effect:
+        effect = "no_effect"
+    if effect != "no_effect":
+        effect = effect.split("_")[0]
+    else:
+        effect = None
+
     data = await state.get_data()
 
     tunes = await get_tunes(str(call.message.chat.id))
@@ -509,19 +677,14 @@ async def handle_effect_handler(call: types.CallbackQuery, state: FSMContext):
         return
     gender = tunes[0].get("gender")
     tune_id = tunes[0].get("tune_id")
-    await state.update_data(gender=gender, tune_id=tune_id)
-    
-    data = await state.get_data()
+    data = await state.update_data(gender=gender, tune_id=tune_id)
+
+    # data = await state.get_data()
     user_db = await get_user(str(call.message.chat.id))
     if user_db.get("god_mod"):
         if data.get("god_mod_text"):
             god_mod_text = f"sks {gender} {data.get('god_mod_text')}"
-            if not effect:
-                effect = "no_effect"
-            if effect != "no_effect":
-                effect = effect.split("_")[0]
-            else:
-                effect = None
+            
             await generate_photos_helper(
                 call=call,
                 effect=effect,
@@ -538,76 +701,66 @@ async def handle_effect_handler(call: types.CallbackQuery, state: FSMContext):
             )
             await call.message.answer("Вы не ввели текст", reply_markup=builder.as_markup())
             return
-            
-    categories = get_categories(gender=gender, json_file=json_file)
-    builder = InlineKeyboardBuilder()
-    for c in categories:
-        builder.button(
-            text=c.get("name"),
-            callback_data=c.get("slug")
-        )
-    builder.adjust(2, 2, 2, 2, 2, repeat=True)
-    builder.button(
-        text="На главную",
-        callback_data="home"
-    )
-    # builder.adjust(2, 2, 3, repeat=True)
-    await call.message.answer(text="""Выбери понравившийся стиль и фильтр, получите 3 фото через 60 секунд.
-
-В каждом стиле содержится неограниченное количество фотографий, которые выбираются случайным образом.
-""", reply_markup=builder.as_markup())
-    
-   
-@user_router.callback_query(F.data.contains("category_"))
-async def handle_category_handler(call: types.CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    effect: str = data.get("effect")
-    gender: str = data.get("gender")
-    tune_id: int = data.get("tune_id")
-    
-    BASE_DIR = Path(__file__).resolve().parent.parent
     json_file = BASE_DIR / "media" / "promts.json"
-    
-    user_db = await get_user(str(call.message.chat.id))
-    if user_db.get("count_generations") < 3:
-        builder = InlineKeyboardBuilder()
-        builder.button(
-            text="Купить",
-            callback_data="prices_photo"
-        )
-        await call.message.answer("У вас недостаточно генераций", reply_markup=builder.as_markup()) 
-        return
-    
-    category_slug = call.data
-    
-    if not gender:
-        tunes = await get_tunes(str(call.message.chat.id))
-        if not tunes:
-            await call.message.answer("У Вас нет аватара, создайте его!", reply_markup=get_main_keyboard())
-            return
-        gender = tunes[0].get("gender")
-        tune_id = tunes[0].get("tune_id")
-        await state.update_data(gender=gender, tune_id=tune_id)
-    if not effect:
-        effect = "no_effect"
-    
-    if user_db.get("god_mod"):
-        await update_user(str(call.message.chat.id), god_mod=False)
-        await state.update_data(god_mod_text=None)
-        
-    user_prompt = get_random_prompt(json_file=json_file, gender=gender, category_slug=category_slug)
-    
-    if effect != "no_effect":
-        effect = effect.split("_")[0]
-    else:
-        effect = None
-    
+    user_prompt = get_random_prompt(json_file=json_file, gender=gender, category_slug=data.get("category"))
     await generate_photos_helper(
         tune_id=tune_id,
         user_prompt=user_prompt,
         effect=effect,
         call=call
     )
+    
+   
+@user_router.callback_query(F.data.contains("category_"))
+async def handle_category_handler(call: types.CallbackQuery, state: FSMContext):
+    await state.update_data(category=call.data)
+        
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Киноэффект",
+        callback_data="Cinematic_effect"
+    )
+    builder.button(
+        text="Неон",
+        callback_data="Neonpunk_effect"
+    )
+    builder.button(
+        text="Без эффекта",
+        callback_data="no_effect"
+    )
+    await call.message.answer(
+        text="Выберите эффект",
+        reply_markup=builder.as_markup()
+    )
+    #  data = await state.get_data()
+    # effect: str = data.get("effect")
+    # gender: str = data.get("gender")
+    # tune_id: int = data.get("tune_id")
+    
+    # json_file = BASE_DIR / "media" / "promts.json"
+
+    
+    # if not gender:
+    #     tunes = await get_tunes(str(call.message.chat.id))
+    #     if not tunes:
+    #         await call.message.answer("У Вас нет аватара, создайте его!", reply_markup=get_main_keyboard())
+    #         return
+    #     gender = tunes[0].get("gender")
+    #     tune_id = tunes[0].get("tune_id")
+    #     await state.update_data(gender=gender, tune_id=tune_id)
+        
+    # user_prompt = get_random_prompt(json_file=json_file, gender=gender, category_slug=category_slug)
+    
+    # if effect != "no_effect":
+    #     effect = effect.split("_")[0]
+    # else:
+    #     effect = None
+    # await generate_photos_helper(
+    #     tune_id=tune_id,
+    #     user_prompt=user_prompt,
+    #     effect=effect,
+    #     call=call
+    # )
 
 
 async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_prompt: str, effect: str):
@@ -648,8 +801,8 @@ def get_main_keyboard():
     return types.ReplyKeyboardMarkup(
         keyboard=[
             [types.KeyboardButton(text="Стили"), types.KeyboardButton(text="Режим бога")],
-            [types.KeyboardButton(text="Аватар"), types.KeyboardButton(text="Генерации")],
-            [types.KeyboardButton(text="Настройки"), types.KeyboardButton(text="Служба заботы")],
+            [types.KeyboardButton(text="Выбор аватара"), types.KeyboardButton(text="Генерации")],
+            [types.KeyboardButton(text="Доп. опции"), types.KeyboardButton(text="Служба поддержки")],
         ],
         resize_keyboard=True
     )
