@@ -33,12 +33,14 @@ async def create_tune(
 async def update_user(
     tg_user_id: str,
     count_generations: int = None,
-    is_learn_model: bool = None
+    is_learn_model: bool = None,
+    god_mod: bool = None
 ) -> dict:
     response = await client.post_request(url=DJANGO_URL+"/api/main/update-user", data={
         "tg_user_id": tg_user_id,
         "count_generations": count_generations,
-        "is_learn_model": is_learn_model
+        "is_learn_model": is_learn_model,
+        "god_mod": god_mod,
     })
     return response
 

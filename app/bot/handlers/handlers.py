@@ -44,6 +44,7 @@ class UploadPhotoState(StatesGroup):
     gender = State()
     effect = State()
     tune_id = State()
+    god_mod_text = State()
 
 
 @user_router.message(CommandStart())
@@ -215,7 +216,7 @@ async def prices_photo_callback(call: types.CallbackQuery):
             price_str += f"* {i.get('count')} фото: {i.get('price')}₽\n"
         else:
             price_str += f"* {i.get('count')} фото: {i.get('price')}₽ ({sale})\n"
-    builder.adjust(2,2,2)
+    builder.adjust(2, 2, 2)
     await call.message.answer(
         text="""
 Рады, что вам понравилось! 
@@ -301,6 +302,108 @@ async def start_upload_photo_callback(call: types.CallbackQuery):
             text="""Укажите свой пол""",
             reply_markup=builder.as_markup()
         )
+        
+        
+@user_router.callback_query(F.data == "god_mod")
+async def god_mod_callback(call: types.CallbackQuery):
+    user_db = await get_user(str(call.message.chat.id))
+    god_mod = user_db.get("god_mod", False)
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Инструкция",
+        callback_data="inst_god_mod"
+    )
+    if god_mod:
+        builder.button(
+            text="Выкл. режим бога",
+            callback_data="off_god_mod"
+        )
+    else:
+        builder.button(
+            text="Вкл. режим бога",
+            callback_data="on_god_mod"
+        )
+    await call.message.answer(
+        text="Управление режимом бога 💫",
+        reply_markup=builder.as_markup()
+    )
+    
+    
+@user_router.callback_query(F.data == "on_god_mod")
+async def on_god_mod_callback(call: types.CallbackQuery):
+    await update_user(str(call.message.chat.id), god_mod=True)
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Инструкция",
+        callback_data="inst_god_mod"
+    )
+    builder.button(
+        text="На главную",
+        callback_data="home"
+    )
+    await call.message.answer(
+        text="""Режим бога активирован! Просто напиши мне описание, какое фото ты хочешь получить, и он создаст для тебя желанный образ.
+*Чтобы получить более точный результат, ознакомься с инструкцией по созданию идеальных запросов ⬇️
+""",
+        reply_markup=builder.as_markup()
+    )
+    
+    
+@user_router.callback_query(F.data == "off_god_mod")
+async def off_god_mod_callback(call: types.CallbackQuery):
+    await update_user(str(call.message.chat.id), god_mod=False)
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="На главную",
+        callback_data="home"
+    )
+    await call.message.answer(
+        text="Режим бога выключен!",
+        reply_markup=builder.as_markup()
+    )
+    
+    
+@user_router.message()
+async def inst_god_mod_callback(message: types.Message, state: FSMContext):
+    user_db = await get_user(str(message.chat.id))
+    if not user_db.get("god_mod"):
+        builder = InlineKeyboardBuilder()
+        builder.button(
+            text="Вкл. режим бога",
+            callback_data="on_god_mod"
+        )
+        await message.answer("Сначала включите режим бога", reply_markup=builder.as_markup())
+        return
+    text = message.text
+    await state.update_data(god_mod_text=text)
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Выбрать эффект",
+        callback_data="styles_effect"
+    )
+    await message.answer(
+        text="Ваш текст сохранен",
+        reply_markup=builder.as_markup()
+    )
+    
+    
+    
+@user_router.callback_query(F.data == "inst_god_mod")
+async def inst_god_mod_callback(call: types.CallbackQuery):
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Назад",
+        callback_data="god_mod"
+    )
+    await call.message.answer(
+        text="""📝 Инструкция: как создать идеальный запрос для вашего фото?
+1️⃣ Укажи какое именно фото вы хотите: портрет, в полный рост и т.д.
+2️⃣ Выбери стиль: спортсмен, рок-музыкант, футболист или королева.
+3️⃣ Подробно опишите свой стиль: одежду, прическу, аксессуары, черты лица, фигуру
+4️⃣ Тщательно сформулируй запрос, описав фон и оформление: что происходит позади тебя, как это должно выглядеть, какая поза у тебя, какое действие происходит на фото.
+5️⃣ Избегайте длинных предложений. Каждый запрос вводи кратко, разделяя запятыми.
+Действуй по этим правилам и ты получишь свое идеальное фото всего через 30 секунд! ✅
+""")
     
     
 @user_router.callback_query(F.data == "styles_effect")
@@ -319,7 +422,7 @@ async def styles_effect_callback(call: types.CallbackQuery):
         callback_data="no_effect"
     )
     await call.message.answer(
-        text="""Выберите эффект""",
+        text="Выберите эффект",
         reply_markup=builder.as_markup()
     )
     
@@ -411,7 +514,23 @@ async def handle_effect_handler(call: types.CallbackQuery, state: FSMContext):
         await state.update_data(gender=gender, tune_id=tune_id)
     
     data = await state.get_data()
-    log.debug(data)
+    user_db = await get_user(str(call.message.chat.id))
+    god_mod_text = f"sks {gender} {data.get('god_mod_text')}"
+    if data.get("god_mod_text") and user_db.get("god_mod"):
+        if not effect:
+            effect = "no_effect"
+        if effect != "no_effect":
+            effect = effect.split("_")[0]
+        else:
+            effect = None
+        await generate_photos_helper(
+            call=call,
+            effect=effect,
+            tune_id=tune_id,
+            user_prompt=god_mod_text
+        )
+        await state.update_data(god_mod_text=None)
+        return
     categories = get_categories(gender=gender, json_file=json_file)
     builder = InlineKeyboardBuilder()
     for c in categories:
@@ -419,7 +538,7 @@ async def handle_effect_handler(call: types.CallbackQuery, state: FSMContext):
             text=c.get("name"),
             callback_data=c.get("slug")
         )
-    builder.adjust(2,2,2,2,2, repeat=True)
+    builder.adjust(2, 2, 2, 2, 2, repeat=True)
     builder.button(
         text="На главную",
         callback_data="home"
@@ -463,20 +582,31 @@ async def handle_category_handler(call: types.CallbackQuery, state: FSMContext):
         tune_id = tunes[0].get("tune_id")
         await state.update_data(gender=gender, tune_id=tune_id)
     if not effect:
-        builder = InlineKeyboardBuilder()
-        builder.button(
-            text="Выбрать",
-            callback_data="styles_effect"
-        )
-        await call.message.answer("У вас не выбран эффект", reply_markup=builder.as_markup())
-        return
+        effect = "no_effect"
+    
+    if user_db.get("god_mod"):
+        await update_user(str(call.message.chat.id), god_mod=False)
+        await state.update_data(god_mod_text=None)
         
     user_prompt = get_random_prompt(json_file=json_file, gender=gender, category_slug=category_slug)
-        
+    
     if effect != "no_effect":
         effect = effect.split("_")[0]
     else:
         effect = None
+    
+    await generate_photos_helper(
+        tune_id=tune_id,
+        user_prompt=user_prompt,
+        effect=effect,
+        call=call
+    )
+
+
+async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_prompt: str, effect: str):
+    log.debug(tune_id)
+    log.debug(user_prompt)
+    log.debug(effect)
     gen_response = await generate_images(
         tune_id=int(tune_id), 
         promt=user_prompt,
@@ -484,6 +614,7 @@ async def handle_category_handler(call: types.CallbackQuery, state: FSMContext):
     )
     
     if not gen_response or "id" not in gen_response:
+        log.error(gen_response)
         await call.message.answer("❌ Ошибка при запуске генерации изображений.", reply_markup=get_main_keyboard())
         return
 
@@ -501,12 +632,10 @@ async def handle_category_handler(call: types.CallbackQuery, state: FSMContext):
         
     user_db = await get_user(str(call.message.chat.id))
     new_count_gen = user_db.get("count_generations") - 3
-    upd_res = await update_user(str(call.message.chat.id), count_generations=new_count_gen)
-    log.debug(upd_res)
+    await update_user(str(call.message.chat.id), count_generations=new_count_gen)
     await bot.send_media_group(chat_id=call.message.chat.id, media=media_group.build())
-    
     await delete_user_images(str(call.message.chat.id))
-    
+
     
 def get_main_keyboard():
     return types.InlineKeyboardMarkup(

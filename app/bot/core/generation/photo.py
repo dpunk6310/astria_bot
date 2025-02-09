@@ -50,11 +50,11 @@ async def generate_images(tune_id: int, promt: str, effect: str = None):
         'prompt[steps]': 40,
         'prompt[super_resolution]': "true",
         'prompt[inpaint_faces]': "true",
-        'prompt[num_images]': 8
+        'prompt[num_images]': 3
     }
     if effect is not None:
         data['prompt[style]'] = effect
-
+    log.debug(data)
     async with httpx.AsyncClient() as client:
         try:
             response = await client.post(f"https://api.astria.ai/tunes/{tune_id}/prompts", data=data, headers=headers)
