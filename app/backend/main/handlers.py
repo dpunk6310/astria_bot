@@ -80,6 +80,15 @@ def payment_received(request):
         return 400, {"message": "error", "err": "user not found"}
 
 
+@router.get("/get-avatar-price-list", response={200: PriceListDTO, 400: ErrorDTO})
+def get_avatar_pay(request):
+    try:
+        price_list = PriceList.objects.get(learn_model=True)
+    except Exception as err:
+        return 400, {"message": "error", "err": "not price_list in db"}
+    return 200, price_list
+
+
 @router.get("/get-user/{tg_user_id}", response={200: UserDTO, 400: ErrorDTO})
 def get_user(request, tg_user_id: str):
     try:

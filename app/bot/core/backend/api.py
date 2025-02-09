@@ -57,6 +57,10 @@ async def get_price_list() -> dict:
     return response
 
 
+async def get_avatar_price_list() -> dict:
+    response = await client.get_request(url=DJANGO_URL+f"/api/main/get-avatar-price-list")
+    return response
+
 async def get_tune(
     tune_id: str,
 ) -> dict:
@@ -81,13 +85,15 @@ async def create_payment(
     tg_user_id: str,
     payment_id: str,
     сount_generations: int,
-    amount: str
+    amount: str,
+    learn_model: bool = False,
 ) -> dict:
     response = await client.post_request(url=DJANGO_URL+"/api/main/create-payment", data={
         "tg_user_id": tg_user_id,
         "payment_id": payment_id,
         "сount_generations": сount_generations,
         "amount": amount,
+        "learn_model": learn_model,
     })
     return response
 
