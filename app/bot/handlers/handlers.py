@@ -46,6 +46,9 @@ class UploadPhotoState(StatesGroup):
     effect = State()
     tune_id = State()
     god_mod_text = State()
+    
+    
+BUTTON_TEXTS = {"Стили", "Режим бога", "Аватар", "Генерации", "Настройки", "Служба заботы"}
 
 
 @user_router.message(CommandStart())
@@ -81,7 +84,7 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
         builder = InlineKeyboardBuilder()
         builder.button(
             text=f"{avatar_price_list.get('count')} модель",
-            callback_data=f"inst_payment_{avatar_price_list.get('price')}_{avatar_price_list.get('count')}_{avatar_price_list.get('learn_model')}"
+            callback_data=f"inst_payment_{avatar_price_list.get('price')}_0_{avatar_price_list.get('learn_model')}"
         )
         await messages[-1].answer("Оплатите создание аватара", reply_markup=builder.as_markup())
         return
@@ -205,13 +208,13 @@ async def inst_next_callback(call: types.CallbackQuery):
 
 @user_router.message(F.text == "Генерации")
 async def generations_stat_callback(message: types.Message):
-    user_db = await get_user(message.message.chat.id)
+    user_db = await get_user(message.chat.id)
     builder = InlineKeyboardBuilder()
     builder.button(
         text="💳 Докупить фото",
         callback_data="prices_photo"
     )
-    await message.message.answer(
+    await message.answer(
         text="""
 Спасибо что ты с нами, ты такой талантливый! А талантливым людям надо держаться вместе 🖖🤝❤️
 
@@ -226,13 +229,14 @@ async def prices_photo_callback(call: types.CallbackQuery):
     price_list = await get_price_list()
     builder = InlineKeyboardBuilder()
     price_str = ""
+    user_db = await get_user(str(call.message.chat.id))
     for i in price_list:
         if i.get("learn_model"):
             continue
         sale = i.get("sale", None)
         builder.button(
             text=f"{i.get('count')} фото",
-            callback_data=f"inst_payment_{i.get('price')}_{i.get('count')}_{i.get('learn_model')}"
+            callback_data=f"inst_payment_{i.get('price')}_{i.get('count')}_{user_db.get('is_learn_model')}"
         )
         if not sale or sale == "":
             price_str += f"* {i.get('count')} фото: {i.get('price')}₽\n"
@@ -286,7 +290,7 @@ async def start_upload_photo_callback(call: types.CallbackQuery):
         builder = InlineKeyboardBuilder()
         builder.button(
             text=f"{avatar_price_list.get('count')} модель",
-            callback_data=f"inst_payment_{avatar_price_list.get('price')}_{avatar_price_list.get('count')}_{avatar_price_list.get('learn_model')}"
+            callback_data=f"inst_payment_{avatar_price_list.get('price')}_0_{avatar_price_list.get('learn_model')}"
         )
         await call.message.answer("Оплатите создание аватара", reply_markup=builder.as_markup())
         return
@@ -364,8 +368,12 @@ async def off_god_mod_callback(call: types.CallbackQuery):
     )
     
     
-@user_router.message()
+@user_router.message(~F.text.in_(BUTTON_TEXTS))
 async def inst_god_mod_callback(message: types.Message, state: FSMContext):
+    if message.text in BUTTON_TEXTS:
+        # await bot.delete_message(message.chat.id, message.message_id)
+        return
+    
     user_db = await get_user(str(message.chat.id))
     if not user_db.get("god_mod"):
         builder = InlineKeyboardBuilder()
@@ -505,22 +513,32 @@ async def handle_effect_handler(call: types.CallbackQuery, state: FSMContext):
     
     data = await state.get_data()
     user_db = await get_user(str(call.message.chat.id))
-    god_mod_text = f"sks {gender} {data.get('god_mod_text')}"
-    if data.get("god_mod_text") and user_db.get("god_mod"):
-        if not effect:
-            effect = "no_effect"
-        if effect != "no_effect":
-            effect = effect.split("_")[0]
+    if user_db.get("god_mod"):
+        if data.get("god_mod_text"):
+            god_mod_text = f"sks {gender} {data.get('god_mod_text')}"
+            if not effect:
+                effect = "no_effect"
+            if effect != "no_effect":
+                effect = effect.split("_")[0]
+            else:
+                effect = None
+            await generate_photos_helper(
+                call=call,
+                effect=effect,
+                tune_id=tune_id,
+                user_prompt=god_mod_text
+            )
+            await state.update_data(god_mod_text=None)
+            return
         else:
-            effect = None
-        await generate_photos_helper(
-            call=call,
-            effect=effect,
-            tune_id=tune_id,
-            user_prompt=god_mod_text
-        )
-        await state.update_data(god_mod_text=None)
-        return
+            builder = InlineKeyboardBuilder()
+            builder.button(
+                text="Инструкция",
+                callback_data="inst_god_mod"
+            )
+            await call.message.answer("Вы не ввели текст", reply_markup=builder.as_markup())
+            return
+            
     categories = get_categories(gender=gender, json_file=json_file)
     builder = InlineKeyboardBuilder()
     for c in categories:
