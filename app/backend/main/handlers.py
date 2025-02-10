@@ -127,7 +127,7 @@ def get_tune(request, tune_id: str):
 @router.get("/get-prices-list", response={200: list[PriceListDTO], 400: ErrorDTO})
 def get_price_list(request):
     try:
-        price_list = PriceList.objects.all()
+        price_list = PriceList.objects.all().order_by("count")
     except Exception as err:
         log.error(err)
         return 400, {"message": "error", "err": "not price_list in db"}
