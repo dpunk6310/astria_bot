@@ -1,15 +1,22 @@
-import requests
+from openai import OpenAI
 
 
-API_URL = 'https://api.astria.ai/tunes/2103900/prompts'
+def translate_promt(promt: str) -> str:
+    client = OpenAI(api_key="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")
 
-headers = {'Authorization': f'Bearer sd_L7JgJDHjtEJL1pgpXuPRoVjYNbJtGg'}
+    completion = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {
+                "role": "system", 
+                "content": "You are an assistant in creating good scripts for flux (for generating photos) and translating them into English. I'll write you a promt, it may be short - then you need to adapt it for the Flux neural network - add details, colors, and make the query more interesting. At the same time, I can send you a high-quality and detailed promt, then it doesn't need to be changed. The volume will speak about the quality. if the promt is large, it means that it does not need to be changed. in response, you need to send an improved promt in English, without unnecessary words, phrases, symbols, etc. if the promt from me is initially good, duplicate my promt in response."
+            },
+            {
+                "role": "user",
+                "content": promt
+            }
+        ]
+    )
+    return completion.choices[0].message.content
 
-data = {
-    'prompt[text]': '<lora:2103900:1> a painting of sks man / woman in the style of Van Gogh',
-    'prompt[callback]': 'https://webhook.site/f9674fa9-1bd3-4e31-b6b5-624dd7f045e9'
-}
-
-response = requests.post(API_URL, headers=headers, data=data)
-print(response)
-print(response.text)
+print(translate_promt("Девушка на красной машине"))
