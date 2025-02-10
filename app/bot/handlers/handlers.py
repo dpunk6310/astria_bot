@@ -270,6 +270,12 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
 Теперь можно приступать к генерациям! Для этого нажми на кнопки "Стили" или "Режим бога" внизу экрана.
 """, reply_markup=get_main_keyboard()
         )
+        for i in imgs:
+            try:
+                os.remove(i)
+            except Exception as err:
+                log.error(err)
+                continue
 
 
 @user_router.message(F.text == "Выбор аватара")
