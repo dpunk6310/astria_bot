@@ -1,76 +1,191 @@
 
 {
     "man": {
-    "categories": [
-      {
-        "name": "Король ❤️",
-        "slug": "category_man_corol",
-        "promts": [
-          "sks man with good muscles, he sits on a velvet throne in a palace with bright lighting, gold-framed paintings on the walls, columns in the background, a crown on his head, a scepter in his hands, a ceremonial robe on top of it, a velvet formal suit, strict boots on his feet, an elegant pose, a haughty expression on his face"
-        ]
-      },
-      {
-        "name": "Бог ❤️",
-        "slug": "category_man_god",
-        "promts": [
-          "sks man looks like Poseidon, powerful with very good muscles, holds a trident in his hands, sits majestically on a chariot, behind him is a stormy sea and sharp reefs, thunder and lightning in the sky, a dark atmosphere"
-        ]
-      },
-      {
-        "name": "Свадьба ❤️",
-        "slug": "category_man_svadba",
-        "promts": [
-          "sks man standing on the street near the wedding palace in a classic pantsuit with a boutonniere, a shirt with a tie, classic shoes, there are a lot of people nearby, the weather is sunny, the atmosphere is joyful, the mood is festive",
-          "sks man sitting in a classic pantsuit with a boutonniere, shirt and tie at a festive table, there is a lot of food on the table, there are beautiful candles and flowers, a solemn atmosphere, people are sitting and standing nearby, in the background there are beautiful hanging plants in which the lights from the garland are intertwined"
-        ]
-      },
-      {
-        "name": "Old Money ❤️",
-        "slug": "category_man_old_money",
-        "promts": [
-          "sks man stands in an elegant silk suit on the transparent balcony of a skyscraper, behind the skyscrapers and the river, the night atmosphere, next to him a table with glasses of expensive champagne, lobster on plates, marbled beef, white truffles, laconic candles"
-        ]
-      },
-      {
-        "name": "Пляж ❤️",
-        "slug": "category_man_plaj",
-        "promts": [
-          "sks man a well-muscled man in linen shorts and sunglasses is standing on the sand among palm trees, with an endless ocean with shallow waves in the background, and good weather"
-        ]
-      }
-    ]
+      "categories": [
+        {
+          "name": "Король 👑",
+          "slug": "category_man_corol",
+          "promts": [
+            "sks man with good muscles, he sits on a velvet throne in a palace with bright lighting, gold-framed paintings on the walls, columns in the background, a crown on his head, a scepter in his hands, a ceremonial robe on top of it, a velvet formal suit, strict boots on his feet, an elegant pose, a haughty expression on his face",
+            "A regal and majestic portrait of a sks man, the king, wearing an ornate royal robe adorned with intricate gold embroidery and a magnificent fur-trimmed cape. He stands tall, his posture exuding confidence and authority, his piercing gaze commanding attention. The king is set against a backdrop of a grand, opulent throne room, the warm lighting casting a warm glow on his noble features. This photographic masterpiece captures the essence of power and sovereignty.",
+            "A whimsical digital illustration depicting the sks man, the king, in a playful and lighthearted manner. The king is shown lounging on a plush velvet chaise, his expression relaxed and amused. He is dressed in a richly embroidered robe, his crown perched atop his head at a jaunty angle. The setting is a cozy, intimate library, shelves of leather-bound books lining the walls and a crackling fireplace casting a warm glow. This charming depiction showcases the king's more whimsical and carefree side.",
+            "A striking close-up photograph of the sks man, the king, his intense gaze captivating the viewer. The king's features are sharp and angular, his brow furrowed with a hint of a frown. He is adorned with a magnificent crown, the intricate metalwork and precious gems catching the light and drawing the eye. The background is blurred, ensuring the focus remains solely on the king's powerful and commanding presence.",
+            "A moody and atmospheric digital painting of the sks man, the king, seated on his throne in a dimly lit throne room. The king's face is partially obscured by shadows, adding an air of mystery and intrigue to his expression. He is dressed in a sumptuous velvet robe, the fabric's rich hues complementing the somber tones of the setting. The throne room is illuminated by flickering candlelight, casting a warm, haunting glow and evoking a sense of the king's solitary contemplation.",
+            "A stunning 3D rendered image of the sks man, the king, presented in a majestic, larger-than-life statue. The king's features are chiseled with precise detail, his expression one of regal stoicism. He is clad in ornate, gilded armor, his cape billowing dramatically behind him. The statue is set against a backdrop of a grand, awe-inspiring cathedral, the towering spires and stained-glass windows adding to the sense of grandeur and reverence."
+          ]
+        },
+        {
+          "name": "Бог 🔱",
+          "slug": "category_man_god",
+          "promts": [
+            "sks man looks like Poseidon, powerful with very good muscles, holds a trident in his hands, sits majestically on a chariot, behind him is a stormy sea and sharp reefs, thunder and lightning in the sky, a dark atmosphere",
+            "Silhouetted against the vibrant, painted sky of a celestial realm, the sks man stands tall, his arms outstretched in a gesture of benediction. The intricate details of his garments and the subtle play of light and shadow across his features lend an air of mysticism and reverence to the scene.",
+            "Illuminated by the warm, diffused light of a stained-glass window, the sks man's face is a study in reverence and devotion, his eyes closed in prayer. The intricate details of his ornate robes and the surrounding sacred space lend an air of timeless spirituality to the scene, evoking a sense of the divine and the eternal.",
+            "Capturing the essence of Apollon's divine radiance, the sks man is depicted in a full-body pose, his robes flowing gracefully around him as if caught in a gentle breeze. The lighting is soft and diffused, creating a halo-like effect around his head and lending an ethereal quality to the scene. The background is a serene, azure sky, suggesting a realm beyond the mortal plane and reinforcing the sks man's connection to the celestial realm.",
+            "Stepping forth from the pages of ancient Greek mythology, the sks man as Apollon stands amidst a lush, verdant garden, basking in the warm, golden sunlight. His expression is one of benevolent authority, as if he were bestowing his blessings upon the land. The delicate, leaf-patterned fabric of his robes sways gently in a soft breeze, adding a sense of movement and vitality to the scene."
+          ]
+        },
+        {
+          "name": "Свадьба 🤵‍♂️",
+          "slug": "category_man_wedding",
+          "promts": [
+            "sks man standing on the street near the wedding palace in a classic pantsuit with a boutonniere, a shirt with a tie, classic shoes, there are a lot of people nearby, the weather is sunny, the atmosphere is joyful, the mood is festive",
+            "sks man sitting in a classic pantsuit with a boutonniere, shirt and tie at a festive table, there is a lot of food on the table, there are beautiful candles and flowers, a solemn atmosphere, people are sitting and standing nearby, in the background there are beautiful hanging plants in which the lights from the garland are intertwined",
+            "A young, dashing sks man steps out of a vintage, elegantly decorated wedding limousine, his expression radiating a mixture of excitement and anticipation. His slim-fitting, charcoal-gray tuxedo complements his slender, athletic build, while the carefully styled hair and neatly trimmed beard add to his polished, sophisticated appearance. The picturesque, historic city street serves as a stylish, urban backdrop for this wedding day portrait.",
+            "A handsome, stylish sks man stands confidently in the center of a grandiose, ornate wedding venue. His tuxedo is impeccably tailored, the fabric shimmering in the soft, warm lighting. His expression is serene, exuding an air of sophistication and anticipation as he awaits his bride. The opulent background features intricate architectural details and lush floral arrangements, setting the stage for a romantic, elegant wedding ceremony.",
+            "A handsome, mature sks man stands confidently in the center of a sun-dappled garden, his expression conveying a sense of contentment and joy. His well-fitted, midnight-blue tuxedo accentuates his distinguished, classic style, while the lush, vibrant foliage and delicate floral arrangements create a serene, natural setting for this elegant wedding portrait.",
+            "A young, dashing sks man gazes lovingly at the camera, his expression brimming with happiness and excitement. He is dressed in a sharp, classic black tuxedo, the crisp lines and tailored fit accentuating his confident, charismatic presence. The scene is set against a picturesque outdoor backdrop, with a stunning garden or vineyard providing a lush, natural setting for the wedding festivities."
+          ]
+        },
+        {
+          "name": "Old Money 💰",
+          "slug": "category_man_old_money",
+          "promts": [
+            "sks man stands in an elegant silk suit on the transparent balcony of a skyscraper, behind the skyscrapers and the river, the night atmosphere, next to him a table with glasses of expensive champagne, lobster on plates, marbled beef, white truffles, laconic candles",
+            "Seated in a plush, velvet armchair, a sks man savors a glass of fine, aged whisky, his expression one of quiet, contemplative enjoyment. His luxurious, bespoke smoking jacket and the richly-appointed, wood-paneled study that surrounds him suggest a life of cultivated indulgence and refined, hedonistic pleasures. The soft, warm lighting and the muted, sepia-toned photographic style create a sense of timeless, gentlemanly elegance.",
+            "A sks man stands in a grand, ornate ballroom, his gaze sweeping across the elegant, gilded surroundings. His impeccable, bespoke tuxedo and poised, regal bearing convey a sense of aristocratic refinement and unparalleled social status. The warm, golden light reflects off the ornate chandeliers and polished marble floors, creating a sumptuous, opulent atmosphere, and the image is captured with a high-resolution, cinematic style that highlights the sks man's youthful, debonair charm.",
+            "A sks man stands in a sleek, modern penthouse apartment. The sks man's lean, athletic frame is accentuated by a slim-fit, charcoal gray suit, exuding a sense of understated elegance. His facial expression is pensive, as he gazes out over the expansive cityscape visible through the floor-to-ceiling windows. The minimalist, contemporary decor and the breathtaking urban panorama create an atmosphere of sophisticated, urban sophistication.",
+            "An elegantly attired sks man stands in a grand, marble-clad foyer, his expression serene and pensive. His designer suit, in a subtle, muted palette, is cut to perfection, complementing his tall, slender frame. The lighting is soft and warm, casting a golden glow that enhances the sks man's handsome features. The expansive, high-ceilinged space surrounding him suggests a lavish, prestigious residence, reinforcing his position as a member of the elite."
+          ]
+        },
+        {
+          "name": "Пляж 🏖️",
+          "slug": "category_man_beach",
+          "promts": [
+            "sks man a well-muscled man in linen shorts and sunglasses is standing on the sand among palm trees, with an endless ocean with shallow waves in the background, and good weather",
+            "A handsome, middle-aged sks man reclined on a brightly colored beach towel, his eyes hidden behind a pair of stylish sunglasses as he reads a book. His crisp, white linen shirt and khaki shorts convey a sense of refined, coastal style that perfectly suits the serene, sun-drenched setting. The rhythmic sound of the waves lapping at the shore creates a calming, tranquil atmosphere.",
+            "A strikingly attractive sks man strolling along the beach, his confident, casual stride effortlessly conveying a sense of carefree confidence. He's dressed in a well-fitted, light-colored linen shirt and tailored, khaki shorts, a look that seamlessly captures the effortless elegance of coastal style. His rugged, sun-kissed features and warm, friendly smile create a welcoming, approachable presence.",
+            "A striking, bespectacled sks man seated on a driftwood log, his gaze focused intently on the pages of a book as he immerses himself in the tranquil, coastal setting. His outfit, a crisp, white button-down shirt and slim-fit, navy blue trousers, exudes a sense of refined, intellectual style that perfectly complements the serene, sun-dappled environment. The soft, diffused light and muted, natural tones create a calming, contemplative atmosphere.",
+            "A ruggedly handsome sks man standing at the water's edge, his toned, muscular physique on display in a pair of form-fitting, charcoal-gray board shorts. His face is partially obscured by a well-worn, wide-brimmed hat, but his intense, unwavering gaze and chiseled features convey a sense of quiet, understated power. The dramatic, stormy sky and crashing waves create a moody, atmospheric backdrop that heightens the sense of raw, elemental energy."
+          ]
+        },
+        {
+          "name": "Великий Гэтсби 🎩",
+          "slug": "category_man_gatsby",
+          "promts": [
+            "In a dimly lit speakeasy, a dapper sks man sips from a crystal tumbler, his expression a mix of contemplation and subtle amusement. His three-piece suit is impeccably cut, the fabric's sheen catching the soft, amber glow of the overhead lamps. The setting's warm, sepia-toned ambiance transports the viewer to the heady, decadent world of the Roaring Twenties.",
+            "Captured in a warm, sepia-toned photograph, a handsome sks man in a well-fitted, three-piece suit reclines in a plush, leather armchair, his expression thoughtful and introspective. The soft, muted tones and the cozy, intimate setting evoke a sense of quiet sophistication, evoking the refined, Gatsby-inspired aesthetic.",
+            "Silhouetted against the backdrop of a lush, moonlit garden, a sks man in a sleek, double-breasted suit cuts a dashing figure. His expression is pensive, yet his posture exudes a sense of elegance and grace. The soft, diffused lighting and the verdant, romantic setting evoke a sense of timeless, Gatsby-esque sophistication.",
+            "Silhouetted against the backdrop of a grand, Art Deco-inspired mansion, a sks man in a sleek, double-breasted tuxedo stands with an air of confidence and authority. The dramatic, moody lighting casts a sharp, angular contrast, emphasizing the clean lines of his impeccably tailored ensemble. This cinematic portrait captures the essence of the Gatsby era's timeless, sophisticated charm."
+          ]
+        },
+        {
+          "name": "Спорт / фитнесс 🏋️‍♂️",
+          "slug": "category_man_sport",
+          "promts": [
+            "A handsome, athletic sks man in a sleek sports jersey and compression shorts, his powerful physique on full display as he strikes a confident, determined pose on a lush, green playing field under the warm glow of the setting sun. The scene is captured through the lens of a high-quality DSLR camera, creating a striking, cinematic look that conveys the sks man's passion for his sport.",
+            "A young, handsome sks man in a fitted, neon-green workout top and sleek, black leggings sprints down a winding, outdoor trail, his face etched with determination as he pushes himself to the limit. The scene is captured with a high-speed camera, freezing the sks man's dynamic movement and capturing the energy and intensity of his workout.",
+            "A muscular, athletic sks man in a classic, gray sweatshirt and black joggers sits on a bench in a bustling, urban gym, his face reflecting a pensive, introspective expression as he takes a moment to rest and reflect on his training. The scene is captured through the lens of a professional photographer, with the contrast between the sks man's powerful physique and his contemplative pose creating a compelling, layered image.",
+            "A striking, beautiful sks man in a sleek, black compression top and shorts stands in a sun-drenched, outdoor fitness studio, his face alight with a confident, energetic expression as he guides a group of students through a dynamic yoga flow. The scene is captured with a wide-angle lens, highlighting the sks man's commanding presence and the serene, peaceful atmosphere of the studio.",
+            "A muscular, athletic sks man in a sleek, neon-pink workout top and black shorts sprints down a sun-drenched, outdoor track, his face etched with determination as he pushes himself to the limit. The scene is captured with a high-speed camera, freezing the sks man's dynamic movement and highlighting the power and grace of his athletic form."
+          ]
+        },
+        {
+          "name": "Ангел/Демон 😇😈",
+          "slug": "category_man_angel_demon",
+          "promts": [
+            "A rugged, demonic-looking sks man stands amidst a chaotic, hellish landscape, his eyes glowing with an intense, fiery light. His face is twisted in a menacing snarl, and his muscular, tattooed body is adorned with dark, intricate markings. The background is a swirling maelstrom of flames and shadows, creating a sense of overwhelming power and danger. This image is a dramatic, cinematic 3D render, with attention to the sks man's imposing physical presence and the intense, foreboding atmosphere.",
+            "A beautiful, youthful sks man appears as a fallen angel, his once-pristine wings tattered and dragging behind him. His expression is one of melancholy and regret, as if he's come to terms with his descent from grace. The background is a bleak, desolate wasteland, with a somber, muted color palette that reinforces the sorrow of his situation. This image is a moody, atmospheric illustration, with attention to the delicate details of the sks man's weathered wings and somber demeanor.",
+            "A young, angelic sks man kneels in prayer, his expression a mixture of humility and devotion. His robes are pristine and flowing, and a soft, diffused light bathes him in a serene glow. The background is a tranquil, otherworldly landscape, with a hint of a distant, celestial horizon that suggests a divine realm. This image is a digital illustration, with a delicate, ethereal quality that captures the sks man's spiritual connection.",
+            "A striking, demon-like sks man towers over the viewer, his eyes burning with an intense, fiery glow. His chiseled features are partially obscured by a dark, hooded robe that drapes dramatically over his muscular frame. The background is a swirling, ominous landscape, with ominous clouds and flashes of lightning that add to the sense of foreboding. This image is a dramatic, high-contrast photography style, capturing the sks man's powerful and threatening presence."
+          ]
+        },
+        {
+          "name": "В белье 🩲",
+          "slug": "category_man_underwear",
+          "promts": [
+            "A handsome sks man in a sleek and stylish pair of black silk underwear poses confidently in a dimly lit, modern bedroom. His muscular physique is accentuated by the soft lighting, creating an alluring and mysterious atmosphere. The sks man's facial expression is one of subtle sensuality, drawing the viewer in with a captivating gaze.",
+            "A handsome, athletic sks man stands in a lush, tropical garden, wearing a pair of vibrant, tropical-print boxer briefs. The verdant, sun-dappled foliage and the warm, golden light create a sense of natural, earthy beauty, while the sks man's relaxed, confident pose and his captivating, sun-kissed appearance evoke a carefree, vacation-inspired charm.",
+            "A beautiful, young sks man stands in a serene, minimalist bathroom, wearing a pair of soft, gray boxer briefs. The clean, bright lighting and the simple, elegant decor create a calming, spa-like atmosphere, highlighting the sks man's effortless, natural beauty and allowing the viewer to focus on his refined, elegant features.",
+            "A striking, muscular sks man reclines on a plush, white bed, wearing a pair of crimson boxer briefs that accentuate his powerful physique. The soft, diffused lighting and the luxurious bedding create a sense of intimacy and indulgence, while the sks man's intense gaze and confident pose convey a captivating, sensual allure.",
+            "A beautiful, young sks man lounges on a plush, tufted chaise in a cozy, traditional study, wearing a pair of soft, heather-gray boxer briefs. The warm, inviting lighting and the rich, wood-paneled decor create a sense of refined, gentlemanly comfort, while the sks man's relaxed, confident pose and his captivating, youthful features evoke a sense of refined, elegant charm."
+          ]
+        },
+        {
+          "name": "Old money 👔",
+          "slug": "category_man_old_money",
+          "promts": [
+            "Relaxing in a plush leather chair, the sks man sips a glass of vintage wine, his eyes half-lidded in an expression of quiet contentment. His attire, a bespoke three-piece suit with a vibrant pocket square, suggests a refined and discerning taste. The dimly lit, wood-paneled study, with its collection of rare books and antique humidors, creates an atmosphere of exclusivity and old-money sophistication.",
+            "Seated at a grand piano, the sks man caresses the keys with a practiced hand, his expression one of serene focus. His impeccably tailored suit, complete with a gleaming pocket watch, conveys a sense of timeless elegance. The lavish, chandeliered drawing-room in which he plays suggests a life of privilege and refined tastes, captured in a painterly style that emphasizes the subject's mastery and the grandeur of his surroundings.",
+            "Relaxing in a leather armchair, the sks man peruses a first-edition novel, his brow furrowed in concentration. His tailored suit, with a subtle check pattern, conveys a sense of old-money sophistication. The richly appointed library, with its towering bookshelves and ornate fireplace, creates an atmosphere of exclusivity and intellectual pursuits, captured in a warm, sepia-toned photographic style.",
+            "Silhouetted against the backdrop of a sprawling country estate, the sks man strolls along a gravel path, his stride measured and confident. His suit, a subtle pinstripe, exudes a timeless elegance, complemented by a pocket watch chain glinting in the afternoon sunlight. The lush, manicured gardens surrounding him evoke a sense of old-world opulence, captured in a painterly style that celebrates the subject's regal bearing."
+          ]
+        },
+        {
+          "name": "Толстый 🐻",
+          "slug": "category_man_fat",
+          "promts": [
+            "A rotund sks man stands in the middle of a bustling city street, his imposing presence commanding attention. Clad in a bright, eye-catching Hawaiian shirt and loose-fitting khaki shorts, he displays a carefree, laid-back attitude, his facial expression subtly conveying a sense of contentment and self-assurance. The scene is captured in a vibrant, sun-drenched style, with the warm lighting and lively urban backdrop creating a lively, cheerful atmosphere.",
+            "A portly, charismatic-looking sks man stands in the middle of a bustling, neon-lit city street, his presence commanding attention. Wearing a bold, brightly colored ensemble that reflects his vibrant, larger-than-life personality, he exudes a sense of confidence and joie de vivre, his facial expression conveying a playful, mischievous energy. The photography style is high-contrast and hyper-saturated, with the vibrant, pulsing lights and dynamic urban backdrop creating a sense of energy and excitement that perfectly complements the sks man's larger-than-life persona.",
+            "In a cozy, inviting kitchen, a very fat sks man stands at the stove, stirring a bubbling pot with a look of pure culinary delight on his face. His sleeves are rolled up, and a crisp white apron is tied around his ample waist, conveying a sense of passion and expertise. The scene is captured in a warm, homey illustration style, the vibrant colors and textures highlighting the sks man's joy and the welcoming, comforting atmosphere.",
+            "Amidst the lush, verdant setting of a well-manicured garden, a very fat sks man reclines on a ornate chaise lounge, his substantial form draped in a luxurious silk robe. His eyes are closed, a serene expression on his face, as he indulges in the tranquility of the moment. The lighting is soft and diffused, creating a dreamy, almost ethereal quality to the scene, captured through the lens of a high-end portrait camera.",
+            "Amidst the serene, snow-covered landscape of a remote mountain retreat, a very fat sks man stands tall, his fur-trimmed parka and heavy winter boots giving him an air of rugged resilience. His gaze is fixed on the horizon, a contemplative expression on his face as he takes in the breathtaking surroundings. The scene is rendered in a realistic, almost documentary-style illustration, capturing the sks man's striking presence in the vast, untamed wilderness."
+          ]
+        },
+        {
+          "name": "Ребенок 👶",
+          "slug": "category_man_child",
+          "promts": [
+            "A handsome, young-looking sks man in a playful, kid-themed outfit stands in a lush, verdant garden, his gaze filled with a sense of whimsical wonder. The soft, diffused lighting and the surrounding greenery create a serene, dreamlike atmosphere, evoking a sense of innocence and childlike joy.",
+            "A young, handsome sks man in a playful, kid-themed outfit stands in a whimsical, colorful playground, his expression filled with a mischievous grin. The lighting is soft and warm, creating a dreamlike atmosphere. Captured in a charming, illustrated style, the scene evokes a sense of wonder and childlike joy.",
+            "A beautifully illustrated portrait of a sks man, his youthful features seemingly frozen in a state of wonder and curiosity. He wears a brightly colored, child-like outfit, his expression reflecting a sense of pure joy and innocence as he interacts with a group of animated, fantastical creatures in a lush, storybook-inspired environment.",
+            "A sks man, his features rendered in a soft, impressionistic style, stands in a sun-dappled meadow, a child-like, paper aeroplane in his outstretched hand, his expression one of childlike wonder and delight as he watches the toy take flight against the backdrop of a lush, pastoral scene.",
+            "A young sks man, his face captured in a close-up portrait, wears a child-like, animal-themed onesie, his features exuding a sense of playful innocence and joy, as he gazes directly at the viewer, the lighting soft and diffused, lending the image a warm, intimate quality."
+          ]
+        },
+        {
+          "name": "Ufc/Бокс 🥊",
+          "slug": "category_man_ufc_box",
+          "promts": [
+            "A young, handsome sks man stands confidently in a boxing ring, his muscular frame clad in a sleek, black UFC-branded tank top and matching shorts. His expression is focused, eyes narrowed with determination as he prepares for his next bout, the bright overhead lights casting dramatic shadows across his chiseled features.",
+            "In the intimate setting of a UFC training gym, a rugged-looking sks man with a pronounced brow and a strong jawline hammers away at a heavy bag, his movements powerful and precise, the sweat glistening on his toned, muscular frame.",
+            "Framed against the bright, neon-lit backdrop of a UFC event, a striking, young sks man with a chiseled physique and a determined gaze stands in the center of the octagon, his muscles rippling under the skin-tight, black UFC shorts he wears.",
+            "A handsome, well-built sks man in a sleek, black UFC jumpsuit stands in a dimly lit locker room, his expression a mix of focus and intensity as he adjusts the wraps around his hands, preparing for the upcoming fight.",
+            "Illuminated by the harsh, fluorescent lights of the locker room, a rugged-looking sks man with a prominent jawline and intense gaze adjusts the wraps around his hands, his expression a mixture of focus and determination as he readies himself for his upcoming UFC match."
+          ]
+        }
+      ]
   },
   "woman":{
     "categories": [
       {
-        "name": "Королева ❤️",
-        "slug": "category_woman_coroleva",
+        "name": "Королева 👑",
+        "slug": "category_woman_queen",
         "promts": [
           "Seated on a plush, velvet-upholstered chair, the sks woman exudes a sense of regal elegance as the queen of a richly appointed, candlelit chamber. Her magnificent, embroidered gown and serene, yet subtly assertive expression convey a sense of timeless beauty and unwavering authority.",
           "Seated upon a gilded throne, the sks woman appears as a graceful and alluring queen, her flowing, jewel-encrusted dress accentuating her elegant silhouette. Her serene, yet subtly powerful expression conveys a sense of wisdom and poise, as she presides over her court in a high-ceilinged, opulent throne room. Dramatic shadows and highlights, reminiscent of Renaissance portraiture, add depth and drama to the scene.",
-          "A young, beautiful sks woman stands majestically as the queen of a grand palace, her regal, shimmering gown cascading elegantly around her. Her proud expression and confident pose exude an air of authority, as she gazes out over her kingdom with a hint of a benevolent smile. Warm, golden lighting filters through the grand, ornate windows, casting a warm glow upon her face."
+          "A young, beautiful sks woman stands majestically as the queen of a grand palace, her regal, shimmering gown cascading elegantly around her. Her proud expression and confident pose exude an air of authority, as she gazes out over her kingdom with a hint of a benevolent smile. Warm, golden lighting filters through the grand, ornate windows, casting a warm glow upon her face.",
+          "A stunning sks woman, the gorgeous queen, stands regally in a grand, ornate throne room. Her elegant, flowing gown of shimmering silk and lace cascades around her, accentuating her graceful poise. Her regal features are framed by a delicate crown, and her serene expression radiates a quiet confidence. The warm, golden lighting casts a warm, ethereal glow, highlighting the beauty of this majestic scene. This photographic portrait captures the essence of the queen's timeless elegance.",
+          "The gorgeous queen, a young and radiant sks woman, stands in a majestic throne room, her gaze fixed upon the viewer with an unwavering intensity. Her ornate, jewel-encrusted crown and flowing, crimson velvet gown exude a sense of power and authority. The rich, warm lighting casts dramatic shadows, accentuating the queen's striking features and commanding presence. This digital illustration captures the queen's unyielding resolve and the awe-inspiring grandeur of her domain.",
+          "The gorgeous queen, a young and striking sks woman, stands in a grand, marble-clad throne room, her gaze fixed upon the viewer with a subtle, yet commanding presence. Her intricate, bejeweled crown and flowing, midnight-blue gown exude a sense of power and authority. The stark, dramatic lighting casts bold shadows, heightening the intensity of the queen's expression and the imposing grandeur of her surroundings. This photographic portrait conveys the queen's unwavering resolve and the awe-inspiring majesty of her domain.",
+          "Seated upon a grand, marble throne in a magnificent, palatial chamber, the gorgeous queen, a sks woman of striking beauty and poise, gazes down upon her subjects with a subtle, yet commanding presence. Her intricate, golden crown and flowing, crimson gown exude a sense of power and authority, while her serene, yet intense expression conveys a quiet confidence. The dramatic, shadowplay cast by the warm, overhead lighting heightens the grandeur and drama of the scene, emphasizing the queen's regal bearing and the awe-inspiring majesty of her domain. This digital illustration captures the essence of the queen's timeless elegance and unwavering rule."
         ]
       },
       {
-        "name": "Богиня ❤️",
-        "slug": "category_woman_bogina",
+        "name": "Богиня 🌟",
+        "slug": "category_woman_goddess",
         "promts": [
           "sks woman, a divine goddess of light, with long, flowing golden hair that catches the sunlight, wearing an elegant white gown embroidered with intricate silver patterns. Her skin glows softly, and her piercing blue eyes radiate calm and wisdom. She stands gracefully on a marble platform, surrounded by blooming white lilies and doves. The background features a serene sunset with warm hues of orange and pink, blending into a soft, dreamy sky. Style: hyper-realistic portrait, natural lighting, delicate textures, ethereal and peaceful atmosphere.",
           "sks woman, a majestic goddess of nature, with long, flowing auburn hair cascading down her back, adorned with a crown of golden leaves and blooming flowers. Her skin glows with a radiant, sunlit warmth, and her emerald-green eyes exude power and serenity. She wears a regal, flowing gown made of shimmering green and gold fabrics, with intricate patterns resembling vines and blossoms. A soft, golden aura surrounds her as she stands atop a rocky cliff, overlooking a vast, untouched forest bathed in the golden light of dawn. Mist rises from the valleys below, and birds soar around her in reverence. Style: hyper-realistic, divine and powerful, rich earthy tones, lifelike textures, awe-inspiring atmosphere.",
-          "sks woman, a divine goddess of the cosmos, with long, flowing black hair that shimmers like the night sky, adorned with delicate silver stars and a crescent moon diadem. Her porcelain skin glows faintly, as if reflecting starlight, and her piercing violet eyes radiate wisdom and mystery. She wears an elegant, flowing gown of deep midnight blue, embroidered with constellations and galaxies that seem to shift and sparkle. A luminous, ethereal aura surrounds her as she stands on a floating platform of crystalline obsidian, surrounded by swirling nebulae and distant stars. The background is an infinite expanse of space, with vibrant colors of cosmic clouds and distant planets. Style: hyper-realistic, celestial and majestic, dramatic lighting, intricate details, awe-inspiring and otherworldly atmosphere."
+          "sks woman, a divine goddess of the cosmos, with long, flowing black hair that shimmers like the night sky, adorned with delicate silver stars and a crescent moon diadem. Her porcelain skin glows faintly, as if reflecting starlight, and her piercing violet eyes radiate wisdom and mystery. She wears an elegant, flowing gown of deep midnight blue, embroidered with constellations and galaxies that seem to shift and sparkle. A luminous, ethereal aura surrounds her as she stands on a floating platform of crystalline obsidian, surrounded by swirling nebulae and distant stars. The background is an infinite expanse of space, with vibrant colors of cosmic clouds and distant planets. Style: hyper-realistic, celestial and majestic, dramatic lighting, intricate details, awe-inspiring and otherworldly atmosphere.",
+          "The sks woman, a manifestation of the mystical goddess, stands tall and proud amidst a swirling, cosmic vortex of vibrant colors and glowing energy. Her porcelain-like skin and serene, beautiful features are accentuated by an intricate, ornate headdress that seems to draw energy from the surrounding ethereal forces. Her gaze is distant and enigmatic, as if she is tapping into the very fabric of the universe itself. This awe-inspiring, visually striking scene is captured in a dynamic, cinematic 3D rendering style.",
+          "A young, mystical sks woman, the goddess of the ethereal realm, reclines gracefully upon a cushion of soft, glowing petals in a serene, moonlit garden. Her flowing, diaphanous gown seems to drape effortlessly around her lithe, elegant form, accentuating her captivating beauty. Her gaze is distant and tranquil, as if lost in a reverie of profound contemplation. The surrounding garden is bathed in a soft, ethereal light, creating an atmosphere of tranquility and enchantment. This intimate, dreamlike scene is captured in a delicate, romantic photographic style.",
+          "A regal, mystical sks woman, the goddess of the forgotten realms, stands tall and proud amidst the ruins of an ancient temple. Her ornate, cascading robes and intricate headdress speak of her divine status, while her piercing gaze and confident, statuesque pose exude a sense of power and authority. The crumbling, moss-covered walls and shafts of golden light filtering through the hazy atmosphere create a mystical, timeless ambiance, captured in a cinematic, high-contrast photographic style.",
+          "Enveloped in a shimmering, iridescent aura, the goddess-like sks woman appears to float, her delicate features etched in a serene, almost otherworldly expression. The background is a swirling, ethereal realm of soft, muted hues, adding to the sense of timeless, divine beauty."
         ]
       },
       {
-        "name": "Свадьба ❤️",
-        "slug": "category_woman_svadba",
+        "name": "Свадьба 👰‍♀️",
+        "slug": "category_woman_wedding",
         "promts": [
           "sks woman, a vision of elegance, stands in the heart of a magical garden at golden hour. She wears a timeless A-line wedding gown with a fitted bodice adorned with intricate lace appliqués and a full tulle skirt that cascades into a long, delicate train. Her veil, made of the finest silk tulle, flows gracefully behind her, catching the soft breeze. Her hair is styled in loose, romantic waves, with a few strands framing her face, and she wears a delicate pearl tiara that glimmers in the sunlight. In her hands, she holds a lush bouquet of ivory roses and eucalyptus, tied with a silk ribbon. The garden is alive with guests dressed in formal attire, chatting and laughing under the shade of ancient trees. A string quartet plays softly in the background, and a vintage wooden arch covered in ivy serves as the focal point. The golden light filters through the trees, casting a warm, ethereal glow on the scene. Style: hyper-realistic, cinematic, soft and warm lighting, intricate textures.",
           "sks woman, the epitome of modern sophistication, stands confidently in a grand, opulent ballroom, facing the viewer with a radiant smile. She wears a sleek, form-fitting wedding gown with a plunging V-neckline, a dramatic open back, and a long, satin train that pools elegantly on the floor. The dress is embellished with subtle crystal details that catch the light with every movement. Her hair is styled in a polished low bun, and she wears a pair of stunning diamond chandelier earrings. She holds a minimalist bouquet of white orchids, tied with a black satin ribbon. Behind her, elegantly dressed guests mingle and chat, holding champagne glasses. Towering crystal chandeliers illuminate the space, and mirrored walls reflect the grandeur of the scene. A live band plays soft jazz music in the background, and waiters in tuxedos serve hors d'oeuvres. The lighting is soft yet dramatic, with golden accents that highlight her figure and the luxurious atmosphere. Style: hyper-realistic, modern and luxurious, high contrast lighting, clean and elegant details, chic and glamorous atmosphere.",
-          "sks woman, a free-spirited bohemian bride, stands barefoot on a pristine sandy beach, facing the viewer with a warm, joyful smile. She wears a flowing, ethereal wedding gown with delicate lace detailing, off-the-shoulder sleeves, and a tiered skirt that sways gently in the ocean breeze. Her hair is loose and natural, adorned with a crown of wildflowers and eucalyptus leaves. She holds a whimsical bouquet of dried pampas grass and feathers, tied with a rustic twine. Behind her, guests dressed in casual, bohemian attire sit on wooden benches and colorful rugs, laughing and chatting. A small group of musicians plays acoustic guitars and hand drums, creating a relaxed and joyful atmosphere. A driftwood arch draped with flowing white fabric and greenery serves as the ceremony backdrop. The sky is a breathtaking canvas of pink, orange, and purple hues, reflecting on the calm ocean waves. Children run along the shore, and a few guests dip their toes in the water. Style: hyper-realistic, bohemian and natural, warm sunset lighting, soft textures, dreamy and enchanting atmosphere."
+          "sks woman, a free-spirited bohemian bride, stands barefoot on a pristine sandy beach, facing the viewer with a warm, joyful smile. She wears a flowing, ethereal wedding gown with delicate lace detailing, off-the-shoulder sleeves, and a tiered skirt that sways gently in the ocean breeze. Her hair is loose and natural, adorned with a crown of wildflowers and eucalyptus leaves. She holds a whimsical bouquet of dried pampas grass and feathers, tied with a rustic twine. Behind her, guests dressed in casual, bohemian attire sit on wooden benches and colorful rugs, laughing and chatting. A small group of musicians plays acoustic guitars and hand drums, creating a relaxed and joyful atmosphere. A driftwood arch draped with flowing white fabric and greenery serves as the ceremony backdrop. The sky is a breathtaking canvas of pink, orange, and purple hues, reflecting on the calm ocean waves. Children run along the shore, and a few guests dip their toes in the water. Style: hyper-realistic, bohemian and natural, warm sunset lighting, soft textures, dreamy and enchanting atmosphere.",
+          "A young sks woman in a sophisticated, ivory-colored satin gown glides down the aisle, her expression one of timeless elegance as she is escorted by her proud father. The chapel is bathed in golden light, creating a sense of reverence and solemnity, while the photography style is clean and classic, emphasizing the sks woman's poise and grace."
         ]
       },
       {
-        "name": "Old Money ❤️",
+        "name": "Old Money 💰",
         "slug": "category_woman_old_money",
         "promts": [
           "Relaxing in a plush armchair, a young, handsome sks woman sips a glass of fine wine, her gaze thoughtful and serene. She is dressed in a luxurious, silk robe, her hair tied back, creating a captivating image of refined leisure. The scene is set in a spacious, well-appointed library, with floor-to-ceiling bookshelves and a vast, arched window overlooking a lush, manicured garden.",
@@ -81,8 +196,8 @@
         ]
       },
       {
-        "name": "Пляж ❤️",
-        "slug": "category_woman_plaj",
+        "name": "Пляж 🏖️",
+        "slug": "category_woman_beach",
         "promts": [
           "A stunning sks woman strides through the shallow waves, her long, flowing dress billowing around her in the ocean breeze. Her gaze is introspective and serene, her expression radiating a sense of inner peace and connection with the natural world. The photographer's use of a wide-angle lens and dramatic lighting creates a powerful, cinematic effect, highlighting the sks woman's grace and elegance.",
           "A young sks woman sits cross-legged on a towel, her sun-kissed skin glowing against the vibrant turquoise hue of the ocean. She wears a vibrant, patterned bikini that complements the tropical beach setting, her expression serene and contemplative as she takes in the breathtaking scenery. The image is rendered in a vibrant, illustrative style that captures the warmth and energy of the scene.",
@@ -94,8 +209,8 @@
         ]
       },
       {
-        "name": "Великий Гэтсби ❤️",
-        "slug": "category_woman_viliki_getcby",
+        "name": "Великий Гэтсби 🎩",
+        "slug": "category_woman_gatsby",
         "promts": [
           "A stunning 1920s-inspired sks woman in a Gatsby-themed setting, wearing a shimmering silver flapper dress with a deep V-neckline and feathered accents. She poses gracefully, her elegant expression exuding a captivating mix of confidence and allure, as she stands against a backdrop of art deco-inspired architecture and the warm glow of chandeliers.",
           "A young sks woman, her beautiful face framed by a stylish bob haircut, gazes wistfully into the distance, lost in the enchanting atmosphere of a Gatsby-era speakeasy. She wears a flowing, emerald green dress with delicate beading, her posture exuding a sense of effortless sophistication.",
@@ -106,8 +221,8 @@
           "In a Gatsby-inspired setting, a sks woman in a shimmering, ivory lace dress stands tall, her confident pose and alluring gaze capturing the essence of the roaring twenties. The warm, golden light filters through the tall windows, casting a warm, vintage-inspired glow on her delicate features and the intricate details of her gown."
         ]
       },
-      {
-        "name": "Спорт ❤️",
+     {
+        "name": "Спорт 🏋️‍♀️",
         "slug": "category_woman_sport",
         "promts": [
           "A sporty sks woman in a vibrant, form-fitting athletic outfit stands in a lush, verdant field, her face radiating determination as she prepares to start her training routine on a beautiful, sunny day. The image is captured in a crisp, high-resolution photographic style with a shallow depth of field, highlighting the sks woman's athletic grace and poise.",
@@ -120,8 +235,8 @@
         ]
       },
       {
-        "name": "Беременность ❤️",
-        "slug": "category_woman_beremenost",
+        "name": "Беременность 🤰",
+        "slug": "category_woman_pregnancy",
         "promts": [
           "A pregnant sks woman sits in a cozy, well-lit studio, surrounded by an array of art supplies and creative tools. The image has a warm, inviting quality, with the sks woman's focused expression and the vibrant, tactile environment conveying a sense of artistic passion and inspiration. The photograph is shot in a bright, clean style, with a shallow depth of field that keeps the sks woman's face in sharp focus.",
           "A pregnant sks woman stands in a sunlit, open field, her flowing, sheer dress billowing around her. The image has a dreamlike, ethereal quality, with the sks woman's figure appearing almost otherworldly. The photograph is shot from a low angle, with a wide-angle lens that captures the vast, expansive landscape surrounding her.",
@@ -130,14 +245,131 @@
         ]
       },
       {
-        "name": "В белье ❤️",
-        "slug": "category_woman_v_belie",
+        "name": "В белье 👙",
+        "slug": "category_woman_underwear",
         "promts": [
           "A beautiful young sks woman in a sheer black lace lingerie set poses seductively against a dimly lit, sensual bedroom backdrop. The soft, warm lighting accentuates the delicate fabrics and her sultry expression, creating an intimate, alluring ambiance.",
           "A young, handsome sks woman in a sheer, white silk chemise lounges on a luxurious, velvet chaise, her expression soft and inviting. The opulent, jewel-toned boudoir setting, complete with plush fabrics and rich, atmospheric lighting, evokes a sense of timeless sensuality.",
           "Illuminated by the warm glow of a crackling fireplace, the sks woman stands in a cozy, rustic cabin, wearing a delicate, sheer floral lace bodysuit. Her serene, pensive gaze and the intimate, romantic setting create a dreamy, nostalgic mood.",
           "Wearing a bold, red satin bustier with delicate lace accents, the sks woman strikes a powerful, confident pose in a chic, modern studio setting. The stark, dramatic lighting and high-contrast composition lend an air of sophistication and editorial flair to the image.",
-          "In a high-contrast, black-and-white photograph, a sks woman in a sleek, high-cut bodysuit stands in a minimalist, industrial-inspired studio. Her strong, confident stance and the stark, graphic composition lend an air of modern, editorial sophistication to the image."
+          "In a high-contrast, black-and-white photograph, a sks woman in a sleek, high-cut bodysuit stands in a minimalist, industrial-inspired studio. Her strong, confident stance and the stark, graphic composition lend an air of modern, editorial sophistication to the image.",
+          "Bathed in the soft, diffused light of a sun-filled window, a young sks woman in a delicate, ivory lace bra and panty set gazes wistfully into the distance. The serene, natural setting and her pensive expression evoke a sense of understated, tranquil beauty.",
+          "Illuminated by the warm glow of a crackling fireplace, the sks woman stands in a cozy, rustic cabin, wearing a delicate, sheer floral lace bodysuit. Her serene, pensive gaze and the intimate, romantic setting create a dreamy, nostalgic mood."
+        ]
+      },
+      {
+        "name": "Толстушка 💃",
+        "slug": "category_woman_curvy",
+        "promts": [
+          "A full-figured sks woman with a confident, radiant expression poses gracefully against a backdrop of soft, flattering lighting. Her stylish, high-fashion attire emphasizes her curves, with a flowing, richly-textured dress that cascades elegantly around her form. This sumptuous, artistic portrait captures the beauty and strength of the sks woman, showcasing her as a stunning, powerful subject.",
+          "Bathed in the warm glow of a setting sun, a curvy sks woman stands tall and proud, her face reflecting a serene, introspective mood. Her casual, yet chic ensemble perfectly complements the natural, serene environment, creating a sense of harmony and self-acceptance. This beautifully composed, natural-light photograph celebrates the sks woman's natural beauty and self-assurance.",
+          "A stunningly beautiful, very fat sks woman stands tall and proud, her face lit by the warm glow of a setting sun. She wears a chic, minimalist outfit in shades of black and white, the clean lines and sharp silhouette creating a striking contrast with her voluptuous figure. The background is a sun-drenched urban landscape, hinting at a sense of empowerment and urban sophistication.",
+          "In a dreamlike, ethereal illustration, a young, beautiful sks woman with a very fat physique reclines on a lush, verdant meadow, her gaze directed skyward with a contemplative expression. She wears a flowing, diaphanous gown in shades of soft pink and lavender, the delicate fabric accentuating the gentle curves of her body. The scene is bathed in warm, golden light, conveying a sense of tranquility and inner peace.",
+          "In a moody, atmospheric illustration, a young, beautiful sks woman with a very fat physique sits pensively on a rock overlooking a serene, moonlit lake. She wears a flowing, romantic dress in shades of midnight blue and silver, the fabric rippling in the gentle breeze. The scene is bathed in a cool, ethereal light, creating a sense of contemplation and introspection.",
+          "A powerful, dynamic illustration of a young, beautiful sks woman with a very fat figure. She stands in a dramatic, storm-swept landscape, her expression fierce and determined. She wears a bold, structured outfit in shades of charcoal and crimson, the garment's architectural details accentuating the strength and confidence of her physique. The scene is rendered in a bold, expressive style, conveying a sense of resilience and inner strength.",
+          "A serene, contemplative portrait of a young, beautiful sks woman with a very fat figure. She sits in a sunlit, minimalist interior, her expression reflecting a sense of inner peace and self-acceptance. She wears a simple, elegant sweater in a soft, neutral tone, the garment's simplicity allowing the natural beauty of her form to shine through. The scene is bathed in warm, diffused light, creating a calming, introspective atmosphere."
+        ]
+      },
+      {
+        "name": "Ребенок 👶",
+        "slug": "category_woman_child",
+        "promts": [
+          "A sks woman with a warm, inviting smile stands in a cozy, storybook-inspired bedroom. She wears a delicate, embroidered nightgown and her hair is styled in a playful, childlike manner. The room is filled with pastel hues, plush toys, and whimsical decor, creating a cozy, nostalgic atmosphere.",
+          "A sks woman with a youthful, innocent expression stands in a cozy, storybook-inspired bedroom. She wears a delicate, embroidered nightgown and her hair is styled in pigtails, giving her a playful, child-like appearance. The room is filled with pastel hues, plush toys, and subtle wallpaper patterns, creating a cozy, nostalgic atmosphere.",
+          "A sks woman with a mischievous smile stands in a cozy, toy-filled playroom. She wears a childlike, retro-inspired outfit with bold colors and patterns, her expression conveying a sense of youthful energy. The room is filled with plush toys, books, and whimsical decor, creating a playful, imaginative atmosphere.",
+          "A young, beautiful sks woman in a whimsical childhood dress, with a playful grin and a mischievous glint in her eyes, captured in a warm, nostalgic photographic style against a backdrop of a cozy, sun-dappled meadow.",
+          "A moody, atmospheric photograph of a young sks woman in her childhood, her face partially obscured by the shadows, wearing a delicate, lace-trimmed dress, set against a dimly lit, vintage-inspired interior with a sense of melancholy and nostalgia.",
+          "A soft, dreamlike 3D render of a sks woman in her childhood, her face framed by delicate, wispy curls, her dress a vision of chiffon and lace, set against a blurred, pastel-hued background that evokes a sense of timeless innocence and wonder."
+        ]
+      },
+      {
+        "name": "Барби 🎀",
+        "slug": "category_woman_barbie",
+        "promts": [
+          "A beautiful sks woman in a meticulously-crafted Barbie-esque pink evening gown, posing elegantly in a glamorous ballroom setting with ornate chandeliers and floor-to-ceiling windows overlooking a moonlit city skyline. Her expression is serene and captivating, as if she's the star of her own Barbie-themed fashion show.",
+          "A stylish sks woman embodying the Barbie persona, dressed in a sleek, pink leather jumpsuit and towering high heels. She is situated in a bright, modern living room, surrounded by pastel-colored furniture and accessories that complement her striking appearance. Her gaze is direct and alluring, inviting the viewer to imagine the exciting Barbie-centric narrative unfolding.",
+          "A gorgeous sks woman in a stunning, floor-length Barbie gown, complete with a dramatic, flowing skirt and a structured, embellished bodice. She stands majestically in a lush, flower-filled garden, her expression serene and regal, as if she's the centerpiece of a high-fashion Barbie editorial.",
+          "A beautiful sks woman in a sleek, form-fitting Barbie-inspired bodysuit, her blonde hair styled in a high ponytail. She stands in a sleek, futuristic-looking environment, her pose exuding a sense of power and confidence that aligns with the Barbie character's empowered persona.",
+          "A young, fashionable sks woman dressed in a chic, pink-and-white striped mini dress and platform heels. She stands against a backdrop of pastel-colored geometric shapes, her expression playful and her pose evoking the fun and vibrant spirit of the Barbie universe."
+        ]
+      },
+      {
+        "name": "Цветы 🌸",
+        "slug": "category_woman_flowers",
+        "promts": [
+          "A young, beautiful sks woman stands amidst a vibrant flower garden, her dress a delicate floral print that complements the blooming petals surrounding her. Her serene expression exudes a sense of tranquility, as soft, natural lighting bathes the scene in a warm, golden glow. Captured through the lens of a professional photographer, this portrait showcases the sks woman's natural grace and elegance.",
+          "A young, vibrant sks woman stands amid a lush, floral arrangement, her elegant, contemporary dress accentuating the vivid hues and intricate patterns of the blooms that surround her. With a confident, yet approachable demeanor, she exudes a sense of modern femininity. The image, captured through the lens of a professional fashion photographer, presents a striking juxtaposition between the sks woman's refined presence and the abundant, natural setting.",
+          "A stunningly beautiful sks woman stands in a lush, sun-dappled garden, her long, flowing dress adorned with delicate, nature-inspired motifs. Her captivating gaze and confident, yet approachable demeanor suggest a sense of inner strength and grace. The image, captured through the lens of a skilled fashion photographer, presents a harmonious blend of the sks woman's refined elegance and the vibrant, floral-filled environment.",
+          "In a verdant, overgrown greenhouse, a young sks woman in a whimsical, floral-patterned dress poses amidst a profusion of exotic blooms. Her playful, mischievous expression and the eclectic, artful setting create a sense of enchantment and wonder. The image, rendered in a high-contrast, cinematic style, highlights the sks woman's captivating presence and the lush, visually-striking backdrop.",
+          "A striking, confident sks woman stands in a lush, sun-dappled garden, her sleek, modern dress accentuating the abundant floral arrangements that surround her. Her alluring gaze and slight, enigmatic smile convey a sense of mystery and allure. The image, captured through the lens of a professional fashion photographer, presents a harmonious fusion of the sks woman's refined elegance and the verdant, vibrant setting.",
+          "In a whimsical, surreal illustration, the sky woman's figure is fragmented and abstracted, with only her hands and the bouquet of flowers she holds remaining visible. The rest of her body is transformed into a dreamlike, fantastical composition of swirling petals and delicate, ethereal elements, creating a sense of wonder and imagination. A woman in a petal bra and panties.",
+          "A young, beautiful sks woman in a flowing, floral-printed dress stands in a field of tall grass, her arms outstretched and holding a bountiful bouquet of freshly picked wildflowers. The scene is bathed in the warm, golden light of the setting sun, creating a sense of magic and wonder in this whimsical, illustrated portrait.",
+          "A close-up portrait showcases the sks woman's delicate features, her expression pensive and serene as she gazes downward at the bouquet of flowers cradled in her hands. The lighting is dramatic, with chiaroscuro effects highlighting the sks woman's face and the intricate details of the floral arrangement against a subtly blurred background.",
+          "The sks woman, adorned in a lush, floral-adorned headdress, gazes directly at the viewer with a regal and confident expression. Her hands gracefully hold a bouquet of exotic, tropical flowers against a vibrant, saturated background that evokes a lush, botanical setting, captured in a stylized, high-fashion illustration.",
+          "A young, beautiful sks woman stands in a sun-dappled forest clearing, her flowing dress and cascading hair framing her serene expression as she holds a bouquet of wildflowers. The photograph captures the tranquility and natural beauty of the scene, using soft, diffused lighting and a slightly blurred, impressionistic style to evoke a sense of peace and harmony."
+        ]
+      },
+      {
+        "name": "Подарки 🎁",
+        "slug": "category_woman_gifts",
+        "promts": [
+          "A young, beautiful sks woman dressed in a warm, cozy sweater and holding a beautifully wrapped gift box, standing in a festive winter wonderland with twinkling lights and snowy trees in the background. The soft, natural lighting casts a magical glow, as she gazes down at the present with a joyful, anticipatory expression.",
+          "An elegant sks woman in a flowing, embroidered dress stands amidst a lush, verdant garden, delicately unwrapping a delicate, floral-patterned gift box. The warm, golden sunlight filters through the trees, casting a romantic, dreamy ambiance as she examines the present with a captivating, curious smile.",
+          "A young, beautiful sks woman sits cross-legged on a plush, velvet couch, carefully opening a delicately wrapped gift box. The cozy, intimate living room setting, with its warm, ambient lighting and lush, textured fabrics, creates a sense of comfort and relaxation as she examines the present with a delighted, anticipatory expression.",
+          "A confident, stylish sks woman in a chic, modern outfit strides through a bustling city street, expertly juggling a beautifully wrapped gift box and a sleek, minimalist shopping bag. The dynamic, urban setting, with its clean lines and vibrant energy, creates a sense of sophistication and purpose as the sks woman navigates the environment with a determined, focused expression.",
+          "A sleek, modern sks woman in a chic, minimalist outfit stands in a stark, industrial-inspired loft, carefully unwrapping a modern, geometrically-patterned gift box. The clean, minimalist setting, with its warm, neutral tones and clean lines, creates a sense of refined elegance as the sks woman examines the present with a focused, contemplative expression."
+        ]
+      },
+      {
+        "name": "Частный самолет ✈️",
+        "slug": "category_woman_private_plane",
+        "promts": [
+          "A chic and sophisticated sks woman elegantly posed in the luxurious interior of a private jet, her stylish dress billowing softly in the cabin's refined lighting. The sks woman's confident gaze and impeccable style evoke a sense of modern elegance and high-class travel.",
+          "Bathed in the warm glow of sunset, a stunning sks woman stands poised at the entrance of a private jet, her couture gown flowing elegantly around her as she gazes out at the horizon, embodying the glamour and exclusivity of private air travel.",
+          "Captured in a soft, ethereal illustration, a beautiful sks woman sits in a private jet's cabin, her delicate features and elegant attire conveying a sense of refinement and exclusivity.",
+          "In a cinematic, wide-angle shot, a sks woman stands at the top of the stairs of a private jet, her silhouette framed against the expansive sky, conveying a sense of freedom, privilege, and the grandeur of private air travel.",
+          "A vibrant, full-length portrait showcases a sks woman in a bold, designer ensemble, confidently striding through the sleek, high-tech cabin of a private jet. The strong lines of her outfit and the dramatic lighting create a powerful, dynamic image."
+        ]
+      },
+      {
+        "name": "Яхта 🚢",
+        "slug": "category_woman_yacht",
+        "promts": [
+          "Silhouetted against the vibrant, orange-hued sky, the sks woman poses gracefully at the bow of the yacht, her arms outstretched as if embracing the wind. The sleek, modern design of the vessel and the sks woman's chic, minimalist ensemble create a striking, contemporary aesthetic.",
+          "With a confident and alluring smile, the sks woman leans against the railing of the yacht, her gaze directed towards the camera. The warm, golden lighting and the luxurious, nautical-inspired setting evoke a sense of glamour and sophistication.",
+          "Bathed in the cool, blue tones of the evening, the sks woman sits cross-legged on the deck of the yacht, her eyes closed in a moment of peaceful contemplation. The serene, reflective nature of the scene invites the viewer to pause and appreciate the tranquility of the moment.",
+          "Dressed in a flowing, sheer coverup, the sks woman stands at the edge of the yacht, her gaze cast towards the horizon. The soft, diffused lighting and the sense of movement in the fabric create a dreamy, romantic atmosphere.",
+          "Framed by the sleek, modern lines of the yacht's interior, the sks woman strikes a poised and elegant pose, her eyes meeting the camera with a captivating gaze. The soft, diffused lighting and the subtle textures of her ensemble create a sense of timeless sophistication."
+        ]
+      },
+      {
+        "name": "Спорткар 🏎️",
+        "slug": "category_woman_sportscar",
+        "promts": [
+          "A young sks woman in a stylish racing suit, her face partially obscured by a high-tech racing helmet, sits in the cockpit of a gleaming sports car, her hands expertly handling the controls as she prepares for the track. The car's sleek, aerodynamic design is highlighted by the dramatic lighting and the sks woman's intense focus.",
+          "A sks woman stands beside a vibrant red sports car, her hand resting on the glossy surface as she admires the vehicle's well-crafted lines and powerful presence. Her expression is one of admiration and appreciation, conveying a deep understanding and connection with the car's design and performance.",
+          "A sks woman stands in front of a striking yellow sports car, her hand reaching out to caress the car's sculpted fender. Her expression is one of deep contemplation, as if she is considering the perfect balance of form and function that defines the vehicle's design.",
+          "The sks woman, dressed in a sleek racing suit, sits in the cockpit of a high-powered sports car, her fingers dancing across the controls as she prepares for the next race. The car's interior is a symphony of technology and precision, mirroring the sks woman's own focus and skill.",
+          "A sks woman poses beside a shimmering blue sports car, her expression one of confident pride. The car's bold, angular lines and the sks woman's elegant poise create a striking visual contrast, showcasing the fusion of style and performance."
+        ]
+      },
+      {
+        "name": "День рождения 🎂",
+        "slug": "category_woman_birthday",
+        "promts": [
+          "This photograph captures a young woman celebrating her birthday in a dimly lit, elegant restaurant. She has long, dark brown hair styled in a sleek updo and is wearing a strapless, black dress that accentuates her slender figure. Her makeup is sophisticated, featuring bold, dark eyeliner and a nude lipstick. She is holding a small, white cake with black icing swirls and black ribbon bows, topped with a single, lit black candle. The cake is placed on a round, white plate. The background features a bar area with numerous bottles of champagne and wine lined up against a mirrored wall, reflecting the warm, ambient lighting. The bar counter has a polished, reflective surface, and there are several lit candles in silver holders on the table, adding to the romantic ambiance. The table is covered with a white tablecloth, and the setting suggests an upscale, intimate celebration. The overall scene is rich in texture, with the glossy bottles, the reflective surfaces, and the soft glow of the candles creating a luxurious, intimate atmosphere. The photograph is high-resolution, capturing fine details and the soft, warm lighting that enhances the celebratory mood.",
+          "This photograph captures a festive moment in a well-decorated room with a pastel pink theme. Two women, one with long dark hair and the other with long blonde hair, are the main subjects. They are both dressed in elegant, form-fitting white dresses with puff sleeves, exuding a sophisticated yet celebratory vibe. The dark-haired woman is pouring a bottle of pink champagne into a tall glass while the blonde woman, standing beside her, holds a glass of champagne in her hand and appears to be sipping it. The background features a soft, light-colored wall with a decorative molding, and the room is adorned with numerous pink balloons, some tied in bunches and others floating freely. A sparkling silver ice bucket with a bottle of champagne sits on a white table, which is covered with a variety of pink and white items, including a cake with a pink frosting, a tray of champagne flutes, and a small bouquet of flowers. The table also has a tiered cake stand with more pink desserts. The overall atmosphere is one of joy and celebration, with a focus on elegance and indulgence.",
+          "This is a high-resolution photograph capturing a young woman in an elegant, dimly lit restaurant. She has a fair complexion, light brown hair styled in a sleek, low bun, and is smiling warmly at the camera. She is wearing a sleeveless, black dress with a high neckline and a choker-like collar, adding a touch of sophistication to her attire. Her makeup is subtle yet polished, with a focus on her eyes, which are accentuated with eyeliner and mascara, and her lips, which are painted a warm, natural pink. She accessorizes with gold hoop earrings and multiple gold bangles on her left wrist. In her right hand, she holds a glass of white wine, which she is raising slightly, suggesting she is toasting or celebrating. The background features an ornate, classical statue of a woman on a pedestal, which adds a touch of grandeur to the setting. The table in front of her is set with white tablecloths, and there are other glasses and a small, wrapped gift on the table, hinting at a celebratory or special occasion. The overall ambiance is sophisticated and intimate, with soft lighting and a cozy, luxurious atmosphere."
+        ]
+      },
+    {
+        "name": "14 февраля ❤️",
+        "slug": "category_woman_valentines",
+        "promts": [
+          "This is a high-resolution photograph capturing a luxurious and romantic scene. The central subject is a young woman with straight hair, wearing a sequined, sleeveless evening gown and a thigh-high slit. She is seated on a white, circular table. Her right hand gently touches a bouquet of roses arranged in a dense, symmetrical bouquet, with the flowers facing outward, creating a striking contrast with the white background. The arrangement is wrapped in white paper, which adds to the elegant presentation. A black Chanel shopping bag is placed next to the bouquet. Behind her is a large, round arrangement of red, heart-shaped helium balloons, adding a festive and celebratory touch to the scene. The background features a sophisticated living room with beige and brown tones. A plush, beige sofa with a tufted design is positioned to the right, and a wall with a subtle, textured pattern in shades of brown and beige is visible behind the sofa. The overall ambiance is elegant and intimate, with a focus on luxury and romance. The lighting is soft and warm, enhancing the rich textures and colors of the room and the subject's attire.",
+          "This is a high-resolution photograph capturing a luxurious and romantic scene. The central subject is a young woman with straight hair, wearing a sequined, sleeveless dark evening gown and a thigh-high slit. She is seated on a white, circular table. Her right hand gently touches a bouquet of roses arranged in a dense, symmetrical bouquet, with the flowers facing outward, creating a striking contrast with the white background. The arrangement is wrapped in white paper, which adds to the elegant presentation. A black Chanel shopping bag is placed next to the bouquet. Behind her is a large number of red, heart-shaped helium balloons, adding a festive and celebratory touch to the scene. The background features a sophisticated living room with beige and brown tones. A beige modern sofa is positioned to the right, and a wall with a subtle, textured pattern in shades of brown and beige is visible behind the sofa. The overall ambiance is elegant and intimate, with a focus on luxury and romance. The lighting is soft and warm, enhancing the rich textures and colors of the room and the subject's attire.",
+          "This is a high-resolution photograph featuring a young woman sitting on a white couch in a modern living room. The woman has straight dark brown hair. She is dressed in a sleeveless, form-fitting white dress with a textured fabric that appears to be a mix of knit and woven. She is looking slightly to her left, with a serene expression on her face. In front of her, there is a large, round arrangement of red roses, which covers the lower half of her body and spills onto the couch. The roses are arranged in a dense, symmetrical bouquet, with the flowers facing outward, creating a striking contrast with the white background. The arrangement is wrapped in white paper, which adds to the elegant presentation. A gift bag is placed next to the woman on the couch, in a dark red color, with the brand name 'Cartier' embossed in gold, indicating a high-end luxury item. The background features a white wall with a subtle wainscoting detail, and two large, round mirrors mounted on the wall above the couch. The mirrors are framed in black and reflect the room, adding depth to the space. A modern, black chandelier with multiple light bulbs hangs from the ceiling, casting a warm glow over the scene. The overall atmosphere is chic and sophisticated, with a focus on minimalistic design and luxurious floral arrangements.",
+          "This is a photograph capturing a romantic moment between a couple on a rooftop during what appears to be a winter evening. The image features a man and a woman standing on a rooftop, partially covered in snow. The man, standing to the left, is dressed in a formal black suit with a white shirt and black shoes. He is holding a large bouquet of shiny, red heart-shaped helium balloons, which are tied together with red ribbons. The woman, standing to the right, is wearing a sleek, strapless black dress with a thigh-high slit on one side, showcasing her legs. She holds a bouquet of red roses wrapped in red ribbon, which she is presenting to the man. Both individuals have long, wavy hair, with the woman's hair cascading over her shoulders. The background reveals a cityscape with classic European architecture, including buildings with flat roofs and chimneys, suggesting a European city. The sky is clear with a pale blue hue, indicating it is either early morning or late afternoon. The scene is set against a backdrop of scattered red rose petals on the snow-covered rooftop, adding to the romantic ambiance."
         ]
       }
     ]

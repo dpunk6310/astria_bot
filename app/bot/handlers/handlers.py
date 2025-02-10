@@ -2,6 +2,7 @@ from pathlib import Path
 from uuid import uuid4
 import random
 import os
+import json
 
 from aiogram_media_group import media_group_handler
 from aiogram import types, Router, F
@@ -12,8 +13,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from loguru import logger as log
 
-from data.config import ROBOKASSA_MERCHANT_ID, ROBOKASSA_TEST_PASSWORD1
-from core.utils.robokassa import generate_payment_link
+from data.config import ROBOKASSA_MERCHANT_ID, ROBOKASSA_PASSWORD1
+from core.utils.robo import generate_payment_link
 from core.utils.chatgpt import translate_promt
 from data.messages import use_messages
 from core.backend.api import (
@@ -28,6 +29,7 @@ from core.backend.api import (
     create_tune,
     update_user,
     get_avatar_price_list,
+    get_payment
 )
 from core.generation.photo import (
     learn_model_api, 
@@ -487,6 +489,17 @@ async def set_text_in_godmod_callback(message: types.Message, state: FSMContext)
         return
     
     user_db = await get_user(str(message.chat.id))
+    log.debug(user_db)
+    if user_db.get("count_generations") < 3:
+        builder = InlineKeyboardBuilder()
+        builder.add(
+            types.InlineKeyboardButton(
+                text="Купить!",
+                callback_data="prices_photo"
+            ),
+        )
+        await message.answer("У вас недостаточно генераций", reply_markup=builder.as_markup())
+        return
     if not user_db.get("god_mod"):
         builder = InlineKeyboardBuilder()
         builder.button(
@@ -597,12 +610,13 @@ async def inst_payment_callback(call: types.CallbackQuery):
     amount = int(data[2])
     сount_generations = int(data[3])
     learn_model = data[4]
-    
-    log.debug(amount)
-    log.debug(сount_generations)
-    log.debug(learn_model)
 
-    payment_id = random.randint(999, 99999)
+    while True:
+        payment_id = random.randint(10, 214748347)
+        pay_db = await get_payment(str(payment_id))
+        if pay_db:
+            continue
+        break
     await create_payment(
         tg_user_id=str(call.message.chat.id),
         amount=str(amount),
@@ -610,13 +624,23 @@ async def inst_payment_callback(call: types.CallbackQuery):
         сount_generations=сount_generations,
         learn_model=learn_model
     )
+    file_path = BASE_DIR / "media" / "payload.json"
+    with open(file_path, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+    index = 0
+    description = ""
+    for i, v in enumerate(data):
+        if v.get("Cost") == amount:
+            index = i
+            description = v.get("Name")
+            break
     payment_link = generate_payment_link(
         ROBOKASSA_MERCHANT_ID,
-        ROBOKASSA_TEST_PASSWORD1,
+        ROBOKASSA_PASSWORD1,
         amount,
         int(payment_id),
-        f"{payment_id}",
-        is_test=1,
+        description,
+        items=[data[index]],
     )
     builder = InlineKeyboardBuilder()
     builder.button(
@@ -804,7 +828,7 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
     await call.message.answer("Создаем ваше фото, немного подождите")
 
     image_urls = await wait_for_generation(prompt_id)
-    media_group = MediaGroupBuilder(caption="🖼 Ваши фото успешно сгенерированы")
+    media_group = MediaGroupBuilder(caption='🖼 Создано в <a href="https://t.me/photopingvin_bot?start">Пингвин ИИ</a>')
     
     if image_urls:
         for i in image_urls:

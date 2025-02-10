@@ -63,8 +63,11 @@ def payment_received(request):
         data = request.POST.dict()
         
         payment = Payment.objects.get(payment_id=data["inv_id"])
+        if payment.status:
+            return 200, {"status": "ok", "message": "Success"}
         payment.status = True
         payment.save()
+        
         result = send_message_successfully_pay(BOT_TOKEN, payment.tg_user_id)
         tg_user: TGUser = TGUser.objects.get(
             tg_user_id=payment.tg_user_id,

@@ -90,30 +90,30 @@ def generate_payment_link(
     return None
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    import environ
-    from pathlib import Path
+#     import environ
+#     from pathlib import Path
 
-    BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
+#     BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
 
-    env = environ.Env()
-    env.read_env(str(BASE_DIR / ".env"))
-    ROBOKASSA_MERCHANT_ID = env.str("ROBOKASSA_MERCHANT_ID", "")
-    ROBOKASSA_PASSWORD1 = env.str("ROBOKASSA_PASSWORD1", "")
-    ROBOKASSA_PASSWORD2 = env.str("ROBOKASSA_PASSWORD2", "")
-    ROBOKASSA_TEST_PASSWORD1 = env.str("ROBOKASSA_TEST_PASSWORD1", "")
-    ROBOKASSA_TEST_PASSWORD2 = env.str("ROBOKASSA_TEST_PASSWORD2", "")
-    current_dir = os.path.dirname(os.path.realpath(__file__))
-    file_path = os.path.join(current_dir, 'payload.json')
-    with open(file_path, 'r', encoding='utf-8') as file:
-        data = json.load(file)
-    payment_link = generate_payment_link(
-        ROBOKASSA_MERCHANT_ID,
-        ROBOKASSA_PASSWORD1,
-        490, # Деньга столько же
-        10, # рандомное число 1 до 2 147 483 647
-        "Описание тестовое",
-        items=[data[1]] # индекс из файла
-    )
-    print(payment_link)
+#     env = environ.Env()
+#     env.read_env(str(BASE_DIR / ".env"))
+#     ROBOKASSA_MERCHANT_ID = env.str("ROBOKASSA_MERCHANT_ID", "")
+#     ROBOKASSA_PASSWORD1 = env.str("ROBOKASSA_PASSWORD1", "")
+#     ROBOKASSA_PASSWORD2 = env.str("ROBOKASSA_PASSWORD2", "")
+#     ROBOKASSA_TEST_PASSWORD1 = env.str("ROBOKASSA_TEST_PASSWORD1", "")
+#     ROBOKASSA_TEST_PASSWORD2 = env.str("ROBOKASSA_TEST_PASSWORD2", "")
+#     current_dir = os.path.dirname(os.path.realpath(__file__))
+#     file_path = os.path.join(current_dir, 'payload.json')
+#     with open(file_path, 'r', encoding='utf-8') as file:
+#         data = json.load(file)
+#     payment_link = generate_payment_link(
+#         ROBOKASSA_MERCHANT_ID,
+#         ROBOKASSA_PASSWORD1,
+#         490, # Деньга столько же
+#         10, # рандомное число 1 до 2 147 483 647
+#         "Описание тестовое",
+#         items=[data[1]] # индекс из файла
+#     )
+#     print(payment_link)
