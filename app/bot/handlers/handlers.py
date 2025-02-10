@@ -14,6 +14,7 @@ from loguru import logger as log
 
 from data.config import ROBOKASSA_MERCHANT_ID, ROBOKASSA_TEST_PASSWORD1
 from core.utils.robokassa import generate_payment_link
+from core.utils.chatgpt import translate_promt
 from data.messages import use_messages
 from core.backend.api import (
     create_user_db, 
@@ -486,8 +487,16 @@ async def set_text_in_godmod_callback(message: types.Message, state: FSMContext)
         )
         await message.answer("Сначала включите режим бога", reply_markup=builder.as_markup())
         return
-    text = message.text
-    await state.update_data(god_mod_text=text)
+    promt = message.text
+    for _ in range(5):
+        try:
+            promt = translate_promt(promt)
+            if promt:
+                break
+        except Exception as err:
+            log.debug(err)
+            continue
+    await state.update_data(god_mod_text=promt)
     builder = InlineKeyboardBuilder()
     builder.button(
         text="Киноэффект",
@@ -764,9 +773,9 @@ async def handle_category_handler(call: types.CallbackQuery, state: FSMContext):
 
 
 async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_prompt: str, effect: str):
-    log.debug(tune_id)
-    log.debug(user_prompt)
-    log.debug(effect)
+    user_db = await get_user(str(call.message.chat.id))
+    new_count_gen = user_db.get("count_generations") - 3
+    await update_user(str(call.message.chat.id), count_generations=new_count_gen)
     gen_response = await generate_images(
         tune_id=int(tune_id), 
         promt=user_prompt,
@@ -789,12 +798,20 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
             media_group.add(type="photo", media=i)
     else:
         await call.message.answer("❌ Ошибка генерации изображения.")
-        
-    user_db = await get_user(str(call.message.chat.id))
-    new_count_gen = user_db.get("count_generations") - 3
-    await update_user(str(call.message.chat.id), count_generations=new_count_gen)
+    
     await bot.send_media_group(chat_id=call.message.chat.id, media=media_group.build())
     await delete_user_images(str(call.message.chat.id))
+
+
+@user_router.message(F.text == "Служба поддержки")
+async def callcenter_callback(message: types.Message):
+    await message.answer(
+        """<b>Наша служба поддержки работает в этом Телеграм аккаунте:</b> @managerpingvin_ai
+
+Пожалуйста, детально опишите, что у вас произошло и при необходимости приложите скриншоты - так мы сможем помочь тебе быстрее""",
+        reply_markup=get_main_keyboard(),
+        parse_mode="HTML"
+    )
 
      
 def get_main_keyboard():
@@ -802,7 +819,8 @@ def get_main_keyboard():
         keyboard=[
             [types.KeyboardButton(text="Стили"), types.KeyboardButton(text="Режим бога")],
             [types.KeyboardButton(text="Выбор аватара"), types.KeyboardButton(text="Генерации")],
-            [types.KeyboardButton(text="Доп. опции"), types.KeyboardButton(text="Служба поддержки")],
+            # [types.KeyboardButton(text="Доп. опции"), types.KeyboardButton(text="Служба поддержки")],
+            [types.KeyboardButton(text="Служба поддержки")],
         ],
         resize_keyboard=True
     )
