@@ -1,6 +1,8 @@
 from ..client import client
 from data.config import DJANGO_URL
 
+from loguru import logger as log
+
 
 async def create_user_db(
     tg_user_id: str,
@@ -121,7 +123,10 @@ async def get_user(
         response = await client.get_request(
             url=DJANGO_URL+f"/api/main/get-user/{tg_user_id}"
         )
+        if not response:
+            return None
     except Exception as err:
+        log.debug(err)
         return None
     return response
 

@@ -65,6 +65,8 @@ async def start_handler(message: types.Message, messages):
             username=message.from_user.username
         )
         
+    log.debug(user_db)
+        
     builder = InlineKeyboardBuilder()
     
     builder.add(

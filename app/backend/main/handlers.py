@@ -1,3 +1,5 @@
+from typing import Optional
+
 from ninja import Router
 from django.db.utils import IntegrityError
 from loguru import logger as log

@@ -7,6 +7,8 @@ async def get_request(url: str) -> dict:
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(url)
+            if response.status_code == 400:
+                return None
             return response.json()
     except Exception as e:
         log.error(e)

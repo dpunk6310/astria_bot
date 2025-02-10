@@ -11,6 +11,7 @@ class UserDTO(Schema):
     count_generations: Optional[int]
     is_learn_model: Optional[bool]
     god_mod: bool
+    referal: Optional[str]
     
     
 class UpdateUserDTO(Schema):

@@ -111,9 +111,9 @@ if __name__ == "__main__":
     payment_link = generate_payment_link(
         ROBOKASSA_MERCHANT_ID,
         ROBOKASSA_PASSWORD1,
-        490,
-        10,
+        490, # Деньга столько же
+        10, # рандомное число 1 до 2 147 483 647
         "Описание тестовое",
-        items=[data[1]]
+        items=[data[1]] # индекс из файла
     )
     print(payment_link)
