@@ -78,7 +78,7 @@ async def start_handler(message: types.Message, messages):
         ),
         types.InlineKeyboardButton(
             text="Оплатить",
-            callback_data="prices_photo"
+            callback_data="inst_payment2"
         ),
     )
     
@@ -98,7 +98,7 @@ async def start_handler(message: types.Message, messages):
 🧊 Каждое фото ты можешь оживить в видео 🎞️ 
 🧊 Чат-бот ассистент помогает составить промт* из загруженого фото
 🧊 Удобная реферальная система: приглашай друзей и получай бесплатные генерации 
-🧊 Цена всего 1299 руб. ❣️
+🧊 Цена всего 1290 руб. ❣️
 
 *промт - это текстовый запрос пользователя к нейросети""",
         reply_markup=keyboard,
@@ -183,7 +183,7 @@ async def inst_next5_callback(call: types.CallbackQuery):
     builder.add(
         types.InlineKeyboardButton(
             text="Купить!",
-            callback_data="prices_photo"
+            callback_data="inst_payment2"
         ),
     )
     await call.message.answer_photo(
@@ -603,7 +603,60 @@ async def styles_effect_handler(message: types.Message, state: FSMContext):
 В каждом стиле содержится неограниченное количество фотографий, которые выбираются случайным образом.
 """, reply_markup=builder.as_markup())
     
-    
+
+@user_router.callback_query(F.data.contains("inst_payment2"))
+async def inst_payment2_callback(call: types.CallbackQuery):
+    user_db = await get_user(str(call.message.chat.id))
+    amount = 1290
+    сount_generations = 100
+    learn_model = user_db.get("is_learn_model", True)
+
+    while True:
+        payment_id = random.randint(10, 214748347)
+        pay_db = await get_payment(str(payment_id))
+        if pay_db:
+            continue
+        break
+    await create_payment(
+        tg_user_id=str(call.message.chat.id),
+        amount=str(amount),
+        payment_id=str(payment_id),
+        сount_generations=сount_generations,
+        learn_model=learn_model
+    )
+    file_path = BASE_DIR / "media" / "payload.json"
+    with open(file_path, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+    index = 0
+    description = ""
+    for i, v in enumerate(data):
+        if v.get("Cost") == amount:
+            index = i
+            description = v.get("Name")
+            break
+    payment_link = generate_payment_link(
+        ROBOKASSA_MERCHANT_ID,
+        ROBOKASSA_PASSWORD1,
+        amount,
+        int(payment_id),
+        description,
+        items=[data[index]],
+    )
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Карта РФ",
+        url=payment_link
+    )
+    builder.button(
+        text="На главную",
+        callback_data="home"
+    )
+    await call.message.answer(
+        text="""Теперь самое время перейти к оплате! Можно оплатить как с карты РФ, так и с зарубежной.""",
+        reply_markup=builder.as_markup()
+    )
+
+ 
 @user_router.callback_query(F.data.contains("inst_payment"))
 async def inst_payment_callback(call: types.CallbackQuery):
     data = call.data.split("_")
