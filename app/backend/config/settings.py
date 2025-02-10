@@ -52,6 +52,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CSRF_TRUSTED_ORIGINS=["https://pinpay.fun"]
+
 ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [

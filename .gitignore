@@ -10,3 +10,5 @@ __pycache__/
 .docker-volumes
 media/photos
 logs
+.env_web
+.env_letsencrypt
