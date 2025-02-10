@@ -78,7 +78,7 @@ async def start_handler(message: types.Message, messages):
         ),
         types.InlineKeyboardButton(
             text="Оплатить",
-            callback_data="inst_payment2"
+            callback_data="first_payment"
         ),
     )
     
@@ -181,7 +181,7 @@ async def inst_next5_callback(call: types.CallbackQuery):
     builder.add(
         types.InlineKeyboardButton(
             text="Купить!",
-            callback_data="inst_payment2"
+            callback_data="first_payment"
         ),
     )
     await call.message.answer_photo(
@@ -606,8 +606,8 @@ async def styles_effect_handler(message: types.Message, state: FSMContext):
 """, reply_markup=builder.as_markup())
     
 
-@user_router.callback_query(F.data.contains("inst_payment2"))
-async def inst_payment2_callback(call: types.CallbackQuery):
+@user_router.callback_query(F.data.contains("first_payment"))
+async def first_payment_callback(call: types.CallbackQuery):
     user_db = await get_user(str(call.message.chat.id))
     amount = 1290
     сount_generations = 100
@@ -655,15 +655,7 @@ async def inst_payment2_callback(call: types.CallbackQuery):
         callback_data="support"
     )
     await call.message.answer(
-        text="""Ты можешь создать сразу несколько аватаров в нашем боте.
-
-Свой собственный, жены или мужа — подойдет даже Дональд Трамп! 🙀
-
-Генерации общие для всех <b>— используйте их для кого угодно.</b>
-
-Стоимость добавления нового аватара составляет <b>490₽.</b>
-
-<b>Оплати и приступай к созданию!</b> 👇""",
+        text="""Теперь самое время перейти к оплате! Можно оплатить как с карты РФ, так и с зарубежной.""",
         reply_markup=builder.as_markup(),
         parse_mode="HTML"
     )
@@ -716,9 +708,24 @@ async def inst_payment_callback(call: types.CallbackQuery):
         url=payment_link
     )
     builder.button(
-        text="На главную",
-        callback_data="home"
+        text="Служба поддержки",
+        callback_data="support"
     )
+    if learn_model:
+        await call.message.answer(
+            text="""Ты можешь создать сразу несколько аватаров в нашем боте.
+
+Свой собственный, жены или мужа — подойдет даже Дональд Трамп! 🙀
+
+Генерации общие для всех <b>— используйте их для кого угодно.</b>
+
+Стоимость добавления нового аватара составляет <b>490₽.</b>
+
+<b>Оплати и приступай к созданию!</b> 👇""",
+            reply_markup=builder.as_markup(),
+            parse_mode="HTML"
+        )
+        return
     await call.message.answer(
         text="""Теперь самое время перейти к оплате! Можно оплатить как с карты РФ, так и с зарубежной.""",
         reply_markup=builder.as_markup()
@@ -745,7 +752,7 @@ async def home_callback(call: types.CallbackQuery):
         ),
         types.InlineKeyboardButton(
             text="Оплатить",
-            callback_data="inst_payment2"
+            callback_data="first_payment"
         ),
     )
     

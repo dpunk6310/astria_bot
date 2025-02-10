@@ -75,6 +75,9 @@ def payment_received(request):
         )
         if payment.is_first_payment:
             callback_data = "start_upload_photo"
+        if payment.is_first_payment is False and payment.learn_model:
+            callback_data = "start_upload_photo"
+        
         tg_user.count_generations += payment.сount_generations
         tg_user.is_learn_model = True if payment.learn_model else False
         tg_user.save()
