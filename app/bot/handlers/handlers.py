@@ -213,6 +213,7 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
             text=f"{avatar_price_list.get('count')} модель",
             callback_data=f"inst_payment_{avatar_price_list.get('price')}_0_{avatar_price_list.get('learn_model')}"
         )
+        # await state.update_data(learn_model=True)
         await messages[-1].answer("Оплатите создание аватара", reply_markup=builder.as_markup())
         return
     
@@ -339,6 +340,7 @@ async def prices_photo_callback(call: types.CallbackQuery):
     price_str = ""
     user_db = await get_user(str(call.message.chat.id))
     for i in price_list:
+        log.debug(i)
         if i.get("learn_model"):
             continue
         sale = i.get("sale", None)
@@ -393,7 +395,7 @@ async def gender_selection(call: types.CallbackQuery, state: FSMContext):
     
     
 @user_router.callback_query(F.data == "start_upload_photo")
-async def start_upload_photo_callback(call: types.CallbackQuery):
+async def start_upload_photo_callback(call: types.CallbackQuery, state: FSMContext):
     user_db = await get_user(str(call.message.chat.id))
     if not user_db.get("is_learn_model"):
         avatar_price_list = await get_avatar_price_list()
@@ -402,6 +404,7 @@ async def start_upload_photo_callback(call: types.CallbackQuery):
             text=f"{avatar_price_list.get('count')} модель",
             callback_data=f"inst_payment_{avatar_price_list.get('price')}_0_{avatar_price_list.get('learn_model')}"
         )
+        # await state.update_data(learn_model=True)
         await call.message.answer("Оплатите создание аватара", reply_markup=builder.as_markup())
         return
     builder = InlineKeyboardBuilder()
@@ -666,9 +669,9 @@ async def inst_payment_callback(call: types.CallbackQuery):
     data = call.data.split("_")
     amount = int(data[2])
     сount_generations = int(data[3])
-    # learn_model = data[4]
-    user_db = await get_user(str(call.message.chat.id))
-    learn_model = user_db.get("is_learn_model")
+    learn_model = data[4]
+    # user_db = await get_user(str(call.message.chat.id))
+    # learn_model = user_db.get("is_learn_model")
 
     while True:
         payment_id = random.randint(10, 214748347)
@@ -713,23 +716,24 @@ async def inst_payment_callback(call: types.CallbackQuery):
         text="Служба поддержки",
         callback_data="support"
     )
-    if learn_model:
-        await call.message.answer(
-            text="""Ты можешь создать сразу несколько аватаров в нашем боте.
+    log.debug(learn_model)
+#     if learn_model:
+#         await call.message.answer(
+#             text="""Ты можешь создать сразу несколько аватаров в нашем боте.
 
-Свой собственный, жены или мужа — подойдет даже Дональд Трамп! 🙀
+# Свой собственный, жены или мужа — подойдет даже Дональд Трамп! 🙀
 
-Генерации общие для всех <b>— используйте их для кого угодно.</b>
+# Генерации общие для всех <b>— используйте их для кого угодно.</b>
 
-Стоимость добавления нового аватара составляет <b>490₽.</b>
+# Стоимость добавления нового аватара составляет <b>490₽.</b>
 
-<b>Оплати и приступай к созданию!</b> 👇""",
-            reply_markup=builder.as_markup(),
-            parse_mode="HTML"
-        )
-        return
+# <b>Оплати и приступай к созданию!</b> 👇""",
+#             reply_markup=builder.as_markup(),
+#             parse_mode="HTML"
+#         )
+#         return
     await call.message.answer(
-        text="""Теперь самое время перейти к оплате! Можно оплатить как с карты РФ, так и с зарубежной.""",
+        text="""Теперь самое время перейти к оплате! Можно оплатить с карты РФ.""",
         reply_markup=builder.as_markup()
     )
 
