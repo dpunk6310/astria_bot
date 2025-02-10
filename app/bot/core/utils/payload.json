@@ -1,0 +1,50 @@
+[
+    {
+        "Name": "Стартовая покупка",
+        "Quantity": 1,
+        "Cost": 1290,
+        "Tax": "none",
+        "PaymentMethod": "full_prepayment",
+        "PaymentObject": "commodity"
+    },
+    {
+        "Name": "Создание дополнительной модели",
+        "Quantity": 1,
+        "Cost": 490,
+        "Tax": "none",
+        "PaymentMethod": "full_prepayment",
+        "PaymentObject": "commodity"
+    },
+    {
+        "Name": "500 дополнительных генераций",
+        "Quantity": 1,
+        "Cost": 4990,
+        "Tax": "none",
+        "PaymentMethod": "full_prepayment",
+        "PaymentObject": "commodity"
+    },
+    {
+        "Name": "100 дополнительных генераций",
+        "Quantity": 1,
+        "Cost": 1290,
+        "Tax": "none",
+        "PaymentMethod": "full_prepayment",
+        "PaymentObject": "commodity"
+    },
+    {
+        "Name": "20 дополнительных генераций",
+        "Quantity": 1,
+        "Cost": 490,
+        "Tax": "none",
+        "PaymentMethod": "full_prepayment",
+        "PaymentObject": "commodity"
+    },
+    {
+        "Name": "50 дополнительных генераций",
+        "Quantity": 1,
+        "Cost": 990,
+        "Tax": "none",
+        "PaymentMethod": "full_prepayment",
+        "PaymentObject": "commodity"
+    }
+]
