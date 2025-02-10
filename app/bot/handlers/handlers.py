@@ -231,6 +231,8 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
         await messages[-1].answer("Загрузить можно только 10 фото")
         return
     
+    await update_user(tg_user_id=str(messages[0].chat.id), is_learn_model=False)
+    
     await messages[-1].answer(
         """Мы получили твои фото и запустили разработку твоего персонального аватара, это займёт около 5-10 минут … 🔄
 
@@ -238,8 +240,6 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
 
 Там мы публикуем оригинальные идеи стилей и промтов для твоих новых фотографий, а также актуальные новости.
 """)
-    
-    await update_user(tg_user_id=str(messages[0].chat.id), is_learn_model=False)
     
     for m in messages:
         if m.photo:
@@ -294,7 +294,7 @@ async def avatar_callback(message: types.Message):
         text=f"Добавить аватар",
         callback_data=f"start_upload_photo"
     )
-    builder.adjust(3, 3, 3, 1)
+    builder.adjust(2, 2, 2, 2)
     await message.answer(
         text="Выберите модель:",
         reply_markup=builder.as_markup()
@@ -691,8 +691,8 @@ async def inst_payment_callback(call: types.CallbackQuery):
         if v.get("Cost") == amount:
             index = i
             description = v.get("Name")
-            if learn_model and description != "Создание дополнительной модели":
-                continue
+            # if learn_model and description != "Создание дополнительной модели":
+            #     continue
             break
     payment_link = generate_payment_link(
         ROBOKASSA_MERCHANT_ID,
