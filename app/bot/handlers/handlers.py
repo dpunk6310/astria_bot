@@ -15,7 +15,7 @@ from loguru import logger as log
 
 from data.config import ROBOKASSA_MERCHANT_ID, ROBOKASSA_PASSWORD1
 from core.utils.robo import generate_payment_link
-from core.utils.chatgpt import translate_promt
+from core.utils.chatgpt import translate_promt, translate_promt2
 from data.messages import use_messages
 from core.backend.api import (
     create_user_db, 
@@ -511,7 +511,7 @@ async def set_text_in_godmod_callback(message: types.Message, state: FSMContext)
     promt = message.text
     for _ in range(5):
         try:
-            promt = translate_promt(promt)
+            promt = translate_promt2(promt)
             if promt:
                 break
         except Exception as err:
@@ -832,7 +832,7 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
     
     if image_urls:
         for i in image_urls:
-            media_group.add(type="photo", media=i)
+            media_group.add(type="photo", media=i, parse_mode="HTML")
     else:
         await call.message.answer("❌ Ошибка генерации изображения.")
     
