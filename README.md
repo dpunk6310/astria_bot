@@ -11,7 +11,7 @@
 #### 2. Настройка .env файла
 
 В корне проекта создайте файл `.env` и добавьте в него следующие данные:
-
+https://pinpay.fun/
 ```env
 DJANGO_SECRET_KEY=r7j
 DJANGO_DEBUG=True
