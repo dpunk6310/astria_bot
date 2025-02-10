@@ -117,7 +117,7 @@ def send_message_successfully_pay(bot_token: str, chat_id: str):
                 "ведь именно это будет влиять на твой результат",
         "reply_markup": {
             "inline_keyboard": [
-                [{"text": "На главную", "callback_data": "home"}]
+                [{"text": "Инструкция", "callback_data": "start_upload_photo"}]
             ]
         },
         "parse_mode": "Markdown"
