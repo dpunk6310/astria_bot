@@ -666,7 +666,9 @@ async def inst_payment_callback(call: types.CallbackQuery):
     data = call.data.split("_")
     amount = int(data[2])
     сount_generations = int(data[3])
-    learn_model = data[4]
+    # learn_model = data[4]
+    user_db = await get_user(str(call.message.chat.id))
+    learn_model = user_db.get("is_learn_model")
 
     while True:
         payment_id = random.randint(10, 214748347)
