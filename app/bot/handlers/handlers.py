@@ -116,7 +116,7 @@ async def inst_callback(call: types.CallbackQuery):
         ),
     )
     await call.message.answer_photo(
-        photo=types.FSInputFile(BASE_DIR / "media" / "90.jpg"),
+        photo=types.FSInputFile(BASE_DIR / "media" / "90.png"),
         caption="""<b>Пингвин ИИ</b> - это нейросеть, которая учится на твоих фото и создаёт новые 📸 с твоими чертами лица 
 
 <b>Посмотри на результаты</b> 😍👇""",
