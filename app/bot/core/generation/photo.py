@@ -47,7 +47,7 @@ def load_image(file_path):
 async def generate_images(tune_id: int, promt: str, effect: str = None):
     data = {
         'prompt[text]': f'<lora:{tune_id}:1> {promt}',
-        'prompt[steps]': 40,
+        # 'prompt[steps]': 40,
         'prompt[super_resolution]': "true",
         'prompt[inpaint_faces]': "true",
         'prompt[num_images]': 3
