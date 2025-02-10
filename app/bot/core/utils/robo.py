@@ -2,6 +2,7 @@ import json
 import base64
 import hmac
 import hashlib
+from typing import List
 from unicodedata import decimal
 
 import requests
@@ -65,13 +66,10 @@ def generate_payment_link(
     cost: decimal,  # Cost of goods, RU
     number: int,  # Invoice number
     description: str,  # Description of the purchase
+    items: List[dict],
     payload=None,
 ) -> str:
     if payload is None:
-        current_dir = os.path.dirname(os.path.realpath(__file__))
-        file_path = os.path.join(current_dir, 'payload.json')
-        with open(file_path, 'r', encoding='utf-8') as file:
-            data = json.load(file)
         payload = {
             "MerchantLogin": merchant_login,
             "InvoiceType": "OneTime",
@@ -79,7 +77,7 @@ def generate_payment_link(
             "InvId": number,
             "OutSum": cost,
             "Description": description,
-            "InvoiceItems": data
+            "InvoiceItems": items
         }
     response = send_invoice_request(
         merchant_login,
@@ -106,11 +104,16 @@ if __name__ == "__main__":
     ROBOKASSA_PASSWORD2 = env.str("ROBOKASSA_PASSWORD2", "")
     ROBOKASSA_TEST_PASSWORD1 = env.str("ROBOKASSA_TEST_PASSWORD1", "")
     ROBOKASSA_TEST_PASSWORD2 = env.str("ROBOKASSA_TEST_PASSWORD2", "")
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    file_path = os.path.join(current_dir, 'payload.json')
+    with open(file_path, 'r', encoding='utf-8') as file:
+        data = json.load(file)
     payment_link = generate_payment_link(
         ROBOKASSA_MERCHANT_ID,
         ROBOKASSA_PASSWORD1,
-        120,
-        7,
-        "descr",
+        490,
+        10,
+        "Описание тестовое",
+        items=[data[1]]
     )
     print(payment_link)
