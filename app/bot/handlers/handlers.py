@@ -624,7 +624,8 @@ async def inst_payment2_callback(call: types.CallbackQuery):
         amount=str(amount),
         payment_id=str(payment_id),
         сount_generations=сount_generations,
-        learn_model=learn_model
+        learn_model=learn_model,
+        is_first_payment=True
     )
     file_path = BASE_DIR / "media" / "payload.json"
     with open(file_path, 'r', encoding='utf-8') as file:
@@ -650,12 +651,21 @@ async def inst_payment2_callback(call: types.CallbackQuery):
         url=payment_link
     )
     builder.button(
-        text="На главную",
-        callback_data="home"
+        text="Служба поддержки",
+        callback_data="support"
     )
     await call.message.answer(
-        text="""Теперь самое время перейти к оплате! Можно оплатить как с карты РФ, так и с зарубежной.""",
-        reply_markup=builder.as_markup()
+        text="""Ты можешь создать сразу несколько аватаров в нашем боте.
+
+Свой собственный, жены или мужа — подойдет даже Дональд Трамп! 🙀
+
+Генерации общие для всех <b>— используйте их для кого угодно.</b>
+
+Стоимость добавления нового аватара составляет <b>490₽.</b>
+
+<b>Оплати и приступай к созданию!</b> 👇""",
+        reply_markup=builder.as_markup(),
+        parse_mode="HTML"
     )
 
  
@@ -677,7 +687,8 @@ async def inst_payment_callback(call: types.CallbackQuery):
         amount=str(amount),
         payment_id=str(payment_id),
         сount_generations=сount_generations,
-        learn_model=learn_model
+        learn_model=learn_model,
+        is_first_payment=False,
     )
     file_path = BASE_DIR / "media" / "payload.json"
     with open(file_path, 'r', encoding='utf-8') as file:
@@ -688,6 +699,8 @@ async def inst_payment_callback(call: types.CallbackQuery):
         if v.get("Cost") == amount:
             index = i
             description = v.get("Name")
+            if learn_model and description != "Создание дополнительной модели":
+                continue
             break
     payment_link = generate_payment_link(
         ROBOKASSA_MERCHANT_ID,
@@ -722,9 +735,7 @@ async def home_callback(call: types.CallbackQuery):
             last_name=call.message.from_user.last_name,
             username=call.message.from_user.username
         )
-        
-    log.debug(user_db)
-        
+                
     builder = InlineKeyboardBuilder()
     
     builder.add(
@@ -921,6 +932,17 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
 @user_router.message(F.text == "Служба поддержки")
 async def callcenter_callback(message: types.Message):
     await message.answer(
+        """<b>Наша служба поддержки работает в этом Телеграм аккаунте:</b> @managerpingvin_ai
+
+Пожалуйста, детально опишите, что у вас произошло и при необходимости приложите скриншоты - так мы сможем помочь тебе быстрее""",
+        reply_markup=get_main_keyboard(),
+        parse_mode="HTML"
+    )
+
+
+@user_router.callback_query(F.data == "support")
+async def support_handler(call: types.CallbackQuery):
+        await call.message.answer(
         """<b>Наша служба поддержки работает в этом Телеграм аккаунте:</b> @managerpingvin_ai
 
 Пожалуйста, детально опишите, что у вас произошло и при необходимости приложите скриншоты - так мы сможем помочь тебе быстрее""",

@@ -35,7 +35,7 @@ class TGUser(models.Model):
     )
     god_mod = models.BooleanField(verbose_name="Режим бога", default=False)
     referal = models.CharField(verbose_name="Реферал", max_length=30, null=True, blank=True)
-    
+
     def __str__(self):
         return str(self.tg_user_id)
     
@@ -59,7 +59,6 @@ class PriceList(models.Model):
         verbose_name_plural = "Prices List"
         db_table = "prices_list"
     
-
 
 class Image(models.Model):
     tg_user = models.ForeignKey(
@@ -121,6 +120,7 @@ class Payment(models.Model):
     )
     amount = models.CharField(max_length=20, verbose_name="Сумма")
     learn_model = models.BooleanField(verbose_name="Обучение модели", default=False)
+    is_first_payment = models.BooleanField(verbose_name="Первый платеж", default=False)
     
     def __str__(self):
         return str(self.payment_id)

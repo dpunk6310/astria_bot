@@ -34,7 +34,7 @@ class PriceListAdmin(ModelAdmin):
 @admin.register(Payment)
 class PaymentAdmin(ModelAdmin):
     list_display = [
-        "id", "payment_id", "tg_user_id"
+        "id", "payment_id", "tg_user_id", "amount", "is_first_payment", "status"
     ]
     list_display_links = ["payment_id",]
     search_fields = [
@@ -60,7 +60,7 @@ class TuneAdmin(ModelAdmin):
 @admin.register(TGUser)
 class TGUserAdmin(ModelAdmin):
     list_display = [
-        "id", "tg_user_id", "username", "first_name", "last_name", "god_mod"
+        "id", "tg_user_id", "username", "first_name", "last_name", "god_mod", "is_learn_model",
     ]
     list_display_links = ["tg_user_id", "username",]
     search_fields = [

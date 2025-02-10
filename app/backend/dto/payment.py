@@ -7,6 +7,7 @@ class CreatePaymentDTO(Schema):
     сount_generations: int
     amount: str
     learn_model: bool
+    is_first_payment: bool
     
 
 class PaymentDTO(Schema):

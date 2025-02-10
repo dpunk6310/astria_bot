@@ -36,7 +36,7 @@ async def update_user(
     tg_user_id: str,
     count_generations: int = None,
     is_learn_model: bool = None,
-    god_mod: bool = None
+    god_mod: bool = None,
 ) -> dict:
     response = await client.post_request(url=DJANGO_URL+"/api/main/update-user", data={
         "tg_user_id": tg_user_id,
@@ -89,6 +89,7 @@ async def create_payment(
     сount_generations: int,
     amount: str,
     learn_model: bool = False,
+    is_first_payment: bool = False,
 ) -> dict:
     response = await client.post_request(url=DJANGO_URL+"/api/main/create-payment", data={
         "tg_user_id": tg_user_id,
@@ -96,6 +97,7 @@ async def create_payment(
         "сount_generations": сount_generations,
         "amount": amount,
         "learn_model": learn_model,
+        "is_first_payment": is_first_payment,
     })
     return response
 

@@ -108,7 +108,7 @@
 
 import httpx
 
-def send_message_successfully_pay(bot_token: str, chat_id: str):
+def send_message_successfully_pay(bot_token: str, chat_id: str, callback_data: str):
     payload = {
         "chat_id": chat_id,
         "text": "Поздравляю! Оплата завершена успешно ❤️\n\n"
@@ -117,7 +117,7 @@ def send_message_successfully_pay(bot_token: str, chat_id: str):
                 "ведь именно это будет влиять на твой результат",
         "reply_markup": {
             "inline_keyboard": [
-                [{"text": "Инструкция", "callback_data": "start_upload_photo"}]
+                [{"text": "Инструкция", "callback_data": callback_data}]
             ]
         },
         "parse_mode": "Markdown"

@@ -68,13 +68,18 @@ def payment_received(request):
         payment.status = True
         payment.save()
         
-        result = send_message_successfully_pay(BOT_TOKEN, payment.tg_user_id)
+        callback_data = "home"
+        
         tg_user: TGUser = TGUser.objects.get(
             tg_user_id=payment.tg_user_id,
         )
+        if payment.is_first_payment:
+            callback_data = "start_upload_photo"
         tg_user.count_generations += payment.сount_generations
         tg_user.is_learn_model = True if payment.learn_model else False
         tg_user.save()
+        
+        result = send_message_successfully_pay(BOT_TOKEN, payment.tg_user_id, callback_data)
 
         return 200, {"status": "ok", "message": "Success"}
     except Payment.DoesNotExist as err:
@@ -155,7 +160,9 @@ def update_user(request, req: UpdateUserDTO):
         if req.referal is not None:
             tg_user.referal = req.referal
         if req.god_mod is not None:
-            tg_user.god_mod = req.god_mod 
+            tg_user.god_mod = req.god_mod
+        if req.is_first_payment is not None:
+            tg_user.is_first_payment = req.is_first_payment
         tg_user.save()
         return {
             "tg_user_id": tg_user.tg_user_id, 
@@ -163,6 +170,7 @@ def update_user(request, req: UpdateUserDTO):
             "is_learn_model": tg_user.is_learn_model,
             "god_mod": tg_user.god_mod,
             "referal": tg_user.referal,
+            "is_first_payment": tg_user.is_first_payment
         }
     except TGUser.DoesNotExist:
         return {"message": "error", "err": "User not found"}
