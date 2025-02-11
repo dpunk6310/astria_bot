@@ -466,7 +466,6 @@ async def off_god_mod_callback(call: types.CallbackQuery):
 @user_router.message(~F.text.in_(BUTTON_TEXTS))
 async def set_text_in_godmod_callback(message: types.Message):
     if message.text in BUTTON_TEXTS:
-        # await bot.delete_message(message.chat.id, message.message_id)
         return
     
     user_db = await get_user(str(message.chat.id))

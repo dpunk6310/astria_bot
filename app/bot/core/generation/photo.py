@@ -51,8 +51,8 @@ async def generate_images(tune_id: int, promt: str, effect: str = None):
         'prompt[super_resolution]': "true",
         'prompt[inpaint_faces]': "true",
         'prompt[num_images]': 3,
-        'promt[w]': 896,
-        'promt[h]': 1152
+        'prompt[w]': 896,
+        'prompt[h]': 1152
     }
     if effect is not None:
         data['prompt[style]'] = effect
@@ -76,7 +76,7 @@ async def wait_for_generation(prompt_id):
     log.debug("\nОжидаем завершения генерации...")
     attempts = 0
     max_attempts = 400
-    delay = 8  # интервал проверки в секундах
+    delay = 8
 
     while attempts < max_attempts:
         try:
