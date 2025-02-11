@@ -51,7 +51,7 @@ class TuneAdmin(ModelAdmin):
     ]
     list_display_links = ["tune_id",]
     search_fields = [
-        "tune_id",
+        "tune_id", "tg_user_id"
     ]
     save_as = True
     save_on_top = True

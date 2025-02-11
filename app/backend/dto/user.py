@@ -16,6 +16,7 @@ class UserDTO(Schema):
     tune_id: Optional[str]
     god_mod_text: Optional[str]
     category: Optional[str]
+    gender: Optional[str]
     
     
 class UpdateUserDTO(Schema):

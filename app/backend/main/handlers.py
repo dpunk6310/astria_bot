@@ -185,6 +185,7 @@ def update_user(request, req: UpdateUserDTO):
             "tune_id": tg_user.tune_id,
             "god_mod_text": tg_user.god_mod_text,
             "category": tg_user.category,
+            "gender": tg_user.gender,
         }
     except TGUser.DoesNotExist:
         return {"message": "error", "err": "User not found"}

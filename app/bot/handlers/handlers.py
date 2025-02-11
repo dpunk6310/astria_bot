@@ -193,7 +193,7 @@ async def handle_albums(messages: list[types.Message]):
         # await state.update_data(learn_model=True)
         await messages[-1].answer("Оплатите создание аватара", reply_markup=builder.as_markup())
         return
-    
+    log.debug(user_db)
     gender = user_db.get("gender")
     if not gender:
         await messages[-1].answer("Пожалуйста, сначала укажите пол", reply_markup=get_main_keyboard())
@@ -260,11 +260,12 @@ async def handle_albums(messages: list[types.Message]):
 @user_router.message(F.text == "Выбор аватара")
 async def avatar_callback(message: types.Message):
     tunes = await get_tunes(str(message.chat.id))
+    log.debug(tunes)
     builder = InlineKeyboardBuilder()
     for i, tune in enumerate(tunes, 1):
         builder.button(
             text=f"Модель {i}",
-            callback_data=f"tune_{tune.get('tune')}_{i}"
+            callback_data=f"tune_{tune.get('tune_id')}_{i}"
         )
     builder.adjust(2, 2, 2, 2)
     builder.button(
@@ -280,6 +281,7 @@ async def avatar_callback(message: types.Message):
 @user_router.callback_query(F.data.contains("tune_"))
 async def select_avatar_callback(call: types.CallbackQuery):
     tune_id = call.data.split("_")[1]
+    log.debug(tune_id)
     tune_num = call.data.split("_")[-1]
     await update_user(tg_user_id=str(call.message.chat.id), tune_id=str(tune_id))
     keyboard = get_main_keyboard()
@@ -343,6 +345,7 @@ async def prices_photo_callback(call: types.CallbackQuery):
     
 @user_router.callback_query(F.data.in_(["man", "woman"]))
 async def gender_selection(call: types.CallbackQuery):
+    log.debug(call.data)
     await update_user(str(call.message.chat.id), gender=call.data)
     await call.message.answer_photo(
         photo=types.FSInputFile(BASE_DIR / "media" / "inst.png"),
@@ -878,22 +881,32 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
 
 @user_router.message(F.text == "Служба поддержки")
 async def callcenter_callback(message: types.Message):
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="На главную",
+        callback_data="home"
+    )
     await message.answer(
         """<b>Наша служба поддержки работает в этом Телеграм аккаунте:</b> @managerpingvin_ai
 
 Пожалуйста, детально опишите, что у вас произошло и при необходимости приложите скриншоты - так мы сможем помочь тебе быстрее""",
-        reply_markup=types.ReplyKeyboardRemove(),
+        reply_markup=builder.as_markup(),
         parse_mode="HTML"
     )
 
 
 @user_router.callback_query(F.data == "support")
 async def support_handler(call: types.CallbackQuery):
-        await call.message.answer(
-        """<b>Наша служба поддержки работает в этом Телеграм аккаунте:</b> @managerpingvin_ai
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="На главную",
+        callback_data="home"
+    )
+    await call.message.answer(
+    """<b>Наша служба поддержки работает в этом Телеграм аккаунте:</b> @managerpingvin_ai
 
 Пожалуйста, детально опишите, что у вас произошло и при необходимости приложите скриншоты - так мы сможем помочь тебе быстрее""",
-        reply_markup=types.ReplyKeyboardRemove(),
+        reply_markup=builder.as_markup(),
         parse_mode="HTML"
     )
 
