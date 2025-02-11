@@ -762,6 +762,8 @@ async def handle_effect_handler(call: types.CallbackQuery):
         effect = effect.split("_")[0]
     else:
         effect = None
+        
+    await update_user(str(call.message.chat.id), effect=effect)
 
     tunes = await get_tunes(str(call.message.chat.id))
     if not tunes:
