@@ -164,6 +164,16 @@ def update_user(request, req: UpdateUserDTO):
             tg_user.referal = req.referal
         if req.god_mod is not None:
             tg_user.god_mod = req.god_mod
+        if req.effect is not None:
+            tg_user.effect = req.effect
+        if req.tune_id is not None:
+            tg_user.tune_id = req.tune_id
+        if req.god_mod_text is not None:
+            tg_user.god_mod_text = req.god_mod_text
+        if req.category is not None:
+            tg_user.category = req.category
+        if req.gender is not None:
+            tg_user.gender = req.gender
         tg_user.save()
         return {
             "tg_user_id": tg_user.tg_user_id, 
@@ -171,6 +181,10 @@ def update_user(request, req: UpdateUserDTO):
             "is_learn_model": tg_user.is_learn_model,
             "god_mod": tg_user.god_mod,
             "referal": tg_user.referal,
+            "effect": tg_user.effect,
+            "tune_id": tg_user.tune_id,
+            "god_mod_text": tg_user.god_mod_text,
+            "category": tg_user.category,
         }
     except TGUser.DoesNotExist:
         return {"message": "error", "err": "User not found"}

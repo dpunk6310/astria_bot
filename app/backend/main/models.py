@@ -35,6 +35,11 @@ class TGUser(models.Model):
     )
     god_mod = models.BooleanField(verbose_name="Режим бога", default=False)
     referal = models.CharField(verbose_name="Реферал", max_length=30, null=True, blank=True)
+    effect = models.CharField(verbose_name="Выбранный фильтр(эффект)", max_length=100, null=True, blank=True)
+    tune_id = models.CharField(verbose_name="Выбранный TUNE", max_length=30, null=True, blank=True)
+    god_mod_text = models.TextField(verbose_name="Текст промта", null=True, blank=True)
+    category = models.CharField(verbose_name="Выбраная категория", max_length=300, null=True, blank=True)
+    gender = models.CharField(verbose_name="Выбраный пол", max_length=300, null=True, blank=True)
 
     def __str__(self):
         return str(self.tg_user_id)

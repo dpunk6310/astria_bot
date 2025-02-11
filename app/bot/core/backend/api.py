@@ -37,12 +37,24 @@ async def update_user(
     count_generations: int = None,
     is_learn_model: bool = None,
     god_mod: bool = None,
+    referal: str = None,
+    effect: str = None,
+    tune_id: str = None,
+    god_mod_text: str = None,
+    category: str = None,
+    gender: str = None,
 ) -> dict:
     response = await client.post_request(url=DJANGO_URL+"/api/main/update-user", data={
         "tg_user_id": tg_user_id,
         "count_generations": count_generations,
         "is_learn_model": is_learn_model,
         "god_mod": god_mod,
+        "referal": referal,
+        "effect": effect,
+        "tune_id": tune_id,
+        "god_mod_text": god_mod_text,
+        "category": category,
+        "gender": gender,
     })
     return response
 
