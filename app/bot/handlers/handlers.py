@@ -91,14 +91,7 @@ async def start_handler(message: types.Message, messages):
         caption="""<b>Привет! На связи Пингвин бот - усовершенствованная версия популярной нейронки</b> 🐧
 
 Рассказать тебе как здесь все работает? А если ты уже в курсе, нужно просто внести оплату - и вперед!
-
-Кстати, мои преимущества:
-🧊 Неограниченное количество шаблонов
-🧊 Фильтры к каждому фото в «Стили»
-🧊 Удобная реферальная система: приглашай друзей и получай бесплатные генерации 
-🧊 Цена всего 1290 руб. ❣️
-
-*промт - это текстовый запрос пользователя к нейросети""",
+""",
         reply_markup=keyboard,
         parse_mode="HTML"
     )
@@ -138,24 +131,8 @@ async def inst_next2_callback(call: types.CallbackQuery):
         reply_markup=builder.as_markup()
     )
     
-    
+
 @user_router.callback_query(F.data == "inst_next3")
-async def inst_next3_callback(call: types.CallbackQuery):
-    builder = InlineKeyboardBuilder()
-    builder.add(
-        types.InlineKeyboardButton(
-            text="Дальше!",
-            callback_data="inst_next4"
-        ),
-    )
-    await call.message.answer_photo(
-        photo=types.FSInputFile(BASE_DIR / "media" / "87.jpg"),
-        caption="Фотки нужны самые обычные. Но если будут студийные, результат по моим наблюдениям, может быть лучше!",
-        reply_markup=builder.as_markup()
-    )
-
-
-@user_router.callback_query(F.data == "inst_next4")
 async def inst_next4_callback(call: types.CallbackQuery):
     builder = InlineKeyboardBuilder()
     builder.add(
