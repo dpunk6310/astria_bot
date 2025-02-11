@@ -64,7 +64,7 @@ class TGUserAdmin(ModelAdmin):
     ]
     list_display_links = ["tg_user_id", "username",]
     search_fields = [
-        "tg_user_id", "username",
+        "tg_user_id", "username", "first_name"
     ]
     save_as = True
     save_on_top = True
