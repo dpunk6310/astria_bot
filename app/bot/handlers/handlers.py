@@ -959,7 +959,7 @@ async def support_handler(call: types.CallbackQuery):
         """<b>Наша служба поддержки работает в этом Телеграм аккаунте:</b> @managerpingvin_ai
 
 Пожалуйста, детально опишите, что у вас произошло и при необходимости приложите скриншоты - так мы сможем помочь тебе быстрее""",
-        reply_markup=get_main_keyboard(),
+        reply_markup=types.ReplyKeyboardRemove(),
         parse_mode="HTML"
     )
 
