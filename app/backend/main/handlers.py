@@ -56,8 +56,8 @@ def get_payment(request, payment_id: str):
 @router.post("/payment", response={200: SuccessDTO, 400: ErrorDTO})
 def payment_received(request):
     try:
-        raw_body = request.body.decode("utf-8", errors="ignore")  # Декодируем в строку
-        content_type = request.headers.get("Content-Type", "Unknown")  # Проверяем заголовок
+        raw_body = request.body.decode("utf-8", errors="ignore")
+        content_type = request.headers.get("Content-Type", "Unknown")
         log.debug(f"Content-Type: {content_type}")
         log.debug(f"Raw body: {raw_body}")
         data = request.POST.dict()
@@ -68,21 +68,24 @@ def payment_received(request):
         payment.status = True
         payment.save()
         
-        callback_data = "home"
+        callback_data = "driving"
+        button_text = "Поехали!"
         
         tg_user: TGUser = TGUser.objects.get(
             tg_user_id=payment.tg_user_id,
         )
         if payment.is_first_payment:
             callback_data = "start_upload_photo"
+            button_text = "Инструкция"
         if payment.is_first_payment is False and payment.learn_model:
             callback_data = "start_upload_photo"
+            button_text = "Инструкция"
         
         tg_user.count_generations += payment.сount_generations
         tg_user.is_learn_model = True if payment.learn_model else False
         tg_user.save()
         
-        result = send_message_successfully_pay(BOT_TOKEN, payment.tg_user_id, callback_data)
+        result = send_message_successfully_pay(BOT_TOKEN, payment.tg_user_id, callback_data, button_text)
 
         return 200, {"status": "ok", "message": "Success"}
     except Payment.DoesNotExist as err:

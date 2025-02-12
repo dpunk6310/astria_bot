@@ -107,10 +107,10 @@ async def inst_callback(call: types.CallbackQuery):
         ),
     )
     await call.message.answer_photo(
-        photo=types.FSInputFile(BASE_DIR / "media" / "logo_p.png"),
+        photo=types.FSInputFile(BASE_DIR / "media" / "90.png"),
         caption="""<b>Пингвин ИИ</b> - это нейросеть, которая учится на твоих фото и создаёт новые 📸 с твоими чертами лица 
 
-<b>Посмотри на результаты</b> 😍👇""",
+<b>Посмотри на результаты</b> 😍""",
         reply_markup=builder.as_markup(),
         parse_mode="HTML"
     )
@@ -908,6 +908,20 @@ async def support_handler(call: types.CallbackQuery):
 
 Пожалуйста, детально опишите, что у вас произошло и при необходимости приложите скриншоты - так мы сможем помочь тебе быстрее""",
         reply_markup=builder.as_markup(),
+        parse_mode="HTML"
+    )
+
+
+
+@user_router.callback_query(F.data == "driving")
+async def driving_callback(call: types.CallbackQuery):
+    await call.message.answer_photo(
+        photo=types.FSInputFile(BASE_DIR / "media" / "87.jpg"),
+        caption="""<b>Для тебя подготовили два режима на выбор:</b>
+
+1. Режим «Стили», где ты выбираешь кем быть: от ребенка до кинозвезды! 
+2. «Режим бога», где ты сам решаешь кем быть! Тебе нужно будет просто описать что ты хочешь в нескольких словах)""",
+        reply_markup=get_main_keyboard(),
         parse_mode="HTML"
     )
 
