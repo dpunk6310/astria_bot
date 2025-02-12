@@ -218,7 +218,7 @@ async def handle_albums(messages: list[types.Message]):
 
 Там мы публикуем оригинальные идеи стилей и промтов для твоих новых фотографий, а также актуальные новости.
 """)
-    
+    images = []
     for m in messages:
         if m.photo:
             photo = await bot.get_file(m.photo[-1].file_id)
@@ -227,6 +227,7 @@ async def handle_albums(messages: list[types.Message]):
             await m.bot.download_file(
                 file_path, destination=output_filename
             )
+            images.append(output_filename)
             response = await create_img_path(
                 tg_user_id=str(m.chat.id),
                 path=output_filename
@@ -235,6 +236,10 @@ async def handle_albums(messages: list[types.Message]):
             photo = await m.bot.get_file(m.document.file_id)
             file_path = photo.file_path
             output_filename = f"{photos_path}/{uuid4()}_{file_path.replace('documents/', '')}"
+            images.append(output_filename)
+            await m.bot.download_file(
+                file_path, destination=output_filename
+            )
             response = await create_img_path(
                 tg_user_id=str(m.chat.id),
                 path=output_filename
@@ -662,6 +667,7 @@ async def first_payment_callback(call: types.CallbackQuery):
         text="Служба поддержки",
         callback_data="support"
     )
+    builder.adjust(1,1,1)
     await call.message.answer(
         text="""Теперь самое время перейти к оплате! Можно оплатить как с карты РФ, так и с зарубежной.""",
         # text="Теперь самое время перейти к оплате! Можно оплатить с карты РФ",
@@ -726,6 +732,7 @@ async def inst_payment_callback(call: types.CallbackQuery):
         text="Служба поддержки",
         callback_data="support"
     )
+    builder.adjust(1,1,1)
     await call.message.answer(
         text="""Теперь самое время перейти к оплате! Можно оплатить как с карты РФ, так и с зарубежной.""",
         # text="Теперь самое время перейти к оплате! Можно оплатить с карты РФ",
