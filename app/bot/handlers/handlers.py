@@ -636,16 +636,17 @@ async def first_payment_callback(call: types.CallbackQuery):
         text="Карта РФ",
         url=payment_link
     )
-    builder.button(
-        text="Зарубежная карта",
-        url=payment_link
-    )
+    # builder.button(
+    #     text="Зарубежная карта",
+    #     url=payment_link
+    # )
     builder.button(
         text="Служба поддержки",
         callback_data="support"
     )
     await call.message.answer(
-        text="""Теперь самое время перейти к оплате! Можно оплатить как с карты РФ, так и с зарубужной.""",
+        # text="""Теперь самое время перейти к оплате! Можно оплатить как с карты РФ, так и с зарубужной.""",
+        text="Теперь самое время перейти к оплате! Можно оплатить с карты РФ",
         reply_markup=builder.as_markup(),
         parse_mode="HTML"
     )
@@ -699,10 +700,10 @@ async def inst_payment_callback(call: types.CallbackQuery):
         text="Карта РФ",
         url=payment_link
     )
-    builder.button(
-        text="Зарубежная карта",
-        url=payment_link
-    )
+    # builder.button(
+    #     text="Зарубежная карта",
+    #     url=payment_link
+    # )
     builder.button(
         text="Служба поддержки",
         callback_data="support"
@@ -724,7 +725,8 @@ async def inst_payment_callback(call: types.CallbackQuery):
         )
         return
     await call.message.answer(
-        text="""Теперь самое время перейти к оплате! Можно оплатить как с карты РФ, так и с зарубужной.""",
+        # text="""Теперь самое время перейти к оплате! Можно оплатить как с карты РФ, так и с зарубужной.""",
+        text="Теперь самое время перейти к оплате! Можно оплатить с карты РФ",
         reply_markup=builder.as_markup()
     )
 
