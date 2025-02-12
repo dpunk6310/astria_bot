@@ -404,7 +404,12 @@ async def start_upload_photo_callback(call: types.CallbackQuery):
 async def god_mod_callback(message: types.Message):
     tunes = await get_tunes(str(message.chat.id))
     if not tunes:
-        await message.answer("У Вас нет аватара, создайте его!", reply_markup=get_main_keyboard())
+        builder = InlineKeyboardBuilder()
+        builder.button(
+            text=f"Добавить аватар",
+            callback_data=f"start_upload_photo"
+        )
+        await message.answer("У Вас нет аватара, создайте его!", reply_markup=builder.as_markup())
         return
     user_db = await get_user(str(message.chat.id))
     god_mod = user_db.get("god_mod", False)
@@ -559,7 +564,12 @@ async def styles_effect_handler(message: types.Message):
     json_file = BASE_DIR / "media" / "promts.json"
     tunes = await get_tunes(str(message.chat.id))
     if not tunes or not user_db.get("gender"):
-        await message.answer("У Вас нет аватара, создайте его!", reply_markup=get_main_keyboard())
+        builder = InlineKeyboardBuilder()
+        builder.button(
+            text=f"Добавить аватар",
+            callback_data=f"start_upload_photo"
+        )
+        await message.answer("У Вас нет аватара, создайте его!", reply_markup=builder.as_markup())
         return
 
     categories = get_categories(gender=user_db.get("gender"), json_file=json_file)
@@ -766,7 +776,12 @@ async def handle_effect_handler(call: types.CallbackQuery):
 
     tunes = await get_tunes(str(call.message.chat.id))
     if not tunes:
-        await call.message.answer("У Вас нет аватара, создайте его!", reply_markup=get_main_keyboard())
+        builder = InlineKeyboardBuilder()
+        builder.button(
+            text=f"Добавить аватар",
+            callback_data=f"start_upload_photo"
+        )
+        await message.answer("У Вас нет аватара, создайте его!", reply_markup=builder.as_markup())
         return
 
 
@@ -868,7 +883,7 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
 *Instagram принадлежит компании Meta, признанной экстремистской организацией и запрещенной в РФ""".format(count_gen=user_db.get("count_generations")), parse_mode="HTML")
 
     image_urls = await wait_for_generation(prompt_id)
-    media_group = MediaGroupBuilder(caption='🖼 Создано в <a href="https://t.me/photopingvin_bot?start">Пингвин ИИ</a>')
+    media_group = MediaGroupBuilder(caption='<a href="https://t.me/photopingvin_bot?start">🖼 Создано в Пингвин ИИ</a>')
     
     if image_urls:
         for i in image_urls:
