@@ -47,14 +47,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 BUTTON_TEXTS = {"Стили", "Режим бога", "Выбор аватара", "Генерации", "Доп. опции", "Служба поддержки"}
 
 
-# class UploadPhotoState(StatesGroup):
-#     gender = State()
-#     effect = State()
-#     tune_id = State()
-#     god_mod_text = State()
-#     category = State()
-    
-
 @user_router.message(CommandStart())
 @use_messages
 async def start_handler(message: types.Message, messages):
@@ -85,6 +77,15 @@ async def start_handler(message: types.Message, messages):
     keyboard = builder.as_markup()
     if user_db.get("count_generations") > 3:
         keyboard = get_main_keyboard()
+    
+    if not user_db.get("referal"):
+        referal = message.text.split(" ")
+        if len(referal) == 2:
+            referal = referal[1]
+            if referal != str(message.chat.id):
+                await update_user(str(message.chat.id), referal=referal)
+        else:
+            referal = None
     
     await message.answer_photo(
         photo=types.FSInputFile(BASE_DIR / "media" / "logo_p.png"),
