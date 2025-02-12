@@ -231,6 +231,14 @@ async def handle_albums(messages: list[types.Message]):
                 tg_user_id=str(m.chat.id),
                 path=output_filename
             )
+        if m.document:
+            photo = await m.bot.get_file(m.document.file_id)
+            file_path = photo.file_path
+            output_filename = f"{photos_path}/{uuid4()}_{file_path.replace('documents/', '')}"
+            response = await create_img_path(
+                tg_user_id=str(m.chat.id),
+                path=output_filename
+            )
     
     images = await get_user_images(str(messages[-1].chat.id))
     imgs = []
@@ -240,6 +248,17 @@ async def handle_albums(messages: list[types.Message]):
     
     response = await learn_model_api(imgs, gender)
     tune_id = response.get("id")
+    if not tune_id:
+        builder = InlineKeyboardBuilder()
+        builder.button(
+            text="Служба поддержки",
+            callback_data="support"
+        )
+        await messages[-1].answer(
+            text="Произошла ошибка во время обучения модели. Пожалуйста, обратитесь в техническую поддержку", 
+            reply_markup=builder.as_markup(),
+        )
+        return
     training_complete = await wait_for_training(tune_id)
     if training_complete:
         response_tune = await create_tune(tune_id=str(tune_id), tg_user_id=str(messages[-1].chat.id), gender=gender)
@@ -268,7 +287,7 @@ async def avatar_callback(message: types.Message):
             text=f"Модель {i}",
             callback_data=f"tune_{tune.get('tune_id')}_{i}"
         )
-    builder.adjust(2, 2, 2, 2)
+    builder.adjust(1, 1, 1, 1)
     builder.button(
         text=f"Добавить аватар",
         callback_data=f"start_upload_photo"
@@ -282,7 +301,6 @@ async def avatar_callback(message: types.Message):
 @user_router.callback_query(F.data.contains("tune_"))
 async def select_avatar_callback(call: types.CallbackQuery):
     tune_id = call.data.split("_")[1]
-    log.debug(tune_id)
     tune_num = call.data.split("_")[-1]
     await update_user(tg_user_id=str(call.message.chat.id), tune_id=str(tune_id))
     keyboard = get_main_keyboard()
@@ -551,7 +569,7 @@ async def styles_effect_handler(message: types.Message):
     user_db = await get_user(str(message.chat.id))
     if user_db.get("god_mod"):
         await message.answer(text="Режим бога выключен", reply_markup=get_main_keyboard())
-        await update_user(str(message.chat.id), god_mod=False)
+        await update_user(str(message.chat.id), god_mod=False, god_mod_text=None)
     
     if user_db.get("count_generations") < 3:
         builder = InlineKeyboardBuilder()
@@ -636,17 +654,17 @@ async def first_payment_callback(call: types.CallbackQuery):
         text="Карта РФ",
         url=payment_link
     )
-    # builder.button(
-    #     text="Зарубежная карта",
-    #     url=payment_link
-    # )
+    builder.button(
+        text="Зарубежная карта",
+        url=payment_link
+    )
     builder.button(
         text="Служба поддержки",
         callback_data="support"
     )
     await call.message.answer(
-        # text="""Теперь самое время перейти к оплате! Можно оплатить как с карты РФ, так и с зарубужной.""",
-        text="Теперь самое время перейти к оплате! Можно оплатить с карты РФ",
+        text="""Теперь самое время перейти к оплате! Можно оплатить как с карты РФ, так и с зарубежной.""",
+        # text="Теперь самое время перейти к оплате! Можно оплатить с карты РФ",
         reply_markup=builder.as_markup(),
         parse_mode="HTML"
     )
@@ -700,33 +718,17 @@ async def inst_payment_callback(call: types.CallbackQuery):
         text="Карта РФ",
         url=payment_link
     )
-    # builder.button(
-    #     text="Зарубежная карта",
-    #     url=payment_link
-    # )
+    builder.button(
+        text="Зарубежная карта",
+        url=payment_link
+    )
     builder.button(
         text="Служба поддержки",
         callback_data="support"
     )
-    log.debug(learn_model)
-    if learn_model is True:
-        await call.message.answer(
-            text="""Ты можешь создать сразу несколько аватаров в нашем боте.
-
-Свой собственный, жены или мужа — подойдет даже Дональд Трамп! 🙀
-
-Генерации общие для всех <b>— используйте их для кого угодно.</b>
-
-Стоимость добавления нового аватара составляет <b>490₽.</b>
-
-<b>Оплати и приступай к созданию!</b> 👇""",
-            reply_markup=builder.as_markup(),
-            parse_mode="HTML"
-        )
-        return
     await call.message.answer(
-        # text="""Теперь самое время перейти к оплате! Можно оплатить как с карты РФ, так и с зарубужной.""",
-        text="Теперь самое время перейти к оплате! Можно оплатить с карты РФ",
+        text="""Теперь самое время перейти к оплате! Можно оплатить как с карты РФ, так и с зарубежной.""",
+        # text="Теперь самое время перейти к оплате! Можно оплатить с карты РФ",
         reply_markup=builder.as_markup()
     )
 
@@ -792,11 +794,9 @@ async def handle_effect_handler(call: types.CallbackQuery):
             text=f"Добавить аватар",
             callback_data=f"start_upload_photo"
         )
-        await message.answer("У Вас нет аватара, создайте его!", reply_markup=builder.as_markup())
+        await call.message.answer("У Вас нет аватара, создайте его!", reply_markup=builder.as_markup())
         return
 
-
-    # data = await state.get_data()
     user_db = await get_user(str(call.message.chat.id))
     if user_db.get("god_mod"):
         if user_db.get("god_mod_text"):
