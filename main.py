@@ -1,22 +1,58 @@
-from openai import OpenAI
+import httpx
 
 
-def translate_promt(promt: str) -> str:
-    client = OpenAI(api_key="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")
+def send_message_successfully_pay(bot_token: str, chat_id: str, text: str):
+    payload = {
+        "chat_id": chat_id,
+        "text": text,
+        "parse_mode": "HTML"
+    }
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    try:
+        response = httpx.post(url=url, json=payload)
+        return response.json()
+    except Exception as e:
+        return {"err": str(e)}
 
-    completion = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {
-                "role": "system", 
-                "content": "You are an assistant in creating good scripts for flux (for generating photos) and translating them into English. I'll write you a promt, it may be short - then you need to adapt it for the Flux neural network - add details, colors, and make the query more interesting. At the same time, I can send you a high-quality and detailed promt, then it doesn't need to be changed. The volume will speak about the quality. if the promt is large, it means that it does not need to be changed. in response, you need to send an improved promt in English, without unnecessary words, phrases, symbols, etc. if the promt from me is initially good, duplicate my promt in response."
-            },
-            {
-                "role": "user",
-                "content": promt
-            }
-        ]
-    )
-    return completion.choices[0].message.content
 
-print(translate_promt("Девушка на красной машине"))
+send_message_successfully_pay(
+    bot_token="7840314780:AAEnowO22AigiBvKNwYZDL-H2e3N-amGI_g",
+    chat_id="758103378",
+    text="""
+❗️ <b>Уважаемые пользователи!</b>❗️
+
+Предупреждаем Вас, что через 30 минут мы проведем технические работы по боту - в это время бот может не работать
+
+Пожалуйста, не используйте бота в это время - генерация, оплата и другие функции могут не работать
+
+Мы пришлем уведомление как технические работы начнуться и завершаться ❤️
+    """
+)
+
+send_message_successfully_pay(
+    bot_token="7840314780:AAEnowO22AigiBvKNwYZDL-H2e3N-amGI_g",
+    chat_id="758103378",
+    text="""
+❗️ <b>Уважаемые пользователи!</b>❗️
+
+По боту начались плановые технические работы
+
+Убедительно просим Вас не использоваться бота в это время - так как основные функции временно работать не будут
+
+Это займет немного времени. Мы пришлем уведомление как технические работы завершаться ❤️
+    """
+)
+
+send_message_successfully_pay(
+    bot_token="7840314780:AAEnowO22AigiBvKNwYZDL-H2e3N-amGI_g",
+    chat_id="758103378",
+    text="""
+❗️ <b>Уважаемые пользователи!</b>❗️
+
+Технические работы завершены. Бот работает стабильно
+
+В случае возникновения каких-либо проблем вы можете связать с поддержкой через кнопку "Служба поддержки"
+
+Приносим извенения за доставленные неудобства. Мы рады, что Вы с нами ❤️
+    """
+)
