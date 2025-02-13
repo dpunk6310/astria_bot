@@ -2,7 +2,15 @@ from django.contrib import admin
 
 from unfold.admin import ModelAdmin
 
-from .models import TGUser, Image, Payment, Tune, PriceList
+from .models import (
+    TGUser, 
+    Image, 
+    Payment, 
+    Tune, 
+    PriceList, 
+    Category,
+    Promt,
+)
 
 
 @admin.register(Image)
@@ -68,3 +76,30 @@ class TGUserAdmin(ModelAdmin):
     ]
     save_as = True
     save_on_top = True
+    
+    
+@admin.register(Promt)
+class PromtAdmin(ModelAdmin):
+    list_display = [
+        "id", "category",
+    ]
+    list_display_links = ["category"]
+    save_as = True
+    save_on_top = True
+    
+    
+@admin.register(Category)
+class CategoryAdmin(ModelAdmin):
+    list_display = [
+        "id", "name", "slug", "gender"
+    ]
+    list_display_links = ["name", "slug",]
+    search_fields = [
+        "name", "slug", "gender",
+    ]
+    prepopulated_fields = {"slug": ("name",)}
+    save_as = True
+    save_on_top = True
+    
+    
+    

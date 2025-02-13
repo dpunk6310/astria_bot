@@ -22,6 +22,7 @@ class UserDTO(Schema):
 class UpdateUserDTO(Schema):
     tg_user_id: str
     count_generations: Optional[int] = None
+    count_video_generations: Optional[int] = None
     is_learn_model: Optional[bool] = None
     god_mod: Optional[bool] = None
     referal: Optional[str] = None

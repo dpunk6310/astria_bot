@@ -177,6 +177,8 @@ def update_user(request, req: UpdateUserDTO):
             tg_user.category = req.category
         if req.gender is not None:
             tg_user.gender = req.gender
+        if req.count_video_generations is not None:
+            tg_user.count_video_generations = req.count_video_generations
         tg_user.save()
         return {
             "tg_user_id": tg_user.tg_user_id, 
@@ -189,6 +191,7 @@ def update_user(request, req: UpdateUserDTO):
             "god_mod_text": tg_user.god_mod_text,
             "category": tg_user.category,
             "gender": tg_user.gender,
+            "count_video_generations": tg_user.count_video_generations,
         }
     except TGUser.DoesNotExist:
         return {"message": "error", "err": "User not found"}

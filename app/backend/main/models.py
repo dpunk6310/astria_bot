@@ -1,4 +1,11 @@
 from django.db import models
+from django.utils.text import slugify
+
+
+GENDER_CHOICES = [
+    ('man', 'man'),
+    ('woman', 'woman'),
+]
 
 
 class TGUser(models.Model):
@@ -29,6 +36,9 @@ class TGUser(models.Model):
     count_generations = models.PositiveIntegerField(
         verbose_name="Кол-во генераций", default=0
     )
+    count_video_generations = models.PositiveIntegerField(
+        verbose_name="Кол-во генераций видео", default=3
+    )
     is_learn_model = models.BooleanField(
         verbose_name="Использование обучения модели",
         default=True
@@ -48,6 +58,43 @@ class TGUser(models.Model):
         verbose_name = "TG User"
         verbose_name_plural = "TG user"
         db_table = "tg_users"
+        
+        
+class Category(models.Model):
+    name = models.CharField(verbose_name="Название", max_length=300)
+    slug = models.SlugField(verbose_name="Slug", max_length=400, unique=True)
+    gender = models.CharField(verbose_name="Пол", max_length=20, choices=GENDER_CHOICES)
+    
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(Category, self).save(*args, **kwargs)
+    
+    def __str__(self):
+        return str(self.name)
+    
+    class Meta:
+        verbose_name = "Category"
+        verbose_name_plural = "Categories"
+        db_table = "categories"
+        
+        
+class Promt(models.Model):
+    category = models.ForeignKey(
+        Category, 
+        on_delete=models.CASCADE, 
+        related_name="promts", 
+        verbose_name="Категория",
+    )
+    text = models.TextField(verbose_name="Текст")
+    
+    def __str__(self):
+        return str(self.category.name)
+    
+    class Meta:
+        verbose_name = "Promt"
+        verbose_name_plural = "Promts"
+        db_table = "promts"
+    
         
         
 class PriceList(models.Model):
