@@ -8,8 +8,6 @@ from aiogram_media_group import media_group_handler
 from aiogram import types, Router, F
 from aiogram.filters import CommandStart
 from aiogram.utils.media_group import MediaGroupBuilder
-# from aiogram.fsm.state import State, StatesGroup
-# from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from loguru import logger as log
 
@@ -889,7 +887,7 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
 
 1. Подпишись на наш Instagram: https://www.instagram.com/photopingvin.ai
 2. Поделись своим волшебным ИИ-фото в Stories.
-3. Отметь нас @photopingvin.ai и добавь кликабельную ссылку на бота: https://t.me/photopingvin_bot?start
+3. Отметь нас @photopingvin.ai и добавь кликабельную ссылку на бота: https://t.me/photopingvin_bot?start={user_tg_id}
 
 🎁 <b>Хочешь 30 бесплатных генераций?</b>
 
@@ -898,7 +896,9 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
 
 <b>Отправь скриншот своей публикации в поддержку @managerpingvin_ai – и мы начислим бонусные генерации на твой аккаунт!  Ждём твои креативные работы!</b>
 
-*Instagram принадлежит компании Meta, признанной экстремистской организацией и запрещенной в РФ""".format(count_gen=user_db.get("count_generations")), parse_mode="HTML")
+*Instagram принадлежит компании Meta, признанной экстремистской организацией и запрещенной в РФ""".format(
+    count_gen=user_db.get("count_generations"), user_tg_id=str(call.message.chat.id)), parse_mode="HTML",
+)
 
     image_urls = await wait_for_generation(prompt_id)
     media_group = MediaGroupBuilder(caption='<a href="https://t.me/photopingvin_bot?start">🖼 Создано в Пингвин ИИ</a>')
@@ -923,7 +923,7 @@ async def callcenter_callback(message: types.Message):
     await message.answer(
         """<b>Наша служба поддержки работает в этом Телеграм аккаунте:</b> @managerpingvin_ai
 
-Пожалуйста, детально опишите, что у вас произошло и при необходимости приложите скриншоты - так мы сможем помочь тебе быстрее""",
+Пожалуйста, детально опишите, что у вас произошло и при необходимости приложите скриншоты - так мы сможем помочь тебе быстрее. Не забудь указать свой Chat ID: <code>{chat_id}</code>""".format(chat_id=message.chat.id),
         reply_markup=builder.as_markup(),
         parse_mode="HTML"
     )
@@ -939,11 +939,10 @@ async def support_handler(call: types.CallbackQuery):
     await call.message.answer(
     """<b>Наша служба поддержки работает в этом Телеграм аккаунте:</b> @managerpingvin_ai
 
-Пожалуйста, детально опишите, что у вас произошло и при необходимости приложите скриншоты - так мы сможем помочь тебе быстрее""",
+Пожалуйста, детально опишите, что у вас произошло и при необходимости приложите скриншоты - так мы сможем помочь тебе быстрее. Не забудь указать свой Chat ID: <code>{chat_id}</code>""".format(chat_id=call.message.chat.id),
         reply_markup=builder.as_markup(),
         parse_mode="HTML"
     )
-
 
 
 @user_router.callback_query(F.data == "driving")
