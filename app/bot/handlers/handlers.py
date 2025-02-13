@@ -27,13 +27,13 @@ from core.backend.api import (
     create_tune,
     update_user,
     get_avatar_price_list,
-    get_payment
+    get_payment,
 )
 from core.generation.photo import (
     learn_model_api, 
     wait_for_training, 
     generate_images, 
-    wait_for_generation
+    wait_for_generation,
 )
 from core.generation.utils import get_categories, get_random_prompt
 from loader import bot
