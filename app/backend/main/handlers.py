@@ -1,5 +1,3 @@
-from typing import Optional
-
 from ninja import Router
 from django.db.utils import IntegrityError
 from loguru import logger as log
@@ -11,9 +9,9 @@ from dto.image import CreateImageDTO, ImageDTO
 from dto.payment import PaymentDTO, CreatePaymentDTO
 from dto.tune import TuneListDTO, CreateTuneDTO
 from dto.err import ErrorDTO, SuccessDTO
+from dto.category import CategoryDTO
 from dto.price_list import PriceListDTO
-from .models import TGUser, Image, Payment, Tune, PriceList
-# from config.loader import telegram_api
+from .models import TGUser, Image, Payment, Tune, PriceList, Category
 
 
 router = Router()
@@ -229,6 +227,27 @@ def get_user_images(request, tg_user_id: str):
     
     except TGUser.DoesNotExist:
         return 400, {"message": "error", "err": str(err)}
+    except Exception as err:
+        return 400, {"message": "error", "err": str(err)}
+    
+    
+@router.get("/categories/{gender}", response={200: list[CategoryDTO], 400: ErrorDTO})
+def get_categories(request, gender: str):
+    try:
+        categories = Category.objects.filter(gender=gender).prefetch_related("promts")
+
+        category_list = [
+            {
+                "name": category.name,
+                "slug": category.slug,
+                "gender": category.gender,
+                "promts": [{"text": p.text} for p in category.promts.all()]
+            }
+            for category in categories
+        ]
+
+        return 200, category_list
+
     except Exception as err:
         return 400, {"message": "error", "err": str(err)}
     

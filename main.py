@@ -1,58 +1,41 @@
-import httpx
+import requests
+import time
 
 
-def send_message_successfully_pay(bot_token: str, chat_id: str, text: str):
-    payload = {
-        "chat_id": chat_id,
-        "text": text,
-        "parse_mode": "HTML"
-    }
-    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
-    try:
-        response = httpx.post(url=url, json=payload)
-        return response.json()
-    except Exception as e:
-        return {"err": str(e)}
+url = "https://queue.fal.run/fal-ai/kling-video/v1.6/pro/image-to-video"
+headers = {
+    "Authorization": "Key ed25032b-185e-4289-9495-d0b15dafc4dc:438277be849f5a74d83001d5537987cc",
+    "Content-Type": "application/json"
+}
 
+data = {
+    "prompt": "A stylish woman walks down a Tokyo street filled with warm glowing neon and animated city signage. She wears a black leather jacket, a long red dress, and black boots, and carries a black purse.",
+    "image_url": "https://fal.media/files/panda/TuXlMwArpQcdYNCLAEM8K.webp"
+}
 
-send_message_successfully_pay(
-    bot_token="7840314780:AAEnowO22AigiBvKNwYZDL-H2e3N-amGI_g",
-    chat_id="758103378",
-    text="""
-❗️ <b>Уважаемые пользователи!</b>❗️
-
-Предупреждаем Вас, что через 30 минут мы проведем технические работы по боту - в это время бот может не работать
-
-Пожалуйста, не используйте бота в это время - генерация, оплата и другие функции могут не работать
-
-Мы пришлем уведомление как технические работы начнуться и завершаться ❤️
-    """
-)
-
-send_message_successfully_pay(
-    bot_token="7840314780:AAEnowO22AigiBvKNwYZDL-H2e3N-amGI_g",
-    chat_id="758103378",
-    text="""
-❗️ <b>Уважаемые пользователи!</b>❗️
-
-По боту начались плановые технические работы
-
-Убедительно просим Вас не использоваться бота в это время - так как основные функции временно работать не будут
-
-Это займет немного времени. Мы пришлем уведомление как технические работы завершаться ❤️
-    """
-)
-
-send_message_successfully_pay(
-    bot_token="7840314780:AAEnowO22AigiBvKNwYZDL-H2e3N-amGI_g",
-    chat_id="758103378",
-    text="""
-❗️ <b>Уважаемые пользователи!</b>❗️
-
-Технические работы завершены. Бот работает стабильно
-
-В случае возникновения каких-либо проблем вы можете связать с поддержкой через кнопку "Служба поддержки"
-
-Приносим извенения за доставленные неудобства. Мы рады, что Вы с нами ❤️
-    """
-)
+res = requests.post(url=url, json=data, headers=headers)
+print(res.text)
+if res.status_code == 200:
+    out_data = res.json()
+    request_id = out_data.get("request_id")
+    response_url = out_data.get("response_url")
+    status_url = out_data.get("status_url")
+    
+    r2 = requests.get(url=status_url, headers=headers)
+    
+    i = 1
+    while True:
+        r2 = requests.get(url=status_url, headers=headers)
+        if r2:
+            r2_data = r2.json()
+            if r2.status_code == 202 or r2_data.get("status") == "IN_PROGRESS":
+                print(f"Попытка {i}")
+                i += 1
+                time.sleep(1)
+                continue
+            if r2.status_code == 200 or r2_data.get("status") == "COMPLETED":
+                break
+    response = requests.get(response_url, headers=headers)
+    res_data = response.json()
+    video_url = res_data.get("video").get("url")
+    print(video_url)
