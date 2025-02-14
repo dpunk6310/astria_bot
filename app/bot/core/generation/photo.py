@@ -34,7 +34,6 @@ async def learn_model_api(images: list[str], gender: str):
         try:
             response = await client.post(API_URL, data=data, files=files, headers=headers)
         except Exception as err:
-            log.error(err)
             return None
         return response.json()
 
@@ -56,12 +55,10 @@ async def generate_images(tune_id: int, promt: str, effect: str = None):
     }
     if effect is not None:
         data['prompt[style]'] = effect
-    log.debug(data)
     async with httpx.AsyncClient() as client:
         try:
             response = await client.post(f"https://api.astria.ai/tunes/{tune_id}/prompts", data=data, headers=headers)
         except Exception as err:
-            log.error(err)
             return None
         return response.json()
 
@@ -73,7 +70,6 @@ def load_image(file_path):
     
 async def wait_for_generation(prompt_id):
     """Асинхронное ожидание завершения генерации изображения"""
-    log.debug("\nОжидаем завершения генерации...")
     attempts = 0
     max_attempts = 400
     delay = 8
@@ -87,26 +83,20 @@ async def wait_for_generation(prompt_id):
             status_response.raise_for_status()
             status_data = status_response.json()
 
-            log.debug("Ответ от API:", status_data)
 
             if status_data.get('images') and len(status_data['images']) > 0:
-                log.debug("✅ Генерация завершена!")
                 return status_data['images']
 
             if status_data.get('status') == 'failed':
-                log.debug("❌ Ошибка генерации:", status_data.get('error', 'Неизвестная ошибка'))
                 return None
 
-            log.debug(f"⏳ Прогресс: {attempts * delay} секунд")
             await asyncio.sleep(delay)
             attempts += 1
 
         except Exception as e:
-            log.debug(f"❌ Ошибка проверки статуса: {str(e)}")
             await asyncio.sleep(delay)
             attempts += 1
 
-    log.debug("❌ Превышено время ожидания генерации")
     return None
 
 
@@ -124,17 +114,13 @@ async def wait_for_training(tune_id: int):
                 status_data = response.json()
 
             if status_data.get("trained_at") is not None:
-                log.debug("✅ Обучение завершено!")
                 return True
 
-            log.debug(f"⏳ Обучение в процессе... (попытка {attempts + 1})")
             await asyncio.sleep(delay)  # Асинхронная пауза вместо time.sleep()
             attempts += 1
 
         except Exception as e:
-            log.debug(f"❌ Ошибка проверки статуса: {str(e)}")
             await asyncio.sleep(delay)
             attempts += 1
 
-    log.debug("❌ Превышено время ожидания обучения")
     return False

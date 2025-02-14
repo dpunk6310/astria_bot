@@ -140,7 +140,6 @@ async def get_user(
         if not response:
             return None
     except Exception as err:
-        log.debug(err)
         return None
     return response
 

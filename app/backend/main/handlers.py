@@ -37,7 +37,6 @@ def create_payment(request, cr_pay: CreatePaymentDTO):
         payment = Payment.objects.create(**cr_pay.dict())
         return 201, payment
     except Exception as err:
-        log.error(err)
         return 400, {"message": "error", "err": str(err)}
     
     
@@ -47,7 +46,6 @@ def get_payment(request, payment_id: str):
         payment = Payment.objects.get(payment_id=payment_id)
         return 200, payment
     except Exception as err:
-        log.error(err)
         return 400, {"message": "error", "err": str(err)}
 
 
@@ -56,8 +54,8 @@ def payment_received(request):
     try:
         raw_body = request.body.decode("utf-8", errors="ignore")
         content_type = request.headers.get("Content-Type", "Unknown")
-        log.debug(f"Content-Type: {content_type}")
-        log.debug(f"Raw body: {raw_body}")
+        # log.debug(f"Content-Type: {content_type}")
+        # log.debug(f"Raw body: {raw_body}")
         data = request.POST.dict()
         
         payment = Payment.objects.get(payment_id=data["inv_id"])
@@ -87,10 +85,8 @@ def payment_received(request):
 
         return 200, {"status": "ok", "message": "Success"}
     except Payment.DoesNotExist as err:
-        log.debug(err)
         return 400, {"message": "error", "err": "payment not found"}
     except TGUser.DoesNotExist as err:
-        log.debug(err)
         return 400, {"message": "error", "err": "user not found"}
 
 
@@ -108,7 +104,6 @@ def get_user(request, tg_user_id: str):
     try:
         cln = TGUser.objects.get(tg_user_id=tg_user_id)
     except Exception as err:
-        log.error(err)
         return 400, {"message": "error", "err": "not user in db"}
     return 200, cln
 
@@ -118,7 +113,6 @@ def get_tunes(request, tg_user_id: str):
     try:
         tunes = Tune.objects.filter(tg_user_id=tg_user_id)
     except Exception as err:
-        log.error(err)
         return 400, {"message": "error", "err": "not tunes in db"}
     return 200, tunes
 
@@ -128,7 +122,6 @@ def get_tune(request, tune_id: str):
     try:
         tune = Tune.objects.get(tune_id=tune_id)
     except Exception as err:
-        log.error(err)
         return 400, {"message": "error", "err": "not tune in db"}
     return 200, tune
 
@@ -138,7 +131,6 @@ def get_price_list(request):
     try:
         price_list = PriceList.objects.all().order_by("count")
     except Exception as err:
-        log.error(err)
         return 400, {"message": "error", "err": "not price_list in db"}
     return 200, price_list
 
@@ -148,7 +140,6 @@ def create_tune(request, req: CreateTuneDTO):
     try:
         tune = Tune.objects.create(**req.dict())
     except Exception as err:
-        log.error(err)
         return 400, {"message": "error", "err": "not tunes in db"}
     return 201, tune
 

@@ -56,9 +56,7 @@ async def start_handler(message: types.Message, messages):
             last_name=message.from_user.last_name,
             username=message.from_user.username
         )
-        
-    log.debug(user_db)
-        
+                
     builder = InlineKeyboardBuilder()
     
     builder.add(
@@ -192,7 +190,6 @@ async def handle_albums(messages: list[types.Message]):
         # await state.update_data(learn_model=True)
         await messages[-1].answer("Оплатите создание аватара", reply_markup=builder.as_markup())
         return
-    log.debug(user_db)
     gender = user_db.get("gender")
     if not gender:
         await messages[-1].answer("Пожалуйста, сначала укажите пол", reply_markup=get_main_keyboard())
@@ -265,7 +262,6 @@ async def handle_albums(messages: list[types.Message]):
     training_complete = await wait_for_training(tune_id)
     if training_complete:
         response_tune = await create_tune(tune_id=str(tune_id), tg_user_id=str(messages[-1].chat.id), gender=gender)
-        log.debug(response_tune)
         await update_user(tg_user_id=str(messages[0].chat.id), is_learn_model=False, tune_id=str(tune_id), gender=None)
         await messages[-1].answer(
             """Твой аватар создан ☑️
@@ -276,14 +272,12 @@ async def handle_albums(messages: list[types.Message]):
             try:
                 os.remove(i)
             except Exception as err:
-                log.error(err)
                 continue
 
 
 @user_router.message(F.text == "Выбор аватара")
 async def avatar_callback(message: types.Message):
     tunes = await get_tunes(str(message.chat.id))
-    log.debug(tunes)
     builder = InlineKeyboardBuilder()
     for i, tune in enumerate(tunes, 1):
         builder.button(
@@ -339,7 +333,6 @@ async def prices_photo_callback(call: types.CallbackQuery):
     price_str = ""
     user_db = await get_user(str(call.message.chat.id))
     for i in price_list:
-        log.debug(i)
         if i.get("learn_model"):
             continue
         sale = i.get("sale", None)
@@ -367,7 +360,6 @@ async def prices_photo_callback(call: types.CallbackQuery):
     
 @user_router.callback_query(F.data.in_(["man", "woman"]))
 async def gender_selection(call: types.CallbackQuery):
-    log.debug(call.data)
     await update_user(str(call.message.chat.id), gender=call.data)
     await call.message.answer_photo(
         photo=types.FSInputFile(BASE_DIR / "media" / "inst.png"),
@@ -496,7 +488,6 @@ async def set_text_in_godmod_callback(message: types.Message):
         return
     
     user_db = await get_user(str(message.chat.id))
-    log.debug(user_db)
     if user_db.get("count_generations") < 3:
         builder = InlineKeyboardBuilder()
         builder.add(
@@ -522,7 +513,6 @@ async def set_text_in_godmod_callback(message: types.Message):
             if promt:
                 break
         except Exception as err:
-            log.debug(err)
             continue
     await update_user(str(message.chat.id), god_mod_text=promt)
     builder = InlineKeyboardBuilder()
@@ -749,7 +739,6 @@ async def home_callback(call: types.CallbackQuery):
             username=call.message.from_user.username
         )
         
-    log.debug(user_db)
         
     builder = InlineKeyboardBuilder()
     
@@ -866,7 +855,6 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
         effect=effect
     )
     if not gen_response or "id" not in gen_response:
-        log.error(gen_response)
         await call.message.answer("❌ Ошибка при запуске генерации изображений.", reply_markup=get_main_keyboard())
         new_count_gen = user_db.get("count_generations") + 3
         await update_user(str(call.message.chat.id), count_generations=new_count_gen)
