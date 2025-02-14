@@ -11,6 +11,7 @@ from dto.tune import TuneListDTO, CreateTuneDTO
 from dto.err import ErrorDTO, SuccessDTO
 from dto.category import CategoryDTO
 from dto.price_list import PriceListDTO
+from asgiref.sync import sync_to_async
 from .models import TGUser, Image, Payment, Tune, PriceList, Category
 
 
@@ -18,39 +19,39 @@ router = Router()
 
 
 @router.get("/healthcheck")
-def healthcheck(request):
+async def healthcheck(request):
     return {"msg": "Ok Ok"}
 
 
 @router.post("/create", response={201: UserDTO, 400: ErrorDTO})
-def create_user(request, create_user: CreateUserDTO):
+async def create_user(request, create_user: CreateUserDTO):
     try:
-        cln = TGUser.objects.create(**create_user.dict())
+        cln = await TGUser.objects.acreate(**create_user.dict())
     except IntegrityError as err:
         return 400, {"message": "error", "err": "such a tg user already exists"}
     return 201, cln
 
 
 @router.post("/create-payment", response={201: PaymentDTO, 400: ErrorDTO})
-def create_payment(request, cr_pay: CreatePaymentDTO):
+async def create_payment(request, cr_pay: CreatePaymentDTO):
     try:
-        payment = Payment.objects.create(**cr_pay.dict())
+        payment = await Payment.objects.acreate(**cr_pay.dict())
         return 201, payment
     except Exception as err:
         return 400, {"message": "error", "err": str(err)}
     
     
 @router.get("/get-payment/{payment_id}", response={200: PaymentDTO, 400: ErrorDTO})
-def get_payment(request, payment_id: str):
+async def get_payment(request, payment_id: str):
     try:
-        payment = Payment.objects.get(payment_id=payment_id)
+        payment = await Payment.objects.aget(payment_id=payment_id)
         return 200, payment
     except Exception as err:
         return 400, {"message": "error", "err": str(err)}
 
 
 @router.post("/payment", response={200: SuccessDTO, 400: ErrorDTO})
-def payment_received(request):
+async def payment_received(request):
     try:
         raw_body = request.body.decode("utf-8", errors="ignore")
         content_type = request.headers.get("Content-Type", "Unknown")
@@ -58,7 +59,7 @@ def payment_received(request):
         # log.debug(f"Raw body: {raw_body}")
         data = request.POST.dict()
         
-        payment = Payment.objects.get(payment_id=data["inv_id"])
+        payment = await Payment.objects.aget(payment_id=data["inv_id"])
         if payment.status:
             return 200, {"status": "ok", "message": "Success"}
         payment.status = True
@@ -67,7 +68,7 @@ def payment_received(request):
         callback_data = "driving"
         button_text = "Поехали!"
         
-        tg_user: TGUser = TGUser.objects.get(
+        tg_user: TGUser = await TGUser.objects.aget(
             tg_user_id=payment.tg_user_id,
         )
         if payment.is_first_payment:
@@ -91,112 +92,83 @@ def payment_received(request):
 
 
 @router.get("/get-avatar-price-list", response={200: PriceListDTO, 400: ErrorDTO})
-def get_avatar_pay(request):
+async def get_avatar_pay(request):
     try:
-        price_list = PriceList.objects.get(learn_model=True)
+        price_list = await PriceList.objects.aget(learn_model=True)
     except Exception as err:
         return 400, {"message": "error", "err": "not price_list in db"}
     return 200, price_list
 
 
 @router.get("/get-user/{tg_user_id}", response={200: UserDTO, 400: ErrorDTO})
-def get_user(request, tg_user_id: str):
+async def get_user(request, tg_user_id: str):
     try:
-        cln = TGUser.objects.get(tg_user_id=tg_user_id)
+        cln = await TGUser.objects.aget(tg_user_id=tg_user_id)
     except Exception as err:
         return 400, {"message": "error", "err": "not user in db"}
     return 200, cln
 
 
 @router.get("/get-tunes/{tg_user_id}", response={200: list[TuneListDTO], 400: ErrorDTO})
-def get_tunes(request, tg_user_id: str):
+async def get_tunes(request, tg_user_id: str):
     try:
-        tunes = Tune.objects.filter(tg_user_id=tg_user_id)
+        tunes = await sync_to_async(list)(Tune.objects.filter(tg_user_id=tg_user_id))
+        if not tunes:
+            return 400, {"message": "error", "err": "not tunes in db"}
+        return 200, [TuneListDTO.model_validate(tune) for tune in tunes]
     except Exception as err:
-        return 400, {"message": "error", "err": "not tunes in db"}
-    return 200, tunes
+        return 400, {"message": "error", "err": str(err)}
 
 
 @router.get("/get-tune/{tune_id}", response={200: CreateTuneDTO, 400: ErrorDTO})
-def get_tune(request, tune_id: str):
+async def get_tune(request, tune_id: str):
     try:
-        tune = Tune.objects.get(tune_id=tune_id)
+        tune = await Tune.objects.aget(tune_id=tune_id)
     except Exception as err:
         return 400, {"message": "error", "err": "not tune in db"}
     return 200, tune
 
 
 @router.get("/get-prices-list", response={200: list[PriceListDTO], 400: ErrorDTO})
-def get_price_list(request):
+async def get_price_list(request):
     try:
-        price_list = PriceList.objects.all().order_by("count")
+        price_list = await sync_to_async(list)(PriceList.objects.all().order_by("count"))
+        return 200, [PriceListDTO.model_validate(price) for price in price_list]
     except Exception as err:
         return 400, {"message": "error", "err": "not price_list in db"}
-    return 200, price_list
 
 
 @router.post("/create-tune", response={201: CreateTuneDTO, 400: ErrorDTO})
-def create_tune(request, req: CreateTuneDTO):
+async def create_tune(request, req: CreateTuneDTO):
     try:
-        tune = Tune.objects.create(**req.dict())
+        tune = await Tune.objects.acreate(**req.dict())
     except Exception as err:
         return 400, {"message": "error", "err": "not tunes in db"}
     return 201, tune
 
 
 @router.post("/update-user")
-def update_user(request, req: UpdateUserDTO):    
+async def update_user(request, req: UpdateUserDTO):    
     try:
-        tg_user = TGUser.objects.get(tg_user_id=req.tg_user_id)
-        if req.count_generations is not None:
-            tg_user.count_generations = req.count_generations
-        if req.is_learn_model is not None:
-            tg_user.is_learn_model = req.is_learn_model 
-        if req.referal is not None:
-            tg_user.referal = req.referal
-        if req.god_mod is not None:
-            tg_user.god_mod = req.god_mod
-        if req.effect is not None:
-            tg_user.effect = req.effect
-        if req.tune_id is not None:
-            tg_user.tune_id = req.tune_id
-        if req.god_mod_text is not None:
-            tg_user.god_mod_text = req.god_mod_text
-        if req.category is not None:
-            tg_user.category = req.category
-        if req.gender is not None:
-            tg_user.gender = req.gender
-        if req.count_video_generations is not None:
-            tg_user.count_video_generations = req.count_video_generations
-        tg_user.save()
-        return {
-            "tg_user_id": tg_user.tg_user_id, 
-            "count_generations": tg_user.count_generations, 
-            "is_learn_model": tg_user.is_learn_model,
-            "god_mod": tg_user.god_mod,
-            "referal": tg_user.referal,
-            "effect": tg_user.effect,
-            "tune_id": tg_user.tune_id,
-            "god_mod_text": tg_user.god_mod_text,
-            "category": tg_user.category,
-            "gender": tg_user.gender,
-            "count_video_generations": tg_user.count_video_generations,
-        }
-    except TGUser.DoesNotExist:
-        return {"message": "error", "err": "User not found"}
+        updates = {k: v for k, v in req.dict().items() if v is not None}
+        if updates:
+            updated_rows = await TGUser.objects.filter(tg_user_id=req.tg_user_id).aupdate(**updates)
+            if updated_rows == 0:
+                return {"message": "error", "err": "User not found"}
+        return {"status": "success"}
     except Exception as err:
         return {"message": "error", "err": str(err)}
 
 
 @router.post("/create-img-path", response={201: ImageDTO, 400: ErrorDTO})
-def create_img_path(request, create_image: CreateImageDTO):
+async def create_img_path(request, create_image: CreateImageDTO):
     try:
-        user = TGUser.objects.get(tg_user_id=create_image.image.tg_user_id)
+        user = await TGUser.objects.aget(tg_user_id=create_image.image.tg_user_id)
         images = Image.objects.filter(tg_user=user)
         if images.count() >= 10:
             images.delete()
         
-        cln = Image.objects.create(
+        cln = await Image.objects.acreate(
             tg_user=user,
             img_path=create_image.image.path,
         )
@@ -209,46 +181,41 @@ def create_img_path(request, create_image: CreateImageDTO):
 
 
 @router.get("/user-images/{tg_user_id}", response={200: list[ImageDTO], 400: ErrorDTO})
-def get_user_images(request, tg_user_id: str):
+async def get_user_images(request, tg_user_id: str):
     try:
-        tg_user = TGUser.objects.get(tg_user_id=tg_user_id)
-        images = Image.objects.filter(tg_user=tg_user)
-        image_dto_list = [ImageDTO(path=image.img_path, tg_user_id=image.tg_user.tg_user_id) for image in images]
-        return 200, image_dto_list
-    
+        tg_user = await TGUser.objects.aget(tg_user_id=tg_user_id)
+        images = await sync_to_async(list)(Image.objects.filter(tg_user=tg_user))
+        return 200, [ImageDTO(path=image.img_path, tg_user_id=image.tg_user.tg_user_id) for image in images]
     except TGUser.DoesNotExist:
-        return 400, {"message": "error", "err": str(err)}
+        return 400, {"message": "error", "err": "User not found"}
     except Exception as err:
         return 400, {"message": "error", "err": str(err)}
     
     
 @router.get("/categories/{gender}", response={200: list[CategoryDTO], 400: ErrorDTO})
-def get_categories(request, gender: str):
+async def get_categories(request, gender: str):
     try:
-        categories = Category.objects.filter(gender=gender).prefetch_related("promts")
-
+        categories = await sync_to_async(list)(Category.objects.filter(gender=gender).prefetch_related("promts"))
         category_list = [
             {
                 "name": category.name,
                 "slug": category.slug,
                 "gender": category.gender,
-                "promts": [{"text": p.text} for p in category.promts.all()]
+                "promts": await sync_to_async(list)(category.promts.values("text"))
             }
             for category in categories
         ]
-
         return 200, category_list
-
     except Exception as err:
         return 400, {"message": "error", "err": str(err)}
     
     
 @router.delete("/delete-user-images/{tg_user_id}", response={200: dict, 400: ErrorDTO, 404: ErrorDTO})
-def delete_user_images(request, tg_user_id: str):
+async def delete_user_images(request, tg_user_id: str):
     try:
-        user = TGUser.objects.get(tg_user_id=tg_user_id)
+        user = await TGUser.objects.aget(tg_user_id=tg_user_id)
         
-        deleted_count, _ = Image.objects.filter(tg_user=user).delete()
+        deleted_count, _ = await Image.objects.filter(tg_user=user).adelete()
         
         if deleted_count == 0:
             return 404, {"message": "error", "err": "No images found for this user."}
