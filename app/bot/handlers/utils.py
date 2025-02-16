@@ -50,10 +50,10 @@ async def download_user_images(m: types.Message):
         await m.bot.download_file(
             file_path, destination=output_filename
         )
-        asyncio.create_task(create_img_path(
+        await create_img_path(
             tg_user_id=str(m.chat.id),
             path=output_filename
-        ))
+        )
     if m.document:
         photo = await m.bot.get_file(m.document.file_id)
         file_path = photo.file_path
@@ -61,10 +61,10 @@ async def download_user_images(m: types.Message):
         await m.bot.download_file(
             file_path, destination=output_filename
         )
-        asyncio.create_task(create_img_path(
+        await create_img_path(
             tg_user_id=str(m.chat.id),
             path=output_filename
-        ))
+        )
         
         
 async def process_learning(
@@ -72,6 +72,7 @@ async def process_learning(
     imgs: list[str],
     gender: str,
 ):
+    print(imgs, gender)
     response = await learn_model_api(imgs, gender)
     tune_id = response.get("id")
     if not tune_id:

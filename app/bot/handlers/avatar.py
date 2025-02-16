@@ -10,7 +10,8 @@ from core.backend.api import (
     get_user,  
     update_user,
     get_avatar_price_list,
-    get_tunes
+    get_tunes,
+    get_tune
 )
 
 from .utils import (
@@ -29,8 +30,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 async def select_avatar_callback(call: types.CallbackQuery):
     tune_id = call.data.split("_")[1]
     tune_num = call.data.split("_")[-1]
+    tune = await get_tune(str(tune_id))
     asyncio.create_task(
-        update_user(tg_user_id=str(call.message.chat.id), tune_id=str(tune_id))
+        update_user(tg_user_id=str(call.message.chat.id), tune_id=str(tune_id), gender=tune.get("gender"))
     )
     keyboard = get_main_keyboard()
     await call.message.answer(
@@ -97,7 +99,7 @@ async def handle_albums(messages: list[types.Message]):
 Там мы публикуем оригинальные идеи стилей и промтов для твоих новых фотографий, а также актуальные новости.
 """)
     for m in messages:
-        asyncio.create_task(download_user_images(m))
+        await download_user_images(m)
     
     images = await get_user_images(str(messages[-1].chat.id))
     imgs = []
