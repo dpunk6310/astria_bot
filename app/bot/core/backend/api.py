@@ -68,8 +68,8 @@ async def get_tunes(
     return response
 
 
-async def get_price_list() -> dict:
-    response = await client.get_request(url=DJANGO_URL+f"/api/main/get-prices-list")
+async def get_price_list(type_price_list: str) -> dict:
+    response = await client.get_request(url=DJANGO_URL+f"/api/main/get-prices-list/{type_price_list}")
     return response
 
 

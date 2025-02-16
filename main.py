@@ -10,7 +10,7 @@ headers = {
 
 data = {
     "prompt": "A stylish woman walks down a Tokyo street filled with warm glowing neon and animated city signage. She wears a black leather jacket, a long red dress, and black boots, and carries a black purse.",
-    "image_url": "https://fal.media/files/panda/TuXlMwArpQcdYNCLAEM8K.webp"
+    "image_url": "https://api.telegram.org/file/bot8003935139:AAGFzQ-zB3_-mn2GhzaTsSd6G-3UVJ9u_GM/file_56.jpg"
 }
 
 res = requests.post(url=url, json=data, headers=headers)

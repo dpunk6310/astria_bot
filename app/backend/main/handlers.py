@@ -136,10 +136,12 @@ async def get_tune(request, tune_id: str):
         return 400, {"message": "error", "err": str(err)}
 
 
-@router.get("/get-prices-list", response={200: list[PriceListDTO], 400: ErrorDTO})
-async def get_price_list(request):
+@router.get("/get-prices-list/{type_price_list}", response={200: list[PriceListDTO], 400: ErrorDTO})
+async def get_price_list(request, type_price_list: str):
     try:
-        price_list = await sync_to_async(list)(PriceList.objects.all().order_by("count"))
+        price_list = await sync_to_async(list)(PriceList.objects.filter(
+            type_price_list=type_price_list,
+        ).order_by("count"))
         return 200, [PriceListDTO.model_validate(price) for price in price_list]
     except Exception as err:
         return 400, {"message": "error", "err": str(err)}

@@ -7,6 +7,11 @@ GENDER_CHOICES = [
     ('woman', 'woman'),
 ]
 
+TYPE_PRICE_CHOICES = [
+    ('photo', 'photo'),
+    ('video', 'video'),
+]
+
 
 class TGUser(models.Model):
     tg_user_id = models.CharField(
@@ -37,7 +42,7 @@ class TGUser(models.Model):
         verbose_name="Кол-во генераций", default=0
     )
     count_video_generations = models.PositiveIntegerField(
-        verbose_name="Кол-во генераций видео", default=0
+        verbose_name="Кол-во генераций видео", default=2
     )
     is_learn_model = models.BooleanField(
         verbose_name="Использование обучения модели",
@@ -94,14 +99,19 @@ class Promt(models.Model):
         verbose_name = "Promt"
         verbose_name_plural = "Promts"
         db_table = "promts"
-    
-        
+          
         
 class PriceList(models.Model):
     price = models.CharField(verbose_name="Цена", max_length=20)
     count = models.PositiveIntegerField(verbose_name="Кол-во", default=20)
     learn_model = models.BooleanField(verbose_name="Обучение модели", default=False)
     sale = models.CharField(verbose_name="Скидка", null=True, blank=True, default="", help_text="Например: 30%")
+    type_price_list = models.CharField(
+        verbose_name="Тип списка цен", 
+        choices=TYPE_PRICE_CHOICES, 
+        null=True, 
+        blank=True
+    )
     
     def __str__(self):
         return f"{self.price} - {self.count}"

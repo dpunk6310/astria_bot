@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 @payment_router.callback_query(F.data == "prices_photo")
 async def prices_photo_callback(call: types.CallbackQuery):
-    price_list = await get_price_list()
+    price_list = await get_price_list("photo")
     builder = InlineKeyboardBuilder()
     price_str = ""
     user_db = await get_user(str(call.message.chat.id))
@@ -33,6 +33,36 @@ async def prices_photo_callback(call: types.CallbackQuery):
         sale = i.get("sale", None)
         builder.button(
             text=f"{i.get('count')} фото",
+            callback_data=f"inst_payment_{i.get('price')}_{i.get('count')}_{user_db.get('is_learn_model')}"
+        )
+        if not sale or sale == "":
+            price_str += f"* {i.get('count')} фото: {i.get('price')}₽\n"
+        else:
+            price_str += f"* {i.get('count')} фото: {i.get('price')}₽ ({sale})\n"
+    builder.adjust(2, 2, 2)
+    await call.message.answer(
+        text="""
+Рады, что вам понравилось! 
+Хотите больше генераций? 📸
+Варианты:
+{price_str}
+Выберите свой вариант!
+
+""".format(price_str=price_str),
+        reply_markup=builder.as_markup()
+    )
+    
+    
+@payment_router.callback_query(F.data == "prices_video")
+async def prices_video_callback(call: types.CallbackQuery):
+    price_list = await get_price_list("video")
+    builder = InlineKeyboardBuilder()
+    price_str = ""
+    user_db = await get_user(str(call.message.chat.id))
+    for i in price_list:
+        sale = i.get("sale", None)
+        builder.button(
+            text=f"{i.get('count')} оживлений",
             callback_data=f"inst_payment_{i.get('price')}_{i.get('count')}_{user_db.get('is_learn_model')}"
         )
         if not sale or sale == "":
@@ -80,7 +110,7 @@ async def first_payment_callback(call: types.CallbackQuery):
     index = 0
     description = ""
     for i, v in enumerate(data):
-        if v.get("Cost") == amount:
+        if v.get("Cost") == amount and v.get("Name") == "Стартовая покупка":
             index = i
             description = v.get("Name")
             break
@@ -140,7 +170,7 @@ async def inst_payment_callback(call: types.CallbackQuery):
     index = 0
     description = ""
     for i, v in enumerate(data):
-        if v.get("Cost") == amount:
+        if v.get("Cost") == amount and v.get("Name") != "Стартовая покупка":
             index = i
             description = v.get("Name")
             break

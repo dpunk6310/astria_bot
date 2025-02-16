@@ -35,7 +35,7 @@ async def generate_video_from_image(image_url: str) -> str:
             # Шаг 2: Ожидание завершения обработки
             i = 1
             while True:
-                await asyncio.sleep(1)  # Используем asyncio.sleep вместо time.sleep
+                await asyncio.sleep(10)  # Используем asyncio.sleep вместо time.sleep
                 r2 = await client.get(url=status_url, headers=HEADERS)
                 if not r2.is_success:
                     logger.error("Ошибка при получении статуса обработки.")
@@ -44,7 +44,7 @@ async def generate_video_from_image(image_url: str) -> str:
                 r2_data = r2.json()
                 status = r2_data.get("status")
                 
-                if status == "IN_PROGRESS":
+                if status in ["IN_PROGRESS", "IN_QUEUE"]:
                     logger.info(f"Попытка {i}... Видео еще создается.")
                     i += 1
                     continue
