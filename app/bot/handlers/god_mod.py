@@ -16,7 +16,15 @@ from .utils import save_promt
 god_mod_router = Router()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-BUTTON_TEXTS = {"Стили", "Режим бога", "Выбор аватара", "Генерации", "Доп. опции", "Служба поддержки"}
+BUTTON_TEXTS = {
+    "Стили", 
+    "Режим бога", 
+    "Выбор аватара", 
+    "Генерации", 
+    "Доп. опции", 
+    "Служба поддержки", 
+    "Оживление фото",
+}
 
 
 @god_mod_router.message(F.text == "Режим бога")
