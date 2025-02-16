@@ -21,6 +21,7 @@ from core.generation.photo import (
     generate_images, 
     wait_for_generation,
 )
+from core.generation.video import generate_video_from_image
 from core.generation.utils import get_random_prompt
 from loader import bot
 
@@ -192,11 +193,38 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
     await delete_user_images(str(call.message.chat.id))
 
 
+async def generate_video_from_photo_task(message: types.Message, photo_url: str, user_db: dict):
+    
+    
+    try:
+        new_count_gen = user_db.get("count_video_generations") - 1
+        asyncio.create_task(
+            update_user(str(message.chat.id), count_video_generations=new_count_gen)
+        )
+        video_url = await generate_video_from_image(photo_url)
+        if not video_url:
+            await message.answer("Произошла ошибка при генерации видео. Попробуйте еще раз. 😢")
+            new_count_gen = user_db.get("count_video_generations") + 1
+            asyncio.create_task(
+                update_user(str(message.chat.id), count_video_generations=new_count_gen)
+            )
+            return
+        
+        await message.answer_video(video_url, caption=f"""Ваше видео готово! 🎥✨
+                                   
+<a href="https://t.me/photopingvin_bot?start">🖼 Создано в Пингвин ИИ</a>""")
+        
+        
+    except Exception as e:
+        await message.answer(f"Произошла ошибка: {e}. Попробуйте еще раз. 😢")
+
+
 def get_main_keyboard():
     return types.ReplyKeyboardMarkup(
         keyboard=[
             [types.KeyboardButton(text="Стили"), types.KeyboardButton(text="Режим бога")],
             [types.KeyboardButton(text="Выбор аватара"), types.KeyboardButton(text="Генерации")],
+            # [types.KeyboardButton(text="Оживление фото")],
             # [types.KeyboardButton(text="Доп. опции"), types.KeyboardButton(text="Служба поддержки")],
             [types.KeyboardButton(text="Служба поддержки")],
         ],

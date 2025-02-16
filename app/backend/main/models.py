@@ -37,7 +37,7 @@ class TGUser(models.Model):
         verbose_name="Кол-во генераций", default=0
     )
     count_video_generations = models.PositiveIntegerField(
-        verbose_name="Кол-во генераций видео", default=3
+        verbose_name="Кол-во генераций видео", default=0
     )
     is_learn_model = models.BooleanField(
         verbose_name="Использование обучения модели",

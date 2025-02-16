@@ -43,6 +43,7 @@ async def update_user(
     god_mod_text: str = None,
     category: str = None,
     gender: str = None,
+    count_video_generations: str = None
 ) -> dict:
     response = await client.post_request(url=DJANGO_URL+"/api/main/update-user", data={
         "tg_user_id": tg_user_id,
@@ -55,6 +56,7 @@ async def update_user(
         "god_mod_text": god_mod_text,
         "category": category,
         "gender": gender,
+        "count_video_generations": count_video_generations
     })
     return response
 

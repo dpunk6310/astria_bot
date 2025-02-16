@@ -17,6 +17,7 @@ class UserDTO(Schema):
     god_mod_text: Optional[str]
     category: Optional[str]
     gender: Optional[str]
+    count_video_generations: int
     
     
 class UpdateUserDTO(Schema):
