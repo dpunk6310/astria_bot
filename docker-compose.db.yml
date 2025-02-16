@@ -22,7 +22,7 @@ services:
     env_file:
       - .env
 
-networks:
- default:
-   external: true
-   name: astria_bot_shared-web
+# networks:
+#  default:
+#    external: true
+#    name: astria_bot_shared-web

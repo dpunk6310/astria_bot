@@ -8,7 +8,7 @@ services:
       dockerfile: Dockerfile.backend
     container_name: backend
     ports:
-      - "8000:8000"
+      - "8080:8080"
     env_file:
       - .env
     restart: always
@@ -21,14 +21,12 @@ services:
       dockerfile: ./nginx-app/Dockerfile
     container_name: nginx
     ports:
-      - "8002:80"
+      - "80:80"
     volumes:
       - ./static:/app/static
       - ./media:/app/media
     depends_on:
       - backend
-    env_file:
-      - .env_web
 
   bot:
     build:
@@ -43,7 +41,7 @@ services:
     volumes:
       - ./media:/app/media
 
-networks:
- default:
-   external: true
-   name: astria_bot_shared-web
+# networks:
+#  default:
+#    external: true
+#    name: astria_bot_shared-web
