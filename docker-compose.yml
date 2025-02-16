@@ -28,7 +28,7 @@ services:
     depends_on:
       - backend
     env_file:
-      - .env
+      - .env_web
 
   bot:
     build:
