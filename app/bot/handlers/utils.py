@@ -74,7 +74,6 @@ async def process_learning(
     imgs: list[str],
     gender: str,
 ):
-    print(imgs, gender)
     response = await learn_model_api(imgs, gender)
     tune_id = response.get("id")
     if not tune_id:
