@@ -18,17 +18,15 @@ services:
 
   nginx:
     build:
-      dockerfile: ./nginx-app/Dockerfile
+      dockerfile: ./nginx-app/Dockerfile.stage
     container_name: nginx
     ports:
-      - "8002:80"
+      - "80:80"
     volumes:
       - ./static:/app/static
       - ./media:/app/media
     depends_on:
       - backend
-    env_file:
-      - .env_web
 
   bot:
     build:
@@ -42,8 +40,3 @@ services:
     restart: always
     volumes:
       - ./media:/app/media
-
-networks:
- default:
-   external: true
-   name: astria_bot_shared-web
