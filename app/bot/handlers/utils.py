@@ -4,6 +4,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from aiogram import types
+from loguru import logger as log
 
 from core.backend.api import (
     create_img_path, 
@@ -73,7 +74,6 @@ async def process_learning(
     imgs: list[str],
     gender: str,
 ):
-    print(imgs, gender)
     response = await learn_model_api(imgs, gender)
     tune_id = response.get("id")
     if not tune_id:
@@ -116,8 +116,8 @@ async def save_promt(message: types.Message):
         update_user(str(message.chat.id), god_mod_text=promt)
     )
     
-    
-async def run_generation_photo_god_mod(
+
+async def run_generation_photo(
     call: types.CallbackQuery,
     user_db: dict,
     effect: str
@@ -189,34 +189,46 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
     else:
         await call.message.answer("❌ Ошибка генерации изображения.")
     
-    await bot.send_media_group(chat_id=call.message.chat.id, media=media_group.build())
-    await delete_user_images(str(call.message.chat.id))
+    messages = await bot.send_media_group(chat_id=call.message.chat.id, media=media_group.build())
+    asyncio.create_task(delete_user_images(str(call.message.chat.id)))
+    
+    builder = InlineKeyboardBuilder()
+    for i, message in enumerate(messages, 1):
+        # print(message)
+        if message.photo:
+            file_id = message.photo[-1].file_id
+            log.debug(file_id)
+            file_info = await bot.get_file(file_id)
+            builder.button(
+                text=f"Фото {i}",
+                callback_data=f"tovideo&&{file_info.file_path}"
+            )
+    
+    await call.message.answer(text="Превратить в видео 📹", reply_markup=builder.as_markup())
 
 
-async def generate_video_from_photo_task(message: types.Message, photo_url: str, user_db: dict):
-    
-    
+async def generate_video_from_photo_task(call: types.CallbackQuery, photo_url: str, user_db: dict):    
     try:
         new_count_gen = user_db.get("count_video_generations") - 1
         asyncio.create_task(
-            update_user(str(message.chat.id), count_video_generations=new_count_gen)
+            update_user(str(call.message.chat.id), count_video_generations=new_count_gen)
         )
         video_url = await generate_video_from_image(photo_url)
         if not video_url:
-            await message.answer("Произошла ошибка при генерации видео. Попробуйте еще раз. 😢")
+            await call.message.answer("Произошла ошибка при генерации видео. Попробуйте еще раз. 😢")
             new_count_gen = user_db.get("count_video_generations") + 1
             asyncio.create_task(
-                update_user(str(message.chat.id), count_video_generations=new_count_gen)
+                update_user(str(call.message.chat.id), count_video_generations=new_count_gen)
             )
             return
         
-        await message.answer_video(video_url, caption=f"""Ваше видео готово! 🎥✨
+        await call.message.answer_video(video_url, caption=f"""Ваше видео готово! 🎥✨
                                    
-<a href="https://t.me/photopingvin_bot?start">🖼 Создано в Пингвин ИИ</a>""")
+<a href="https://t.me/photopingvin_bot?start">🖼 Создано в Пингвин ИИ</a>""", parse_mode="HTML")
         
         
     except Exception as e:
-        await message.answer(f"Произошла ошибка: {e}. Попробуйте еще раз. 😢")
+        await call.message.answer(f"Произошла ошибка: {e}. Попробуйте еще раз. 😢")
 
 
 def get_main_keyboard():

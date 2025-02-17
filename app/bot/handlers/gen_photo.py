@@ -11,7 +11,7 @@ from core.backend.api import (
 )
 
 from .utils import (
-    run_generation_photo_god_mod,
+    run_generation_photo,
     generate_photos_helper,
     get_main_keyboard,
 )
@@ -31,12 +31,18 @@ async def generations_stat_callback(message: types.Message):
         text="💳 Докупить фото",
         callback_data="prices_photo"
     )
+    builder.button(
+        text="💳 Докупить оживление фото",
+        callback_data="prices_video"
+    )
+    builder.adjust(1, 1, 1)
     await message.answer(
         text="""
 <b>Спасибо что ты с нами, ты такой талантливый! А талантливым людям надо держаться вместе</b> 🖖🤝❤️
 
 У тебя осталось генераций фото: <b>{count_gen}</b>
-""".format(count_gen=user_db.get("count_generations")),
+У тебя осталось генераций видео: <b>{count_video_generations}</b>
+""".format(count_gen=user_db.get("count_generations"), count_video_generations=user_db.get("count_video_generations")),
         reply_markup=builder.as_markup(),
         parse_mode="HTML"
     )
@@ -143,7 +149,7 @@ async def handle_effect_handler(call: types.CallbackQuery):
             await call.message.answer("Режим бога включен!\n\nВы не ввели текст", reply_markup=builder.as_markup())
             return
     asyncio.create_task(
-        run_generation_photo_god_mod(call, user_db, effect)
+        run_generation_photo(call, user_db, effect)
     )
     
    
