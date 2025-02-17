@@ -62,10 +62,16 @@ async def prices_video_callback(call: types.CallbackQuery):
     user_db = await get_user(str(call.message.chat.id))
     for i in price_list:
         sale = i.get("sale", None)
-        builder.button(
-            text=f"{i.get('count')} оживлений",
-            callback_data=f"inst_payment_{i.get('price')}_0_{user_db.get('is_learn_model')}_{i.get('count')}"
-        )
+        if i.get("count") == 1:
+            builder.button(
+                text=f"{i.get('count')} оживление",
+                callback_data=f"inst_payment_{i.get('price')}_0_{user_db.get('is_learn_model')}_{i.get('count')}"
+            )
+        else:
+            builder.button(
+                text=f"{i.get('count')} оживлений",
+                callback_data=f"inst_payment_{i.get('price')}_0_{user_db.get('is_learn_model')}_{i.get('count')}"
+            )
         if not sale or sale == "":
             price_str += f"* {i.get('count')} видео: {i.get('price')}₽\n"
         else:
@@ -74,7 +80,7 @@ async def prices_video_callback(call: types.CallbackQuery):
     await call.message.answer(
         text="""
 Рады, что вам понравилось! 
-Хотите больше генераций? 📸
+Хотите больше генераций? 📹
 Варианты:
 {price_str}
 Выберите свой вариант!
