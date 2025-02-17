@@ -104,6 +104,7 @@ async def create_payment(
     amount: str,
     learn_model: bool = False,
     is_first_payment: bool = False,
+    count_video_generations: int = 0,
 ) -> dict:
     response = await client.post_request(url=DJANGO_URL+"/api/main/create-payment", data={
         "tg_user_id": tg_user_id,
@@ -112,6 +113,7 @@ async def create_payment(
         "amount": amount,
         "learn_model": learn_model,
         "is_first_payment": is_first_payment,
+        "count_video_generations": count_video_generations
     })
     return response
 

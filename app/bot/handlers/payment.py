@@ -103,7 +103,8 @@ async def first_payment_callback(call: types.CallbackQuery):
         payment_id=str(payment_id),
         сount_generations=сount_generations,
         learn_model=learn_model,
-        is_first_payment=True
+        is_first_payment=True,
+        count_video_generations=1
     ))
     file_path = BASE_DIR / "media" / "payload.json"
     with open(file_path, 'r', encoding='utf-8') as file:

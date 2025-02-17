@@ -42,7 +42,7 @@ class TGUser(models.Model):
         verbose_name="Кол-во генераций", default=0
     )
     count_video_generations = models.PositiveIntegerField(
-        verbose_name="Кол-во генераций видео", default=1
+        verbose_name="Кол-во генераций видео", default=0
     )
     is_learn_model = models.BooleanField(
         verbose_name="Использование обучения модели",
@@ -179,6 +179,9 @@ class Payment(models.Model):
     status = models.BooleanField(verbose_name="Status", default=False)
     сount_generations = models.PositiveIntegerField(
         verbose_name="Кол-во генераций", default=0
+    )
+    count_video_generations = models.PositiveIntegerField(
+        verbose_name="Кол-во генераций видео", default=0
     )
     amount = models.CharField(max_length=20, verbose_name="Сумма")
     learn_model = models.BooleanField(verbose_name="Обучение модели", default=False)
