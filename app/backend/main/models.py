@@ -71,7 +71,7 @@ class Category(models.Model):
     gender = models.CharField(verbose_name="Пол", max_length=20, choices=GENDER_CHOICES)
     
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
+        self.slug = f"category_{self.gender}_{self.slug}"
         super(Category, self).save(*args, **kwargs)
     
     def __str__(self):

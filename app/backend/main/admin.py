@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from unfold.admin import ModelAdmin
+from unfold.admin import ModelAdmin, TabularInline
 
 from .models import (
     TGUser, 
@@ -76,7 +76,12 @@ class TGUserAdmin(ModelAdmin):
     ]
     save_as = True
     save_on_top = True
-    
+
+
+class PromtInline(TabularInline):  # Или admin.StackedInline для другого стиля отображения
+    model = Promt
+    extra = 1
+
     
 @admin.register(Promt)
 class PromtAdmin(ModelAdmin):
@@ -98,6 +103,7 @@ class CategoryAdmin(ModelAdmin):
         "name", "slug", "gender",
     ]
     prepopulated_fields = {"slug": ("name",)}
+    inlines = [PromtInline]
     save_as = True
     save_on_top = True
     
