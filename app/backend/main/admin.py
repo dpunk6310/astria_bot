@@ -29,9 +29,9 @@ class ImageAdmin(ModelAdmin):
 @admin.register(PriceList)
 class PriceListAdmin(ModelAdmin):
     list_display = [
-        "id", "price", "count", "learn_model"
+        "id", "price", "count", "learn_model", "sale", "type_price_list"
     ]
-    list_display_links = ["price",]
+    list_display_links = ["price", "type_price_list", "count"]
     search_fields = [
         "price",
     ]

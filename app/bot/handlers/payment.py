@@ -66,9 +66,9 @@ async def prices_video_callback(call: types.CallbackQuery):
             callback_data=f"inst_payment_{i.get('price')}_{i.get('count')}_{user_db.get('is_learn_model')}"
         )
         if not sale or sale == "":
-            price_str += f"* {i.get('count')} фото: {i.get('price')}₽\n"
+            price_str += f"* {i.get('count')} видео: {i.get('price')}₽\n"
         else:
-            price_str += f"* {i.get('count')} фото: {i.get('price')}₽ ({sale})\n"
+            price_str += f"* {i.get('count')} видео: {i.get('price')}₽ ({sale})\n"
     builder.adjust(2, 2, 2)
     await call.message.answer(
         text="""

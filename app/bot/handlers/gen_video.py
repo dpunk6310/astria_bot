@@ -26,13 +26,15 @@ async def bring_photo_to_life(call: types.CallbackQuery):
     log.debug(file_path)
     user_db = await get_user(str(call.message.chat.id))
     
-    if user_db.get("count_video_generations", 0) <= 0:
-        await call.message.answer("У вас закончились попытки для генерации видео. 😢")
+    if user_db.get("count_video_generations") <= 0:
+        builder = InlineKeyboardBuilder()
+        builder.button(
+            text="Купить",
+            callback_data="prices_video"
+        )
+        await call.message.answer("У вас закончились попытки для генерации видео. 😢", reply_markup=builder.as_markup())
         return
-    
-    
     photo_url = f"https://api.telegram.org/file/bot{bot.token}/{file_path}"
-    log.debug(photo_url)
     await call.message.answer("Фото получено! Начинаю обработку... 🛠️")
     
     asyncio.create_task(generate_video_from_photo_task(call, photo_url, user_db))
