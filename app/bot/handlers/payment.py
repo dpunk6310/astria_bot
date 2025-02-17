@@ -34,7 +34,7 @@ async def prices_photo_callback(call: types.CallbackQuery):
         sale = i.get("sale", None)
         builder.button(
             text=f"{i.get('count')} фото",
-            callback_data=f"inst_payment_{i.get('price')}_{i.get('count')}_{user_db.get('is_learn_model')}"
+            callback_data=f"inst_payment_{i.get('price')}_{i.get('count')}_{user_db.get('is_learn_model')}_0"
         )
         if not sale or sale == "":
             price_str += f"* {i.get('count')} фото: {i.get('price')}₽\n"
@@ -64,7 +64,7 @@ async def prices_video_callback(call: types.CallbackQuery):
         sale = i.get("sale", None)
         builder.button(
             text=f"{i.get('count')} оживлений",
-            callback_data=f"inst_payment_{i.get('price')}_{i.get('count')}_{user_db.get('is_learn_model')}"
+            callback_data=f"inst_payment_{i.get('price')}_0_{user_db.get('is_learn_model')}_{i.get('count')}"
         )
         if not sale or sale == "":
             price_str += f"* {i.get('count')} видео: {i.get('price')}₽\n"
@@ -151,6 +151,7 @@ async def inst_payment_callback(call: types.CallbackQuery):
     amount = int(data[2])
     сount_generations = int(data[3])
     learn_model = data[4]
+    count_video_generations = int(data[5])
 
     while True:
         payment_id = random.randint(10, 214748347)
@@ -165,6 +166,7 @@ async def inst_payment_callback(call: types.CallbackQuery):
         сount_generations=сount_generations,
         learn_model=learn_model,
         is_first_payment=False,
+        count_video_generations=count_video_generations,
     ))
     file_path = BASE_DIR / "media" / "payload.json"
     with open(file_path, 'r', encoding='utf-8') as file:
