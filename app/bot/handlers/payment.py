@@ -5,6 +5,7 @@ from pathlib import Path
 
 from aiogram import types, Router, F
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from loguru import logger as log
 
 from data.config import ROBOKASSA_MERCHANT_ID, ROBOKASSA_PASSWORD1
 from core.utils.robo import generate_payment_link
@@ -167,7 +168,7 @@ async def inst_payment_callback(call: types.CallbackQuery):
     file_path = BASE_DIR / "media" / "payload.json"
     with open(file_path, 'r', encoding='utf-8') as file:
         data = json.load(file)
-    index = 0
+    index = None
     description = ""
     for i, v in enumerate(data):
         if v.get("Cost") == amount and v.get("Name") != "Стартовая покупка":

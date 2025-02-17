@@ -35,6 +35,7 @@ async def generations_stat_callback(message: types.Message):
         text="💳 Докупить оживление фото",
         callback_data="prices_video"
     )
+    builder.adjust(1, 1, 1)
     await message.answer(
         text="""
 <b>Спасибо что ты с нами, ты такой талантливый! А талантливым людям надо держаться вместе</b> 🖖🤝❤️
