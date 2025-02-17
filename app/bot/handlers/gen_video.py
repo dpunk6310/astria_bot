@@ -35,7 +35,10 @@ async def bring_photo_to_life(call: types.CallbackQuery):
         await call.message.answer("У вас закончились попытки для генерации видео. 😢", reply_markup=builder.as_markup())
         return
     photo_url = f"https://api.telegram.org/file/bot{bot.token}/{file_path}"
-    await call.message.answer("Фото получено! Начинаю обработку... 🛠️")
+    await call.message.answer("""<b>Фото получено!</b> 👌
+
+Начинаю обработку...
+<b>Это займет примерно 5 минут</b>""", parse_mode="HTML")
     
     asyncio.create_task(generate_video_from_photo_task(call, photo_url, user_db))
 
