@@ -18,13 +18,13 @@ ALLOWED_HOSTS = ["*"]
 
 DJANGO_APPS = [
     "daphne",
-    "unfold",  # before django.contrib.admin
-    "unfold.contrib.filters",  # optional, if special filters are needed
-    "unfold.contrib.forms",  # optional, if special form elements are needed
-    "unfold.contrib.inlines",  # optional, if special inlines are needed
-    "unfold.contrib.import_export",  # optional, if django-import-export package is used
-    "unfold.contrib.guardian",  # optional, if django-guardian package is used
-    "unfold.contrib.simple_history",
+    # "unfold",  # before django.contrib.admin
+    # "unfold.contrib.filters",  # optional, if special filters are needed
+    # "unfold.contrib.forms",  # optional, if special form elements are needed
+    # "unfold.contrib.inlines",  # optional, if special inlines are needed
+    # "unfold.contrib.import_export",  # optional, if django-import-export package is used
+    # "unfold.contrib.guardian",  # optional, if django-guardian package is used
+    # "unfold.contrib.simple_history",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -34,6 +34,8 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    'django_celery_beat',
+    'django_celery_results',
 ]
 
 LOCAL_APPS = [
@@ -125,3 +127,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 BOT_TOKEN = env.str("BOT_TOKEN", default="norm")
 
 SUCCESS_PAYMENT_GENERATIONS = 100
+
+REDIS_PASSWORD = env.str("REDIS_PASSWORD")
+REDIS_PORT = env.str("REDIS_PORT")
+REDIS_DB = env.str("REDIS_DB")
+REDIS_HOST = env.str("REDIS_HOST")
+
+CELERY_BROKER_URL = f'redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'
+CELERY_RESULT_BACKEND = f'redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'

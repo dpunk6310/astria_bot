@@ -55,6 +55,8 @@ class TGUser(models.Model):
     god_mod_text = models.TextField(verbose_name="Текст промта", null=True, blank=True)
     category = models.CharField(verbose_name="Выбраная категория", max_length=300, null=True, blank=True)
     gender = models.CharField(verbose_name="Выбраный пол", max_length=300, null=True, blank=True)
+    last_activity = models.DateTimeField(verbose_name="Последняя активность", auto_now=True)
+    has_purchased = models.BooleanField(verbose_name="Сделал покупку", default=True)
 
     def __str__(self):
         return str(self.tg_user_id)

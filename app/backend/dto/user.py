@@ -1,4 +1,7 @@
 from typing import Optional
+from datetime import datetime
+
+from django.utils.timezone import now
 
 from ninja import Schema
 
@@ -32,12 +35,16 @@ class UpdateUserDTO(Schema):
     god_mod_text: Optional[str] = None
     category: Optional[str] = None
     gender: Optional[str] = None
+    # last_activity: Optional[datetime]
+    # has_purchased: Optional[bool]
 
 class CreateUserDTO(Schema):
     tg_user_id: str
     first_name: Optional[str]
     last_name: Optional[str]
     username: Optional[str]
+    last_activity: Optional[datetime] = now()
+    has_purchased: Optional[bool] = False
 
 
 class PaymentNotificationDTO(Schema):
