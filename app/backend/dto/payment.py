@@ -11,8 +11,8 @@ class CreatePaymentDTO(Schema):
     amount: str
     learn_model: bool
     is_first_payment: bool
-    
 
+    
 class PaymentDTO(Schema):
     tg_user_id: str
     payment_id: str

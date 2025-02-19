@@ -1,6 +1,12 @@
 from django.contrib import admin
+# from django_celery_beat.models import (
+#     PeriodicTask, 
+#     IntervalSchedule, 
+#     CrontabSchedule, 
+#     SolarSchedule
+# )
 
-from unfold.admin import ModelAdmin, TabularInline
+from django.contrib.admin import ModelAdmin, TabularInline
 
 from .models import (
     TGUser, 
@@ -68,7 +74,7 @@ class TuneAdmin(ModelAdmin):
 @admin.register(TGUser)
 class TGUserAdmin(ModelAdmin):
     list_display = [
-        "id", "tg_user_id", "username", "first_name", "last_name", "god_mod", "is_learn_model",
+        "id", "tg_user_id", "username", "first_name", "last_name", "god_mod", "is_learn_model", "has_purchased"
     ]
     list_display_links = ["tg_user_id", "username",]
     search_fields = [
@@ -107,5 +113,9 @@ class CategoryAdmin(ModelAdmin):
     save_as = True
     save_on_top = True
     
-    
-    
+
+
+# admin.site.register(PeriodicTask)
+# admin.site.register(IntervalSchedule)
+# admin.site.register(CrontabSchedule)
+# admin.site.register(SolarSchedule)

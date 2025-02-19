@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
 
-  backend:
+  backend: &backend
     build:
       context: .
       dockerfile: Dockerfile.backend
@@ -15,6 +15,7 @@ services:
     volumes:
       - ./static:/app/static
       - ./media:/app/media
+    command: sh /app/entrypoint.sh
 
   nginx:
     build:
@@ -27,6 +28,23 @@ services:
       - ./media:/app/media
     depends_on:
       - backend
+
+  celery_worker:
+    <<: *backend
+    container_name: celery_worker
+    command: celery -A config.celery worker --loglevel=info
+    depends_on:
+      - backend
+    ports: []
+
+  celery_beat:
+    <<: *backend
+    container_name: celery_beat
+    command: celery -A config.celery beat --loglevel=info
+    depends_on:
+      - backend
+    ports: []
+
 
   bot:
     build:

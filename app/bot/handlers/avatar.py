@@ -147,7 +147,7 @@ async def start_upload_photo_callback(call: types.CallbackQuery):
         builder = InlineKeyboardBuilder()
         builder.button(
             text=f"{avatar_price_list.get('count')} модель",
-            callback_data=f"inst_payment_{avatar_price_list.get('price')}_0_{avatar_price_list.get('learn_model')}"
+            callback_data=f"inst_payment_{avatar_price_list.get('price')}_0_{avatar_price_list.get('learn_model')}_0"
         )
         await call.message.answer("Оплатите создание аватара", reply_markup=builder.as_markup())
         return
