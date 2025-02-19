@@ -82,6 +82,7 @@ async def payment_received(request):
         tg_user.count_generations += payment.сount_generations
         tg_user.is_learn_model = bool(payment.learn_model)
         tg_user.count_video_generations += payment.count_video_generations
+        tg_user.has_purchased = True
         await sync_to_async(tg_user.save)()
 
         result = send_message_successfully_pay(BOT_TOKEN, payment.tg_user_id, callback_data, button_text)

@@ -36,7 +36,7 @@ class UpdateUserDTO(Schema):
     category: Optional[str] = None
     gender: Optional[str] = None
     # last_activity: Optional[datetime]
-    # has_purchased: Optional[bool]
+    # has_purchased: Optional[bool] = True
 
 class CreateUserDTO(Schema):
     tg_user_id: str
