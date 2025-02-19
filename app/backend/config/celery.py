@@ -11,5 +11,6 @@ app = Celery('astria_bot')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
 app.autodiscover_tasks()
+app.conf.timezone = 'Europe/Moscow'
 
 __all__ = ('app',)
