@@ -127,7 +127,7 @@ async def first_payment_callback(call: types.CallbackQuery):
         ROBOKASSA_PASSWORD1,
         amount,
         int(payment_id),
-        description,
+        description + f" {call.message.chat.id}",
         items=[data[index]],
     )
     builder = InlineKeyboardBuilder()
@@ -189,7 +189,7 @@ async def inst_payment_callback(call: types.CallbackQuery):
         ROBOKASSA_PASSWORD1,
         amount,
         int(payment_id),
-        description,
+        description + f" {call.message.chat.id}",
         items=[data[index]],
     )
     builder = InlineKeyboardBuilder()
