@@ -90,7 +90,7 @@ async def process_learning(
     training_complete = await wait_for_training(tune_id)
     if training_complete:
         await create_tune(tune_id=str(tune_id), tg_user_id=str(messages[-1].chat.id), gender=gender)
-        await update_user(tg_user_id=str(messages[0].chat.id), is_learn_model=False, tune_id=str(tune_id), gender=None)
+        await update_user(tg_user_id=str(messages[0].chat.id), is_learn_model=False, tune_id=str(tune_id), gender=gender)
         await messages[-1].answer(
             """Твой аватар создан ☑️
 Теперь можно приступать к генерациям! Для этого нажми на кнопки "Стили" или "Режим бога" внизу экрана.
@@ -194,10 +194,8 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
     
     builder = InlineKeyboardBuilder()
     for i, message in enumerate(messages, 1):
-        # print(message)
         if message.photo:
             file_id = message.photo[-1].file_id
-            log.debug(file_id)
             file_info = await bot.get_file(file_id)
             builder.button(
                 text=f"Фото {i}",

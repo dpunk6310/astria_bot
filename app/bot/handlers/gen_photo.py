@@ -133,7 +133,7 @@ async def handle_effect_handler(call: types.CallbackQuery):
             asyncio.create_task(generate_photos_helper(
                 call=call,
                 effect=effect,
-                tune_id=user_db.get('tune_id'),
+                tune_id=user_db.get('tune_id') if user_db.get("tune_id") else tunes[0].get("tune_id"),
                 user_prompt=god_mod_text
             ))
             asyncio.create_task(
@@ -148,6 +148,8 @@ async def handle_effect_handler(call: types.CallbackQuery):
             )
             await call.message.answer("Режим бога включен!\n\nВы не ввели текст", reply_markup=builder.as_markup())
             return
+    if not user_db.get("tune_id"):
+        user_db["tune_id"] = tunes[0].get("tune_id")
     asyncio.create_task(
         run_generation_photo(call, user_db, effect)
     )
