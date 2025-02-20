@@ -73,8 +73,8 @@ class Newsletter(models.Model):
     title = models.CharField(max_length=255, verbose_name="Название рассылки")
     message_text = models.TextField(verbose_name="Текст сообщения")
     delay_hours = models.FloatField(verbose_name="Задержка в часах", null=True, blank=True)
-    button = models.CharField(verbose_name="Название кнопки", null=True, blank=True)
-    button_data = models.CharField(verbose_name="URL или Callback для кнопки", null=True, blank=True)
+    # button = models.CharField(verbose_name="Название кнопки", null=True, blank=True)
+    # button_data = models.CharField(verbose_name="URL или Callback для кнопки", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создана")
 
     def __str__(self):

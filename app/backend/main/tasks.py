@@ -36,7 +36,7 @@ def send_discount_reminders_task(amount: int | float, сount_generations: int = 
 
     for newsletter in newsletters:
         inactive_users = TGUser.objects.filter(
-            last_activity__lte=now() - timedelta(minutes=newsletter.delay_hours),
+            last_activity__lte=now() - timedelta(hours=newsletter.delay_hours),
             has_purchased=False
         ).exclude(sent_messages__contains=newsletter.id)
         user_ids = list(inactive_users.values_list("tg_user_id", flat=True))
@@ -50,7 +50,7 @@ def send_discount_reminders_task(amount: int | float, сount_generations: int = 
                 except ObjectDoesNotExist:
                     break
             
-            payment = Payment.objects.create(
+            payment = Payment(
                 payment_id=payment_id,
                 tg_user_id=user_id,  
                 status=False,
@@ -67,7 +67,7 @@ def send_discount_reminders_task(amount: int | float, сount_generations: int = 
                 index = i
                 description = v.get("Name")
                 break
-        
+        Payment.objects.bulk_create(payments)
         reply_markups = {}
         for payment in payments:
             payment_link = generate_payment_link(
@@ -115,6 +115,7 @@ async def _send_messages_reminders(user_ids: list[int], text: str, reply_markups
                     tasks.append(_send_message(user_id, text, reply_markup))
             await asyncio.gather(*tasks)
             await asyncio.sleep(DELAY_BETWEEN_BATCHES)
+
 
 async def _send_message(user_id: int, text: str, reply_markup):
     """ Отправляет сообщение пользователю и обрабатывает ошибки.
