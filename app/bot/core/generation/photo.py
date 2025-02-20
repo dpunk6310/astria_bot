@@ -5,13 +5,14 @@ import os
 import httpx
 import requests
 
-from core.logger.logger import logger as log
+from core.logger.logger import get_logger
 
 
 API_URL = 'https://api.astria.ai/tunes'
 headers = {
     'Authorization': f'Bearer sd_L7JgJDHjtEJL1pgpXuPRoVjYNbJtGg',
 }
+log = get_logger()
 
 
 async def learn_model_api(images: list[str], gender: str):

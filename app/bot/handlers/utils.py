@@ -12,7 +12,7 @@ from core.backend.api import (
     create_tune,
     update_user,
 )
-from core.logger.logger import logger as log
+from core.logger.logger import get_logger
 from aiogram.utils.media_group import MediaGroupBuilder
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from core.utils.chatgpt import translate_promt2
@@ -28,7 +28,7 @@ from loader import bot
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+log = get_logger()
 
 async def create_referal(user_db: dict, message: types.Message) -> dict:
     if not user_db.get("referal"):
