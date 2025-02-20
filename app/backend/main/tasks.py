@@ -10,6 +10,7 @@ from aiogram.exceptions import TelegramAPIError
 from aiogram import Bot
 from django.conf import settings
 from django.utils.timezone import now
+from django.core.paginator import Paginator
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -23,6 +24,7 @@ bot = Bot(token=settings.BOT_TOKEN)
 BATCH_SIZE = 50
 DELAY_BETWEEN_BATCHES = 0.5
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 
 @shared_task
@@ -98,6 +100,19 @@ def send_discount_reminders_task(amount: int | float, сount_generations: int = 
             user.save(update_fields=["sent_messages"])
 
 
+@shared_task
+def send_maintenance_task(slug: str):
+
+    newsletter = Newsletter.objects.get(slug=slug)
+    users_ids = TGUser.objects.values_list("tg_user_id", flat=True)
+    paginator = Paginator(users_ids, 500)
+
+    for page_number in paginator.page_range:
+        page = paginator.page(page_number)
+        user_ids_batch = list(page.object_list)
+        async_to_sync(_send_messages_maintenance)(user_ids_batch, newsletter.message_text)
+
+
 async def _send_messages_reminders(user_ids: list[int], text: str, reply_markups: dict):
     """
     Асинхронно отправляет сообщения группами (batch), предотвращая блокировку API.
@@ -113,6 +128,17 @@ async def _send_messages_reminders(user_ids: list[int], text: str, reply_markups
                 reply_markup = reply_markups.get(user_id)
                 if reply_markup:
                     tasks.append(_send_message(user_id, text, reply_markup))
+            await asyncio.gather(*tasks)
+            await asyncio.sleep(DELAY_BETWEEN_BATCHES)
+            
+            
+async def _send_messages_maintenance(user_ids: list[int], text: str):
+    async with bot.session:
+        for i in range(0, len(user_ids), BATCH_SIZE):
+            batch = user_ids[i:i + BATCH_SIZE]
+            tasks = []
+            for user_id in batch:
+                tasks.append(_send_message(user_id, text, None))
             await asyncio.gather(*tasks)
             await asyncio.sleep(DELAY_BETWEEN_BATCHES)
 
