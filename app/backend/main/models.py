@@ -57,6 +57,8 @@ class TGUser(models.Model):
     gender = models.CharField(verbose_name="Выбраный пол", max_length=300, null=True, blank=True)
     last_activity = models.DateTimeField(verbose_name="Последняя активность", auto_now=True)
     has_purchased = models.BooleanField(verbose_name="Сделал покупку", default=True)
+    
+    sent_messages = models.JSONField(default=list, blank=True, null=True)
 
     def __str__(self):
         return str(self.tg_user_id)
@@ -65,6 +67,23 @@ class TGUser(models.Model):
         verbose_name = "TG User"
         verbose_name_plural = "TG user"
         db_table = "tg_users"
+        
+        
+class Newsletter(models.Model):
+    title = models.CharField(max_length=255, verbose_name="Название рассылки")
+    message_text = models.TextField(verbose_name="Текст сообщения")
+    delay_hours = models.FloatField(verbose_name="Задержка в часах", null=True, blank=True)
+    button = models.CharField(verbose_name="Название кнопки", null=True, blank=True)
+    button_data = models.CharField(verbose_name="URL или Callback для кнопки", null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создана")
+
+    def __str__(self):
+        return f"{self.title}"
+    
+    class Meta:
+        verbose_name = "Рассылка"
+        verbose_name_plural = "Рассылки"
+        db_table = "newsletters"
         
         
 class Category(models.Model):

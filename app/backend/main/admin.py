@@ -16,6 +16,7 @@ from .models import (
     PriceList, 
     Category,
     Promt,
+    Newsletter
 )
 
 
@@ -27,6 +28,19 @@ class ImageAdmin(ModelAdmin):
     list_display_links = ["tg_user",]
     search_fields = [
         "tg_user",
+    ]
+    save_as = True
+    save_on_top = True
+    
+    
+@admin.register(Newsletter)
+class NewsletterAdmin(ModelAdmin):
+    list_display = [
+        "id", "title", "delay_hours", "created_at"
+    ]
+    list_display_links = ["title",]
+    search_fields = [
+        "title",
     ]
     save_as = True
     save_on_top = True
