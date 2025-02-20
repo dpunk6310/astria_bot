@@ -26,7 +26,7 @@
     {
         "Name": "Создание дополнительной модели",
         "Quantity": 1,
-        "Cost": 490,
+        "Cost": 480,
         "Tax": "none",
         "PaymentMethod": "full_prepayment",
         "PaymentObject": "commodity"

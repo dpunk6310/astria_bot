@@ -180,7 +180,8 @@ async def inst_payment_callback(call: types.CallbackQuery):
     index = None
     description = ""
     for i, v in enumerate(data):
-        if v.get("Cost") == amount and v.get("Name") != "Стартовая покупка" and v.get("Name") != "Акция 1" and v.get("Name") != "Акция 2" and.get("Name"):
+        if v.get("Cost") == amount and v.get("Name") != "Стартовая покупка" and \
+            v.get("Name") != "Акция 1" and v.get("Name") != "Акция 2" and v.get("Name"):
             index = i
             description = v.get("Name")
             break
