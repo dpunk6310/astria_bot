@@ -71,6 +71,7 @@ class TGUser(models.Model):
         
 class Newsletter(models.Model):
     title = models.CharField(max_length=255, verbose_name="Название рассылки")
+    slug = models.CharField(max_length=255, verbose_name="Уникальный slug", unique=True)
     message_text = models.TextField(verbose_name="Текст сообщения")
     delay_hours = models.FloatField(verbose_name="Задержка в часах", null=True, blank=True)
     # button = models.CharField(verbose_name="Название кнопки", null=True, blank=True)
