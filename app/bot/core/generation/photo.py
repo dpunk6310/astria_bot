@@ -3,14 +3,16 @@ from uuid import uuid4
 import os
 
 import httpx
-from loguru import logger as log
 import requests
+
+from core.logger.logger import get_logger
 
 
 API_URL = 'https://api.astria.ai/tunes'
 headers = {
     'Authorization': f'Bearer sd_L7JgJDHjtEJL1pgpXuPRoVjYNbJtGg',
 }
+log = get_logger()
 
 
 async def learn_model_api(images: list[str], gender: str):
@@ -34,6 +36,7 @@ async def learn_model_api(images: list[str], gender: str):
         try:
             response = await client.post(API_URL, data=data, files=files, headers=headers)
         except Exception as err:
+            log.error(f"Ошибка обучения: {err}")
             return None
         return response.json()
 
@@ -59,6 +62,7 @@ async def generate_images(tune_id: int, promt: str, effect: str = None):
         try:
             response = await client.post(f"https://api.astria.ai/tunes/{tune_id}/prompts", data=data, headers=headers)
         except Exception as err:
+            log.error(f"Ошибка генерации фото: {err}")
             return None
         return response.json()
 
@@ -82,8 +86,6 @@ async def wait_for_generation(prompt_id):
             )
             status_response.raise_for_status()
             status_data = status_response.json()
-
-
             if status_data.get('images') and len(status_data['images']) > 0:
                 return status_data['images']
 
@@ -93,7 +95,8 @@ async def wait_for_generation(prompt_id):
             await asyncio.sleep(delay)
             attempts += 1
 
-        except Exception as e:
+        except Exception as err:
+            log.error(f"Ошибка получения ответа от генерации фото: {err}")
             await asyncio.sleep(delay)
             attempts += 1
 
@@ -119,7 +122,8 @@ async def wait_for_training(tune_id: int):
             await asyncio.sleep(delay)  # Асинхронная пауза вместо time.sleep()
             attempts += 1
 
-        except Exception as e:
+        except Exception as err:
+            log.error(f"Ошибка получения ответа от обучения модели: {err}")
             await asyncio.sleep(delay)
             attempts += 1
 

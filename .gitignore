@@ -12,3 +12,4 @@ media/photos
 logs
 .env_web
 .env_letsencrypt
+*.log

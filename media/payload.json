@@ -1,4 +1,20 @@
-[
+[    
+    {
+        "Name": "Акция 1",
+        "Quantity": 1,
+        "Cost": 990,
+        "Tax": "none",
+        "PaymentMethod": "full_prepayment",
+        "PaymentObject": "commodity"
+    },
+    {
+        "Name": "Акция 2",
+        "Quantity": 1,
+        "Cost": 490,
+        "Tax": "none",
+        "PaymentMethod": "full_prepayment",
+        "PaymentObject": "commodity"
+    },
     {
         "Name": "Стартовая покупка",
         "Quantity": 1,

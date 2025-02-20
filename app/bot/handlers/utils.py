@@ -4,7 +4,6 @@ from pathlib import Path
 from uuid import uuid4
 
 from aiogram import types
-from loguru import logger as log
 
 from core.backend.api import (
     create_img_path, 
@@ -13,6 +12,7 @@ from core.backend.api import (
     create_tune,
     update_user,
 )
+from core.logger.logger import get_logger
 from aiogram.utils.media_group import MediaGroupBuilder
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from core.utils.chatgpt import translate_promt2
@@ -28,7 +28,7 @@ from loader import bot
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+log = get_logger()
 
 async def create_referal(user_db: dict, message: types.Message) -> dict:
     if not user_db.get("referal"):
@@ -83,9 +83,10 @@ async def process_learning(
             callback_data="support"
         )
         await messages[-1].answer(
-            text="Произошла ошибка во время обучения модели. Пожалуйста, обратитесь в техническую поддержку", 
+            text="Произошла ошибка во время обучения модели. Пожалуйста, обратитесь в техническую поддержку. Код ошибки: 2", 
             reply_markup=builder.as_markup(),
         )
+        log.error(f"Ошибка в обучении модели. UserID={messages[-1].chat.id} | Gender={gender} Код ошибки: 2")
         return
     training_complete = await wait_for_training(tune_id)
     if training_complete:
@@ -101,6 +102,12 @@ async def process_learning(
                 os.remove(i)
             except Exception as err:
                 continue
+    else:
+        await messages[-1].answer(
+            text="Произошла ошибка во время обучения модели. Пожалуйста, обратитесь в техническую поддержку. Код ошибки: 22", 
+            reply_markup=builder.as_markup(),
+        )
+        log.error(f"Ошибка в обучении модели | UserID={messages[-1].chat.id} | Gender={gender} Код ошибки: 22")
 
 
 async def save_promt(message: types.Message):
@@ -146,7 +153,8 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
         effect=effect
     )
     if not gen_response or "id" not in gen_response:
-        await call.message.answer("❌ Ошибка при запуске генерации изображений.", reply_markup=get_main_keyboard())
+        await call.message.answer("❌ Ошибка при запуске генерации изображений. Код ошибки 1.", reply_markup=get_main_keyboard())
+        log.error(f"Ошибка при запуске генерации изображений | UserID={call.message.chat.id} | Response = {gen_response} | Код ошибки: 1")
         new_count_gen = user_db.get("count_generations") + 3
         asyncio.create_task(
             update_user(str(call.message.chat.id), count_generations=new_count_gen)
@@ -187,7 +195,9 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
         for i in image_urls:
             media_group.add(type="photo", media=i, parse_mode="HTML")
     else:
-        await call.message.answer("❌ Ошибка генерации изображения.")
+        await call.message.answer("❌ Ошибка генерации изображения. Код ошибки: 11")
+        log.error(f"Ошибка при запуске генерации изображений | UserID={call.message.chat.id} | not image urls(wait gen) | Код ошибки: 11")
+        return
     
     messages = await bot.send_media_group(chat_id=call.message.chat.id, media=media_group.build())
     asyncio.create_task(delete_user_images(str(call.message.chat.id)))
@@ -213,20 +223,21 @@ async def generate_video_from_photo_task(call: types.CallbackQuery, photo_url: s
         )
         video_url = await generate_video_from_image(photo_url)
         if not video_url:
-            await call.message.answer("Произошла ошибка при генерации видео. Попробуйте еще раз. 😢")
+            await call.message.answer("Произошла ошибка при генерации видео. Попробуйте еще раз 😢. Код ошибки: 3")
             new_count_gen = user_db.get("count_video_generations") + 1
             asyncio.create_task(
                 update_user(str(call.message.chat.id), count_video_generations=new_count_gen)
             )
+            log.error(f"Произошла ошибка при генерации видео | UserID={call.message.chat.id} | Код ошибки: 3")
             return
         
         await call.message.answer_video(video_url, caption=f"""Ваше видео готово! 🎥✨
                                    
 <a href="https://t.me/photopingvin_bot?start">🖼 Создано в Пингвин ИИ</a>""", parse_mode="HTML")
-        
-        
+
     except Exception as e:
-        await call.message.answer(f"Произошла ошибка: {e}. Попробуйте еще раз. 😢")
+        await call.message.answer("Произошла ошибка при генерации видео. Попробуйте еще раз 😢. Код ошибки: 33")
+        log.error(f"Произошла ошибка при генерации видео | UserID={call.message.chat.id}| Error: {e} | Код ошибки: 33")
 
 
 def get_main_keyboard():
@@ -234,8 +245,6 @@ def get_main_keyboard():
         keyboard=[
             [types.KeyboardButton(text="Стили"), types.KeyboardButton(text="Режим бога")],
             [types.KeyboardButton(text="Выбор аватара"), types.KeyboardButton(text="Генерации")],
-            # [types.KeyboardButton(text="Оживление фото")],
-            # [types.KeyboardButton(text="Доп. опции"), types.KeyboardButton(text="Служба поддержки")],
             [types.KeyboardButton(text="Служба поддержки")],
         ],
         resize_keyboard=True
