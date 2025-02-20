@@ -10,12 +10,10 @@ from aiogram.exceptions import TelegramAPIError
 from aiogram import Bot
 from django.conf import settings
 from django.utils.timezone import now
-from django.db import models
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from django.core.exceptions import ObjectDoesNotExist
 
 from .robo import generate_payment_link
-from config import celery_app
 from celery import shared_task
 from .models import TGUser, Newsletter, Payment
 
@@ -64,14 +62,12 @@ def send_discount_reminders_task(amount: int | float, сount_generations: int = 
             )
             payments.append(payment)
         
-        # Генерация ссылки для платежа
         for i, v in enumerate(data):
             if v.get("Name") == "Первое предложение акции":
                 index = i
                 description = v.get("Name")
                 break
         
-        # Создание клавиатуры с кнопками для каждого пользователя
         reply_markups = {}
         for payment in payments:
             payment_link = generate_payment_link(
@@ -94,11 +90,9 @@ def send_discount_reminders_task(amount: int | float, сount_generations: int = 
             )
             reply_markups[payment.tg_user_id] = builder.as_markup()
         
-        # Отправка сообщений пачками
         if user_ids:
             async_to_sync(_send_messages_reminders)(user_ids, newsletter.message_text, reply_markups)
             
-        # Обновление списка отправленных сообщений у пользователей
         for user in inactive_users:
             user.sent_messages.append(newsletter.id)
             user.save(update_fields=["sent_messages"])
