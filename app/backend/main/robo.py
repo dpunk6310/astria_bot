@@ -6,6 +6,7 @@ from typing import List
 from unicodedata import decimal
 
 import requests
+from requests.exceptions import JSONDecodeError
 import os
 
 
@@ -45,6 +46,8 @@ def send_invoice_request(
     merchant_login: str,
     password1: str,
     payload: dict,
+    max_retries: int = 5,  # Максимальное количество попыток
+    retry_delay: int = 2,
 ):
     header = {
         "typ": "JWT",
@@ -56,8 +59,20 @@ def send_invoice_request(
 
     url = "https://services.robokassa.ru/InvoiceServiceWebApi/api/CreateInvoice"
     headers = {"Content-Type": "application/json"}
-    response = requests.post(url, data=jwt_token, headers=headers)
-    return response.json()
+
+    retries = 0
+    while retries < max_retries:
+        try:
+            response = requests.post(url, data=jwt_token, headers=headers)
+            response.raise_for_status()  # Проверка на HTTP ошибки
+            return response.json()  # Если ответ успешен, возвращаем JSON
+        except (JSONDecodeError, requests.exceptions.RequestException) as e:
+            retries += 1
+            print(f"Attempt {retries} failed: {e}")
+            if retries < max_retries:
+                time.sleep(retry_delay)  # Задержка перед следующей попыткой
+            else:
+                raise  # 
 
 
 def generate_payment_link(
