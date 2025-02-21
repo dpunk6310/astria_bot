@@ -77,14 +77,21 @@ def send_discount_reminders_task(amount: int | float, сount_generations: int = 
         Payment.objects.bulk_create(payments)
         reply_markups = {}
         for payment in payments:
-            payment_link = generate_payment_link(
-                settings.ROBOKASSA_MERCHANT_ID,
-                settings.ROBOKASSA_PASSWORD1,
-                amount,
-                int(payment.payment_id),
-                description + f" {payment.tg_user_id}",
-                items=[data[index]],
-            )
+            try:
+                payment_link = generate_payment_link(
+                    settings.ROBOKASSA_MERCHANT_ID,
+                    settings.ROBOKASSA_PASSWORD1,
+                    amount,
+                    int(payment.payment_id),
+                    description + f" {payment.tg_user_id}",
+                    items=[data[index]],
+                )
+                if not payment_link:
+                    time.sleep(1)
+                    continue
+            except Exception as err:
+                print(err)
+                continue
             
             builder = InlineKeyboardBuilder()
             builder.button(

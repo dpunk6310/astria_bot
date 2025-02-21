@@ -73,7 +73,7 @@ def send_invoice_request(
             if retries < max_retries:
                 time.sleep(retry_delay)  # Задержка перед следующей попыткой
             else:
-                raise  # 
+                return None
 
 
 def generate_payment_link(
@@ -100,6 +100,8 @@ def generate_payment_link(
         merchant_password_1,
         payload,
     )
+    if not response:
+        return None
     if response["isSuccess"]:
         return response["url"]
     print(response)
