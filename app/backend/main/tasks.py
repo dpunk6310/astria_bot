@@ -66,8 +66,10 @@ def send_discount_reminders_task(amount: int | float, сount_generations: int = 
             )
             payments.append(payment)
         
+        description = ""
+        index = 0
         for i, v in enumerate(data):
-            if v.get("Name") == "Первое предложение акции":
+            if v.get("Cost") == amount and v.get("Name") == "Акция 1" or v.get("Name") == "Акция 2":
                 index = i
                 description = v.get("Name")
                 break
