@@ -22,7 +22,7 @@ from .models import TGUser, Newsletter, Payment
 bot = Bot(token=settings.BOT_TOKEN)
 
 BATCH_SIZE = 50
-DELAY_BETWEEN_BATCHES = 0.5
+DELAY_BETWEEN_BATCHES = 1
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
