@@ -48,7 +48,9 @@ def send_discount_reminders_task(amount: int | float, сount_generations: int = 
             while True:
                 payment_id = random.randint(10, 214748347)
                 try:
-                    Payment.objects.get(payment_id=payment_id)
+                    p = Payment.objects.get(payment_id=payment_id)
+                    if not p:
+                        break
                 except ObjectDoesNotExist:
                     break
             
