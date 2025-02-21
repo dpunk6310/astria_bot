@@ -1,5 +1,6 @@
 import json
 import random
+import time
 from datetime import timedelta
 from pathlib import Path
 
@@ -95,7 +96,7 @@ def send_discount_reminders_task(amount: int | float, сount_generations: int = 
                 url=payment_link
             )
             reply_markups[payment.tg_user_id] = builder.as_markup()
-        
+            time.sleep(0.5)
         if user_ids:
             async_to_sync(_send_messages_reminders)(user_ids, newsletter.message_text, reply_markups)
             

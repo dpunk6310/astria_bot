@@ -2,6 +2,7 @@ import json
 import base64
 import hmac
 import hashlib
+import time
 from typing import List
 from unicodedata import decimal
 
@@ -46,7 +47,7 @@ def send_invoice_request(
     merchant_login: str,
     password1: str,
     payload: dict,
-    max_retries: int = 5,  # Максимальное количество попыток
+    max_retries: int = 10,  # Максимальное количество попыток
     retry_delay: int = 2,
 ):
     header = {
