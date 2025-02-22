@@ -75,10 +75,9 @@ def load_image(file_path):
 async def wait_for_generation(prompt_id):
     """Асинхронное ожидание завершения генерации изображения"""
     attempts = 0
-    max_attempts = 400
     delay = 8
 
-    while attempts < max_attempts:
+    while True:
         try:
             status_response = requests.get(
                 f"https://api.astria.ai/prompts/{prompt_id}",
@@ -100,17 +99,14 @@ async def wait_for_generation(prompt_id):
             await asyncio.sleep(delay)
             attempts += 1
 
-    return None
-
 
 async def wait_for_training(tune_id: int):
     attempts = 0
-    max_attempts = 1000
+    # max_attempts = 2000
     delay = 30  
 
-    while attempts < max_attempts:
-        try: # 
-            
+    while True:
+        try: 
             async with httpx.AsyncClient() as client:
                 response = await client.get(f"https://api.astria.ai/tunes/{tune_id}", headers=headers)
                 response.raise_for_status()

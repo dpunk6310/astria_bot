@@ -1,7 +1,10 @@
 from ..client import client
 from data.config import DJANGO_URL
 
-from loguru import logger as log
+from core.logger.logger import get_logger
+
+
+log = get_logger()
 
 
 async def create_user_db(
@@ -81,6 +84,7 @@ async def get_tune(
     tune_id: str,
 ) -> dict:
     response = await client.get_request(url=DJANGO_URL+f"/api/main/get-tune/{tune_id}")
+    log.debug(response)
     return response
 
 

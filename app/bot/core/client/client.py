@@ -1,6 +1,9 @@
 import httpx
 
-from loguru import logger as log
+from core.logger.logger import get_logger
+
+
+log = get_logger()
 
 
 async def get_request(url: str) -> dict:
@@ -21,16 +24,20 @@ async def delete_request(url: str) -> dict:
             response = await client.delete(url)
             return response.json()
     except Exception as e:
-        return {"err": str(e)}
+        return None
 
 
 async def post_request(url: str, data: dict, headers: dict = {}, files: dict = None) -> dict:
-    try:
-        async with httpx.AsyncClient() as client:
-            if headers == {}:
-                headers = {'Content-Type': 'application/json'}
-            response = await client.post(url, json=data, headers=headers, files=files)
-            return response.json() 
-    except Exception as e:
-        log.error(e)
-        return None
+    for i in range(10):
+        try:
+            async with httpx.AsyncClient() as client:
+                if headers == {}:
+                    headers = {'Content-Type': 'application/json'}
+                response = await client.post(url, json=data, headers=headers, files=files)
+                if response and response.status_code == 201:
+                    return response.json()
+                log.error(response.text)
+                continue
+        except Exception as e:
+            log.error(e)
+            continue
