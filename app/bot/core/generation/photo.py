@@ -47,6 +47,9 @@ def load_image(file_path):
     
     
 async def generate_images(tune_id: int, promt: str, effect: str = None):
+    attempts = 0
+    delay = 8
+    max_attempts = 1000
     data = {
         'prompt[text]': f'<lora:{tune_id}:1> {promt}',
         # 'prompt[steps]': 40,
@@ -58,13 +61,19 @@ async def generate_images(tune_id: int, promt: str, effect: str = None):
     }
     if effect is not None:
         data['prompt[style]'] = effect
-    async with httpx.AsyncClient() as client:
-        try:
-            response = await client.post(f"https://api.astria.ai/tunes/{tune_id}/prompts", data=data, headers=headers)
-        except Exception as err:
-            log.error(f"Ошибка генерации фото: {err}")
-            return None
-        return response.json()
+    while attempts < max_attempts:
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.post(f"https://api.astria.ai/tunes/{tune_id}/prompts", data=data, headers=headers)
+                if response and response.status_code not in [400, 502, 404]:
+                    return response.json()
+                attempts += 1
+            except Exception as err:
+                log.error(f"Ошибка получения ответа от отправки на генерации фото: {err} {response.text}")
+                await asyncio.sleep(delay)
+                attempts += 1
+                continue
+                    
 
 
 def load_image(file_path):
@@ -76,37 +85,40 @@ async def wait_for_generation(prompt_id):
     """Асинхронное ожидание завершения генерации изображения"""
     attempts = 0
     delay = 8
+    max_attempts = 1000
 
-    while True:
+    while attempts < max_attempts:
         try:
-            status_response = requests.get(
-                f"https://api.astria.ai/prompts/{prompt_id}",
-                headers=headers
-            )
-            status_response.raise_for_status()
-            status_data = status_response.json()
-            if status_data.get('images') and len(status_data['images']) > 0:
-                return status_data['images']
+            async with httpx.AsyncClient() as client:
+                status_response = await client.get(
+                    f"https://api.astria.ai/prompts/{prompt_id}",
+                    headers=headers
+                )
+                status_response.raise_for_status()
+                status_data = status_response.json()
+                if status_data.get('images') and len(status_data['images']) > 0:
+                    return status_data['images']
 
-            if status_data.get('status') == 'failed':
-                return None
+                if status_data.get('status') == 'failed':
+                    return None
 
-            await asyncio.sleep(delay)
-            attempts += 1
+                await asyncio.sleep(delay)
+                attempts += 1
 
         except Exception as err:
-            log.error(f"Ошибка получения ответа от генерации фото: {err}")
+            log.error(f"Ошибка получения ответа от ожидания генерации фото: {err} {status_response.text}")
             await asyncio.sleep(delay)
             attempts += 1
 
 
 async def wait_for_training(tune_id: int):
     attempts = 0
-    # max_attempts = 2000
+    max_attempts = 2000
     delay = 30  
 
-    while True:
-        try: 
+    while attempts < max_attempts:
+        try:
+            
             async with httpx.AsyncClient() as client:
                 response = await client.get(f"https://api.astria.ai/tunes/{tune_id}", headers=headers)
                 response.raise_for_status()
@@ -115,11 +127,11 @@ async def wait_for_training(tune_id: int):
             if status_data.get("trained_at") is not None:
                 return True
 
-            await asyncio.sleep(delay)  # Асинхронная пауза вместо time.sleep()
+            await asyncio.sleep(delay)
             attempts += 1
 
         except Exception as err:
-            log.error(f"Ошибка получения ответа от обучения модели: {err}")
+            log.error(f"Ошибка получения ответа от обучения модели: {err} {response.text}")
             await asyncio.sleep(delay)
             attempts += 1
 

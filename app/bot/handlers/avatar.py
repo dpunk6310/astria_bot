@@ -44,6 +44,13 @@ async def select_avatar_callback(call: types.CallbackQuery):
 @avatar_router.message(F.text == "Выбор аватара")
 async def avatar_callback(message: types.Message):
     tunes = await get_tunes(str(message.chat.id))
+    if not tunes:
+        builder = InlineKeyboardBuilder()
+        builder.button(
+            text=f"Добавить аватар",
+            callback_data=f"start_upload_photo"
+        )
+        await message.answer("У Вас нет аватара, создайте его!", reply_markup=builder.as_markup())
     builder = InlineKeyboardBuilder()
     for i, tune in enumerate(tunes, 1):
         builder.button(
