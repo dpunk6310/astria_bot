@@ -32,7 +32,23 @@
         "PaymentObject": "commodity"
     },
     {
+        "Name": "1000 дополнительных генераций",
+        "Quantity": 1,
+        "Cost": 9990,
+        "Tax": "none",
+        "PaymentMethod": "full_prepayment",
+        "PaymentObject": "commodity"
+    },
+    {
         "Name": "500 дополнительных генераций",
+        "Quantity": 1,
+        "Cost": 7490,
+        "Tax": "none",
+        "PaymentMethod": "full_prepayment",
+        "PaymentObject": "commodity"
+    },
+    {
+        "Name": "300 дополнительных генераций",
         "Quantity": 1,
         "Cost": 4990,
         "Tax": "none",
@@ -42,15 +58,7 @@
     {
         "Name": "100 дополнительных генераций",
         "Quantity": 1,
-        "Cost": 1290,
-        "Tax": "none",
-        "PaymentMethod": "full_prepayment",
-        "PaymentObject": "commodity"
-    },
-    {
-        "Name": "20 дополнительных генераций",
-        "Quantity": 1,
-        "Cost": 490,
+        "Cost": 1990,
         "Tax": "none",
         "PaymentMethod": "full_prepayment",
         "PaymentObject": "commodity"
@@ -58,7 +66,15 @@
     {
         "Name": "50 дополнительных генераций",
         "Quantity": 1,
-        "Cost": 990,
+        "Cost": 999,
+        "Tax": "none",
+        "PaymentMethod": "full_prepayment",
+        "PaymentObject": "commodity"
+    },
+    {
+        "Name": "10 дополнительных генераций",
+        "Quantity": 1,
+        "Cost": 300,
         "Tax": "none",
         "PaymentMethod": "full_prepayment",
         "PaymentObject": "commodity"
@@ -66,15 +82,15 @@
     {
         "Name": "1 дополнительных оживлений",
         "Quantity": 1,
-        "Cost": 129,
+        "Cost": 159,
         "Tax": "none",
         "PaymentMethod": "full_prepayment",
         "PaymentObject": "commodity"
     },
     {
         "Name": "5 дополнительных оживлений",
-        "Quantity": 390,
-        "Cost": 390,
+        "Quantity": 1,
+        "Cost": 590,
         "Tax": "none",
         "PaymentMethod": "full_prepayment",
         "PaymentObject": "commodity"
@@ -82,7 +98,7 @@
     {
         "Name": "10 дополнительных оживлений",
         "Quantity": 1,
-        "Cost": 690,
+        "Cost": 890,
         "Tax": "none",
         "PaymentMethod": "full_prepayment",
         "PaymentObject": "commodity"
@@ -90,7 +106,7 @@
     {
         "Name": "50 дополнительных оживлений",
         "Quantity": 1,
-        "Cost": 2990,
+        "Cost": 3990,
         "Tax": "none",
         "PaymentMethod": "full_prepayment",
         "PaymentObject": "commodity"
