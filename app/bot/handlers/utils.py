@@ -90,7 +90,14 @@ async def process_learning(
         return
     training_complete = await wait_for_training(tune_id)
     if training_complete:
-        await create_tune(tune_id=str(tune_id), tg_user_id=str(messages[-1].chat.id), gender=gender)
+        tune_db = await create_tune(tune_id=str(tune_id), tg_user_id=str(messages[-1].chat.id), gender=gender)
+        if not tune_db:
+            await messages[-1].answer(
+                text="Произошла ошибка во время обучения модели. Пожалуйста, обратитесь в техническую поддержку. Код ошибки: 222", 
+                reply_markup=builder.as_markup(),
+            )
+            log.error(f"Ошибка в обучении модели. UserID={messages[-1].chat.id} | Gender={gender} tune_db = {tune_db} Код ошибки: 2222")
+            return
         await update_user(tg_user_id=str(messages[0].chat.id), is_learn_model=False, tune_id=str(tune_id), gender=gender)
         await messages[-1].answer(
             """Твой аватар создан ☑️

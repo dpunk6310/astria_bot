@@ -36,8 +36,9 @@ async def post_request(url: str, data: dict, headers: dict = {}, files: dict = N
                 response = await client.post(url, json=data, headers=headers, files=files)
                 if response and response.status_code != 400 or response.status_code != 500:
                     return response.json()
-                log.error(response.text)
+                log.error(f"#{i} Ошибка запроса {response.text} {response}")
                 continue
         except Exception as e:
-            log.error(e)
+            log.error(f"#{i} Ошибка запроса {response.text} {response} {e}")
             continue
+    return None
