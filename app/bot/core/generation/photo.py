@@ -73,6 +73,7 @@ async def generate_images(tune_id: int, promt: str, effect: str = None):
                 await asyncio.sleep(delay)
                 attempts += 1
                 continue
+    return None
                     
 
 
