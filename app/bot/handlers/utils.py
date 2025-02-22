@@ -119,16 +119,8 @@ async def process_learning(
 
 
 async def save_promt(message: types.Message):
-    promt = message.text
-    for _ in range(5):
-        try:
-            promt = translate_promt2(promt)
-            if promt:
-                break
-        except Exception as err:
-            log.error(f"error save promt {err}")
-            continue
-    upd_user = update_user(str(message.chat.id), god_mod_text=promt)
+    promt = translate_promt2(message.text)
+    upd_user = await update_user(str(message.chat.id), god_mod_text=promt)
     log.debug(f"update user promt = {upd_user}")
     
     

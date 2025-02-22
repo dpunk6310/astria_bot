@@ -1,6 +1,10 @@
 from openai import OpenAI
 
 import httpx
+from core.logger.logger import get_logger
+
+
+log = get_logger()
 
 
 def translate_promt(promt: str) -> str:
@@ -42,7 +46,8 @@ def translate_promt2(promt: str):
     }
 
     response = httpx.post("https://geminab.site/api/chatg", json=data)
-    if response and response.status_code == 200:
+    try:
         return response.json().get("choices")[0].get("message").get("content")
-    else:
-        return promt
+    except Exception as err:
+      log.error(err)
+      return promt
