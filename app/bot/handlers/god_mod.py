@@ -39,7 +39,7 @@ async def god_mod_callback(message: types.Message):
         await message.answer("У Вас нет аватара, создайте его!", reply_markup=builder.as_markup())
         return
     user_db = await get_user(str(message.chat.id))
-    god_mod = user_db.get("god_mod", False)
+    god_mod = user_db.get("god_mod")
     builder = InlineKeyboardBuilder()
     builder.button(
         text="Инструкция",
@@ -124,7 +124,7 @@ async def set_text_in_godmod_callback(message: types.Message):
         await message.answer("Сначала включите режим бога", reply_markup=builder.as_markup())
         return
     
-    asyncio.create_task(save_promt(message))
+    save_promt(message)
     
     builder = InlineKeyboardBuilder()
     builder.button(

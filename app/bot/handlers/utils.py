@@ -119,10 +119,11 @@ async def save_promt(message: types.Message):
             if promt:
                 break
         except Exception as err:
+            log.error(f"error save promt {err}")
             continue
-    asyncio.create_task(
-        update_user(str(message.chat.id), god_mod_text=promt)
-    )
+    upd_user = update_user(str(message.chat.id), god_mod_text=promt)
+    log.debug(f"update user promt = {upd_user}")
+    
     
 
 async def run_generation_photo(

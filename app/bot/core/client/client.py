@@ -34,7 +34,7 @@ async def post_request(url: str, data: dict, headers: dict = {}, files: dict = N
                 if headers == {}:
                     headers = {'Content-Type': 'application/json'}
                 response = await client.post(url, json=data, headers=headers, files=files)
-                if response and response.status_code == 201:
+                if response and response.status_code != 400 or response.status_code != 500:
                     return response.json()
                 log.error(response.text)
                 continue
