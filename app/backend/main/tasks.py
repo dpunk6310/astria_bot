@@ -113,7 +113,7 @@ def send_discount_reminders_task(amount: int | float, сount_generations: int = 
 
 
 @shared_task
-def send_maintenance_task(slug: str):
+def send_newsletters_task(slug: str):
 
     newsletter = Newsletter.objects.get(slug=slug)
     users_ids = TGUser.objects.values_list("tg_user_id", flat=True)
@@ -122,7 +122,7 @@ def send_maintenance_task(slug: str):
     for page_number in paginator.page_range:
         page = paginator.page(page_number)
         user_ids_batch = list(page.object_list)
-        async_to_sync(_send_messages_maintenance)(user_ids_batch, newsletter.message_text)
+        async_to_sync(_send_messages_newsletters)(user_ids_batch, newsletter.message_text)
 
 
 async def _send_messages_reminders(user_ids: list[int], text: str, reply_markups: dict):
@@ -144,7 +144,7 @@ async def _send_messages_reminders(user_ids: list[int], text: str, reply_markups
             await asyncio.sleep(DELAY_BETWEEN_BATCHES)
             
             
-async def _send_messages_maintenance(user_ids: list[int], text: str):
+async def _send_messages_newsletters(user_ids: list[int], text: str):
     async with bot.session:
         for i in range(0, len(user_ids), BATCH_SIZE):
             batch = user_ids[i:i + BATCH_SIZE]
@@ -167,3 +167,5 @@ async def _send_message(user_id: int, text: str, reply_markup):
         )
     except TelegramAPIError as e:
         log.error(f"Ошибка при отправке {user_id}: {e}")
+        user = TGUser.objects.get(tg_user_id=user_id)
+        user.delete()
