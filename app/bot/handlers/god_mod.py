@@ -9,9 +9,12 @@ from core.backend.api import (
     get_tunes,
     update_user,
 )
+from core.logger.logger import get_logger
 
 from .utils import save_promt
 
+
+log = get_logger()
 
 god_mod_router = Router()
 
@@ -124,7 +127,12 @@ async def set_text_in_godmod_callback(message: types.Message):
         await message.answer("Сначала включите режим бога", reply_markup=builder.as_markup())
         return
     
-    save_promt(message)
+    try:
+        await save_promt(message)
+    except Exception as e:
+        log.error(f"Error saving prompt: {e} UserID={message.chat.id} Код ошибки: 44")
+        await message.answer("Произошла ошибка при сохранении промта. Код ошибки: 44")
+        return
     
     builder = InlineKeyboardBuilder()
     builder.button(
