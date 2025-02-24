@@ -145,6 +145,70 @@ async def first_payment_callback(call: types.CallbackQuery):
     )
     builder.adjust(1,1,1)
     await call.message.answer(
+        text="""
+Теперь самое время перейти к оплате! Можно оплатить как с карты РФ, так и с зарубежной.""",
+        reply_markup=builder.as_markup(),
+        parse_mode="HTML"
+    )
+    
+    
+@payment_router.callback_query(F.data.contains("reminders_"))
+async def reminders_callback(call: types.CallbackQuery):
+    user_db = await get_user(str(call.message.chat.id))
+    call_data = call.data.split("_")
+    amount = int(call_data[1])
+    сount_generations = int(call_data[2])
+    сount_video_generations = int(call_data[3])
+    learn_model = user_db.get("is_learn_model", True)
+
+    while True:
+        payment_id = random.randint(10, 214748347)
+        pay_db = await get_payment(str(payment_id))
+        if pay_db:
+            continue
+        break
+    asyncio.create_task(create_payment(
+        tg_user_id=str(call.message.chat.id),
+        amount=str(amount),
+        payment_id=str(payment_id),
+        сount_generations=сount_generations,
+        learn_model=learn_model,
+        is_first_payment=True,
+        count_video_generations=сount_video_generations
+    ))
+    file_path = BASE_DIR / "media" / "payload.json"
+    with open(file_path, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+    index = 0
+    description = ""
+    for i, v in enumerate(data):
+        if v.get("Cost") == amount and v.get("Name") == "Акция 1" or v.get("Name") == "Акция 2":
+            index = i
+            description = f"{v.get('Name')} {call.message.chat.id}"
+            break
+    payment_link = generate_payment_link(
+        ROBOKASSA_MERCHANT_ID,
+        ROBOKASSA_PASSWORD1,
+        amount,
+        int(payment_id),
+        description,
+        items=[data[index]],
+    )
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Карта РФ",
+        url=payment_link
+    )
+    builder.button(
+        text="Зарубежная карта",
+        url=payment_link
+    )
+    builder.button(
+        text="Служба поддержки",
+        callback_data="support"
+    )
+    builder.adjust(1,1,1)
+    await call.message.answer(
         text="""Теперь самое время перейти к оплате! Можно оплатить как с карты РФ, так и с зарубежной.""",
         reply_markup=builder.as_markup(),
         parse_mode="HTML"

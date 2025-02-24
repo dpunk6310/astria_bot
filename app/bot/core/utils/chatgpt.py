@@ -45,7 +45,7 @@ def translate_promt2(promt: str):
         ] 
     }
 
-    response = httpx.post("https://geminab.site/api/chatg", json=data)
+    response = httpx.post("https://geminab.site/api/chatg", json=data, timeout=30)
     try:
         return response.json().get("choices")[0].get("message").get("content")
     except Exception as err:

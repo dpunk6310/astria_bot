@@ -13,11 +13,12 @@ from django.conf import settings
 from django.utils.timezone import now
 from django.core.paginator import Paginator
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from django.core.exceptions import ObjectDoesNotExist
+from aiogram import types
+from django.db.utils import IntegrityError
 
 from .robo import generate_payment_link
 from celery import shared_task
-from .models import TGUser, Newsletter, Payment
+from .models import TGUser, Newsletter, Payment, Category, Promt
 
 
 bot = Bot(token=settings.BOT_TOKEN)
@@ -30,82 +31,23 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 @shared_task
 def send_discount_reminders_task(amount: int | float, сount_generations: int = 10, count_video_generations: int = 0):
-    """Основная таска Celery, которая запускает рассылку."""
-    newsletters = Newsletter.objects.all()
+    newsletters = Newsletter.objects.filter(squeeze=True)
     
-    file_path = BASE_DIR / "media" / "payload.json"
-    with open(file_path, 'r', encoding='utf-8') as file:
-        data = json.load(file)
-
     for newsletter in newsletters:
         inactive_users = TGUser.objects.filter(
-            last_activity__lte=now() - timedelta(hours=newsletter.delay_hours),
+            last_activity__lte=now() - timedelta(seconds=newsletter.delay_hours),
             has_purchased=False
         ).exclude(sent_messages__contains=newsletter.id)
+        log.debug(f"Пользователей для рассылки: {len(inactive_users)}")
         user_ids = list(inactive_users.values_list("tg_user_id", flat=True))
-        
-        payments = []
-        for user_id in user_ids:
-            while True:
-                payment_id = random.randint(10, 214748347)
-                try:
-                    p = Payment.objects.get(payment_id=payment_id)
-                    if not p:
-                        break
-                except ObjectDoesNotExist:
-                    break
             
-            payment = Payment(
-                payment_id=payment_id,
-                tg_user_id=user_id,  
-                status=False,
-                amount=str(amount),  
-                learn_model=True,
-                is_first_payment=True,
-                сount_generations=сount_generations,
-                count_video_generations=count_video_generations,
-            )
-            payments.append(payment)
-        
-        description = ""
-        index = 0
-        for i, v in enumerate(data):
-            if v.get("Cost") == amount and v.get("Name") == "Акция 1" or v.get("Name") == "Акция 2":
-                index = i
-                description = v.get("Name")
-                break
-        Payment.objects.bulk_create(payments)
-        reply_markups = {}
-        for payment in payments:
-            try:
-                payment_link = generate_payment_link(
-                    settings.ROBOKASSA_MERCHANT_ID,
-                    settings.ROBOKASSA_PASSWORD1,
-                    amount,
-                    int(payment.payment_id),
-                    description + f" {payment.tg_user_id}",
-                    items=[data[index]],
-                )
-                if not payment_link:
-                    time.sleep(1)
-                    continue
-            except Exception as err:
-                print(err)
-                continue
-            
-            builder = InlineKeyboardBuilder()
-            builder.button(
-                text="Карта РФ",
-                url=payment_link
-            )
-            builder.button(
-                text="Зарубежная карта",
-                url=payment_link
-            )
-            reply_markups[payment.tg_user_id] = builder.as_markup()
-            time.sleep(0.5)
+        builder = InlineKeyboardBuilder()
+        builder.button(
+            text="Купить!",
+            callback_data=f"reminders_{amount}_{сount_generations}_{count_video_generations}"
+        )
         if user_ids:
-            async_to_sync(_send_messages_reminders)(user_ids, newsletter.message_text, reply_markups)
+            async_to_sync(_send_messages_reminders)(user_ids, newsletter.message_text, builder.as_markup())
             
         for user in inactive_users:
             user.sent_messages.append(newsletter.id)
@@ -125,7 +67,7 @@ def send_newsletters_task(slug: str):
         async_to_sync(_send_messages_newsletters)(user_ids_batch, newsletter.message_text)
 
 
-async def _send_messages_reminders(user_ids: list[int], text: str, reply_markups: dict):
+async def _send_messages_reminders(user_ids: list[int], text: str, reply_markup: types.InlineKeyboardMarkup):
     """
     Асинхронно отправляет сообщения группами (batch), предотвращая блокировку API.
     :param user_ids: Список ID пользователей.
@@ -137,7 +79,6 @@ async def _send_messages_reminders(user_ids: list[int], text: str, reply_markups
             batch = user_ids[i:i + BATCH_SIZE]
             tasks = []
             for user_id in batch:
-                reply_markup = reply_markups.get(user_id)
                 if reply_markup:
                     tasks.append(_send_message(user_id, text, reply_markup))
             await asyncio.gather(*tasks)
@@ -169,3 +110,31 @@ async def _send_message(user_id: int, text: str, reply_markup):
         log.error(f"Ошибка при отправке {user_id}: {e}")
         user = TGUser.objects.get(tg_user_id=user_id)
         user.delete()
+
+
+@shared_task
+def import_promts_from_json():
+    
+    json_file_path = BASE_DIR / "media" / "promts.json"
+    
+    with open(json_file_path, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+
+    for gender, categories in data.items():
+        for category_data in categories['categories']:
+            category, created = Category.objects.get_or_create(
+                name=category_data['name'],
+                # slug=slugify(category_data['name']),
+                gender=gender
+            )
+
+            for promt_text in category_data['promts']:
+                try:
+                    Promt.objects.create(
+                        category=category,
+                        text=promt_text
+                    )
+                except IntegrityError as err:
+                    log.error(err)
+                    continue
+                

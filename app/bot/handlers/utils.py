@@ -22,8 +22,9 @@ from core.generation.photo import (
     generate_images, 
     wait_for_generation,
 )
+from core.backend.api import get_random_prompt
 from core.generation.video import generate_video_from_image
-from core.generation.utils import get_random_prompt
+# from core.generation.utils import get_random_prompt
 from loader import bot
 
 
@@ -131,8 +132,7 @@ async def run_generation_photo(
     effect: str
 ):
     await call.message.answer("Создаем ваше фото, немного подождите")
-    json_file = BASE_DIR / "media" / "promts.json"
-    user_prompt = get_random_prompt(json_file=json_file, gender=user_db.get("gender"), category_slug=user_db.get("category"))
+    user_prompt = await get_random_prompt(category_slug=user_db.get("category"))
     await generate_photos_helper(
         tune_id=user_db.get('tune_id'),
         user_prompt=user_prompt,
@@ -147,7 +147,6 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
     asyncio.create_task(
         update_user(str(call.message.chat.id), count_generations=new_count_gen)
     )
-    
     gen_response = await generate_images(
         tune_id=int(tune_id), 
         promt=user_prompt,
@@ -155,7 +154,7 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
     )
     if not gen_response or "id" not in gen_response:
         await call.message.answer("❌ Ошибка при запуске генерации изображений. Код ошибки 1.", reply_markup=get_main_keyboard())
-        log.error(f"Ошибка при запуске генерации изображений | UserID={call.message.chat.id} | Response = {gen_response} | Код ошибки: 1")
+        log.error(f"Ошибка при запуске генерации изображений | UserID={call.message.chat.id} | User promt:{user_prompt} | Response = {gen_response} | Код ошибки: 1")
         new_count_gen = user_db.get("count_generations") + 3
         asyncio.create_task(
             update_user(str(call.message.chat.id), count_generations=new_count_gen)

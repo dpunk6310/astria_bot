@@ -1,6 +1,6 @@
 from django.db import models
-from django.utils.text import slugify
-
+# from django.utils.text import slugify
+from pytils.translit import slugify
 
 GENDER_CHOICES = [
     ('man', 'man'),
@@ -77,6 +77,7 @@ class Newsletter(models.Model):
     # button = models.CharField(verbose_name="Название кнопки", null=True, blank=True)
     # button_data = models.CharField(verbose_name="URL или Callback для кнопки", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создана")
+    squeeze = models.BooleanField(verbose_name="Дожимка", default=False)
 
     def __str__(self):
         return f"{self.title}"
@@ -93,7 +94,12 @@ class Category(models.Model):
     gender = models.CharField(verbose_name="Пол", max_length=20, choices=GENDER_CHOICES)
     
     def save(self, *args, **kwargs):
-        self.slug = f"category_{self.gender}_{self.slug}"
+        base_slug = slugify(self.name)
+        self.slug = f"category_{self.gender}_{base_slug}"
+        counter = 1
+        while Category.objects.filter(slug=self.slug).exists():
+            self.slug = f"category_{self.gender}_{base_slug}-{counter}"
+            counter += 1
         super(Category, self).save(*args, **kwargs)
     
     def __str__(self):
@@ -112,10 +118,14 @@ class Promt(models.Model):
         related_name="promts", 
         verbose_name="Категория",
     )
-    text = models.TextField(verbose_name="Текст")
+    text = models.TextField(verbose_name="Текст", unique=True)
     
     def __str__(self):
         return str(self.category.name)
+    
+    def save(self, *args, **kwargs):
+        self.text = f"sks {self.category.gender} {self.text}"
+        super(Promt, self).save(*args, **kwargs)
     
     class Meta:
         verbose_name = "Promt"

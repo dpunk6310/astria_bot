@@ -140,8 +140,7 @@ async def inst_next4_callback(call: types.CallbackQuery):
 ✔️ 1 модель
 ✔️ Режим бога
 ✔️ <b>Оживление полученных фото!</b>
-
-🎁 <b>Если успеешь оплатить за 30 минут, получишь ещё 10 генераций в подарок</b>""",
+""",
         reply_markup=builder.as_markup(),
         parse_mode="HTML"
     )
@@ -198,6 +197,30 @@ async def driving_callback(call: types.CallbackQuery):
 
 Затем оживите полученные <b>фотографии и превратите их в видео по своему желанию!</b> 🤩""",
         reply_markup=get_main_keyboard(),
+        parse_mode="HTML"
+    )
+    
+    
+@info_router.message(F.text == "Аккаунт")
+async def account_handler(message: types.Message):
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Отменить подписку",
+        callback_data="drop"
+    )
+    await message.answer(
+        text="Чтобы отменить подписку нажмите на кнопку отмены",
+        reply_markup=builder.as_markup(),
+        parse_mode="HTML"
+    )
+    
+    
+@info_router.callback_query(F.data == "drop")
+async def drop_callback(call: types.CallbackQuery):
+    await call.message.delete()
+    await call.message.answer(
+        text="Подписка успешно отменена!",
+        reply_markup=types.ReplyKeyboardRemove(),
         parse_mode="HTML"
     )
     
