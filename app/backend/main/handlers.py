@@ -1,8 +1,11 @@
+import random
+
 from ninja import Router
 from django.db.utils import IntegrityError
 from loguru import logger as log
 from asgiref.sync import sync_to_async
 from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import get_object_or_404
 
 from telegram_api.api import send_message_successfully_pay
 from config.settings import BOT_TOKEN
@@ -218,6 +221,23 @@ async def get_categories(request, gender: str):
             for category in categories
         ]
         return 200, category_list
+    except Exception as err:
+        return 400, {"message": "error", "err": str(err)}
+    
+    
+@router.get("/random-prompt/{category_slug}", response={200: str, 400: dict, 404: dict})
+async def get_random_prompt(request, category_slug: str):
+    try:
+        # Получаем категорию, если не найдена — автоматически 404
+        category = await sync_to_async(get_object_or_404, thread_sensitive=True)(Category, slug=category_slug)
+
+        # Получаем список промтов
+        prompts = await sync_to_async(list, thread_sensitive=True)(category.promts.values_list("text", flat=True))
+
+        if not prompts:
+            return 400, {"message": "error", "err": "No prompts found in this category"}
+
+        return 200, random.choice(prompts)
     except Exception as err:
         return 400, {"message": "error", "err": str(err)}
 

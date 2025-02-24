@@ -8,6 +8,7 @@ from core.backend.api import (
     get_user,
     get_tunes,
     update_user,
+    get_categories
 )
 
 from .utils import (
@@ -15,7 +16,7 @@ from .utils import (
     generate_photos_helper,
     get_main_keyboard,
 )
-from core.generation.utils import get_categories
+# from core.generation.utils import get_categories
 
 
 gen_photo_router = Router()
@@ -81,7 +82,7 @@ async def styles_effect_handler(message: types.Message):
         await message.answer("У Вас нет аватара, создайте его!", reply_markup=builder.as_markup())
         return
 
-    categories = get_categories(gender=user_db.get("gender"), json_file=json_file)
+    categories = await get_categories(gender=user_db.get("gender"))
     builder = InlineKeyboardBuilder()
     for c in categories:
         builder.button(

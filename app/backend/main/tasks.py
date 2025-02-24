@@ -14,10 +14,11 @@ from django.utils.timezone import now
 from django.core.paginator import Paginator
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.utils import IntegrityError
 
 from .robo import generate_payment_link
 from celery import shared_task
-from .models import TGUser, Newsletter, Payment
+from .models import TGUser, Newsletter, Payment, Category, Promt
 
 
 bot = Bot(token=settings.BOT_TOKEN)
@@ -169,3 +170,31 @@ async def _send_message(user_id: int, text: str, reply_markup):
         log.error(f"Ошибка при отправке {user_id}: {e}")
         user = TGUser.objects.get(tg_user_id=user_id)
         user.delete()
+
+
+@shared_task
+def import_promts_from_json():
+    
+    json_file_path = BASE_DIR / "media" / "promts.json"
+    
+    with open(json_file_path, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+
+    for gender, categories in data.items():
+        for category_data in categories['categories']:
+            category, created = Category.objects.get_or_create(
+                name=category_data['name'],
+                # slug=slugify(category_data['name']),
+                gender=gender
+            )
+
+            for promt_text in category_data['promts']:
+                try:
+                    Promt.objects.create(
+                        category=category,
+                        text=promt_text
+                    )
+                except IntegrityError as err:
+                    log.error(err)
+                    continue
+                

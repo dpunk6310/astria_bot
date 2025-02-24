@@ -159,3 +159,17 @@ async def delete_user_images(
         url=DJANGO_URL+f"/api/main/delete-user-images/{tg_user_id}"
     )
     return response
+
+
+async def get_categories(gender: str):
+    response = await client.get_request(
+        url=DJANGO_URL + f"/api/main/categories/{gender}"
+    )
+    return response
+
+
+async def get_random_prompt(category_slug: str):
+    response = await client.get_request(
+        url=DJANGO_URL + f"/api/main/random-prompt/{category_slug}"
+    )
+    return response

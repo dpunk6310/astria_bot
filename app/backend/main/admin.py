@@ -122,7 +122,8 @@ class CategoryAdmin(ModelAdmin):
     search_fields = [
         "name", "slug", "gender",
     ]
-    prepopulated_fields = {"slug": ("name",)}
+    # prepopulated_fields = {"slug": ("name",)}
+    readonly_fields = ["slug"]
     inlines = [PromtInline]
     save_as = True
     save_on_top = True
