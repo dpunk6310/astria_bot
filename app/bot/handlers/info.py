@@ -210,6 +210,30 @@ async def driving_callback(call: types.CallbackQuery):
         parse_mode="HTML"
     )
     
+    
+@info_router.message(F.text == "Аккаунт")
+async def account_handler(message: types.Message):
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Отменить подписку",
+        callback_data="drop"
+    )
+    await message.answer(
+        text="Чтобы отменить подписку нажмите на кнопку отмены",
+        reply_markup=builder.as_markup(),
+        parse_mode="HTML"
+    )
+    
+    
+@info_router.callback_query(F.data == "drop")
+async def drop_callback(call: types.CallbackQuery):
+    await call.message.delete()
+    await call.message.answer(
+        text="Подписка успешно отменена!",
+        reply_markup=types.ReplyKeyboardRemove(),
+        parse_mode="HTML"
+    )
+    
 
 def setup(dp):
     dp.include_router(info_router)    

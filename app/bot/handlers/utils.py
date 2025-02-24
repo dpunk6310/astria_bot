@@ -245,7 +245,7 @@ def get_main_keyboard():
         keyboard=[
             [types.KeyboardButton(text="Стили"), types.KeyboardButton(text="Режим бога")],
             [types.KeyboardButton(text="Выбор аватара"), types.KeyboardButton(text="Генерации")],
-            [types.KeyboardButton(text="Служба поддержки")],
+            [types.KeyboardButton(text="Служба поддержки"), types.KeyboardButton(text="Аккаунт")],
         ],
         resize_keyboard=True
     )
