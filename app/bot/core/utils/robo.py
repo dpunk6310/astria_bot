@@ -34,9 +34,9 @@ def create_jwt_token(header: dict, payload: dict, secret_key: str) -> str:
         raise ValueError("Unsupported algorithm")
 
     signature = hmac.new(secret, signature_data, hash_functions[algorithm]).digest()
-    print(signature_data)
+    # print(signature_data)
     signature_encoded = base64url_encode(signature)
-    print(signature_encoded)
+    # print(signature_encoded)
 
     return f'"{header_encoded}.{payload_encoded}.{signature_encoded}"'
 

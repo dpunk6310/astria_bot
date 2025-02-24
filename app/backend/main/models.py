@@ -77,6 +77,7 @@ class Newsletter(models.Model):
     # button = models.CharField(verbose_name="Название кнопки", null=True, blank=True)
     # button_data = models.CharField(verbose_name="URL или Callback для кнопки", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создана")
+    squeeze = models.BooleanField(verbose_name="Дожимка", default=False)
 
     def __str__(self):
         return f"{self.title}"

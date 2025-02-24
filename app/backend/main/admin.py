@@ -36,7 +36,7 @@ class ImageAdmin(ModelAdmin):
 @admin.register(Newsletter)
 class NewsletterAdmin(ModelAdmin):
     list_display = [
-        "id", "title", "slug", "delay_hours", "created_at"
+        "id", "title", "slug", "delay_hours", "squeeze", "created_at"
     ]
     list_display_links = ["title", "slug"]
     search_fields = [
