@@ -191,14 +191,14 @@ async def reminders_callback(call: types.CallbackQuery):
     for i, v in enumerate(data):
         if v.get("Cost") == amount and v.get("Name") == "Акция 1" or v.get("Name") == "Акция 2":
             index = i
-            description = description + f" {call.message.chat.id}"
+            description = f"{v.get('Name')} {call.message.chat.id}"
             break
     payment_link = generate_payment_link(
         ROBOKASSA_MERCHANT_ID,
         ROBOKASSA_PASSWORD1,
         amount,
         int(payment_id),
-        description + f" {call.message.chat.id}",
+        description,
         items=[data[index]],
     )
     builder = InlineKeyboardBuilder()
