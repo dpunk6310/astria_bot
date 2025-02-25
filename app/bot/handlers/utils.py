@@ -150,7 +150,7 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
     )
     gen_response = await generate_images(
         tune_id=int(tune_id), 
-        promt=user_prompt,
+        prompt=user_prompt,
         effect=effect
     )
     if not gen_response or "id" not in gen_response:
