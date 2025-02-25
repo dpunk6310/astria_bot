@@ -49,9 +49,11 @@ def send_discount_reminders_task(amount: int | float, сount_generations: int = 
         if user_ids:
             async_to_sync(_send_messages_reminders)(user_ids, newsletter.message_text, builder.as_markup())
             
-        for user in inactive_users:
-            user.sent_messages.append(newsletter.id)
-            user.save(update_fields=["sent_messages"])
+    for user in inactive_users:
+        user.sent_messages = (user.sent_messages or []) + [newsletter.id]
+
+    TGUser.objects.bulk_update(inactive_users, ["sent_messages"])
+
 
 
 @shared_task
