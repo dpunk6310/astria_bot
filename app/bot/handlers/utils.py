@@ -88,6 +88,7 @@ async def process_learning(
             reply_markup=builder.as_markup(),
         )
         log.error(f"Ошибка в обучении модели. UserID={messages[-1].chat.id} | Gender={gender} Код ошибки: 2")
+        await update_user(tg_user_id=str(messages[0].chat.id), is_learn_model=True)
         return
     training_complete = await wait_for_training(tune_id)
     if training_complete:
@@ -116,7 +117,7 @@ async def process_learning(
             reply_markup=builder.as_markup(),
         )
         log.error(f"Ошибка в обучении модели | UserID={messages[-1].chat.id} | Gender={gender} Код ошибки: 22")
-        await update_user(tg_user_id=str(messages[0].chat.id), is_learn_model=True,)
+        await update_user(tg_user_id=str(messages[0].chat.id), is_learn_model=True)
 
 
 async def save_promt(message: types.Message):
