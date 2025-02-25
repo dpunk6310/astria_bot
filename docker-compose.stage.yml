@@ -16,6 +16,10 @@ services:
       - ./static:/app/static
       - ./media:/app/media
     command: sh /app/entrypoint.sh
+    logging:
+      options:
+        max-size: "100m"
+        max-file: "100"
 
   nginx:
     build:
@@ -28,6 +32,10 @@ services:
       - ./media:/app/media
     depends_on:
       - backend
+    logging:
+      options:
+        max-size: "100m"
+        max-file: "100"
 
   celery_worker:
     <<: *backend
@@ -36,6 +44,10 @@ services:
     depends_on:
       - backend
     ports: []
+    logging:
+      options:
+        max-size: "100m"
+        max-file: "100"
 
   celery_beat:
     <<: *backend
@@ -44,6 +56,10 @@ services:
     depends_on:
       - backend
     ports: []
+    logging:
+      options:
+        max-size: "100m"
+        max-file: "100"
 
 
   bot:
@@ -58,3 +74,7 @@ services:
     restart: always
     volumes:
       - ./media:/app/media
+    logging:
+      options:
+        max-size: "100m"
+        max-file: "100"

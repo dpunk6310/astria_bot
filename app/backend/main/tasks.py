@@ -1,6 +1,4 @@
 import json
-import random
-import time
 from datetime import timedelta
 from pathlib import Path
 
@@ -12,6 +10,7 @@ from aiogram import Bot
 from django.conf import settings
 from django.utils.timezone import now
 from django.core.paginator import Paginator
+from django.db import transaction
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram import types
 from django.db.utils import IntegrityError
@@ -29,39 +28,32 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 @shared_task
-def send_discount_reminders_task(amount: int | float, сount_generations: int = 10, count_video_generations: int = 0):
-    newsletters = Newsletter.objects.filter(squeeze=True)
+def send_discount_reminders_task(slug: str, amount: int | float, сount_generations: int = 10, count_video_generations: int = 0):
+    newsletter = Newsletter.objects.get(slug=slug)
     
-    for newsletter in newsletters:
-        # Фильтрация пользователей
-        inactive_users = TGUser.objects.filter(
-            last_activity__lte=now() - timedelta(hours=newsletter.delay_hours),
-            has_purchased=False
-        ).exclude(sent_messages__contains=[newsletter.id])  # Используем список для contains
-        
-        log.debug(f"Пользователей для рассылки: {len(inactive_users)}")
-        
-        builder = InlineKeyboardBuilder()
-        builder.button(
-            text="Купить!",
-            callback_data=f"reminders_{amount}_{сount_generations}_{count_video_generations}"
-        )
-        
-        # Обходим каждого пользователя
+    inactive_users = TGUser.objects.filter(
+        last_activity__lte=now() - timedelta(seconds=newsletter.delay_hours),
+        has_purchased=False
+    ).exclude(sent_messages__contains=newsletter.id)
+    
+    log.debug(f"Пользователей для рассылки: {len(inactive_users)}")
+    
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Купить!",
+        callback_data=f"reminders_{amount}_{сount_generations}_{count_video_generations}"
+    )
+    
+    user_ids = [user.tg_user_id for user in inactive_users]
+    
+    async_to_sync(_send_messages_reminders)(user_ids, newsletter.message_text, builder.as_markup())
+    
+    with transaction.atomic():
         for user in inactive_users:
-            try:
-                # Отправляем сообщение пользователю
-                async_to_sync(_send_messages_reminders)([user.tg_user_id], newsletter.message_text, builder.as_markup())
-                
-                # Обновляем sent_messages
-                if user.sent_messages is None:
-                    user.sent_messages = []
+            user = TGUser.objects.select_for_update().get(tg_user_id=user.tg_user_id)
+            if newsletter.id not in user.sent_messages:
                 user.sent_messages.append(newsletter.id)
-                
-                # Сохраняем изменения в базе данных
                 user.save()
-            except Exception as e:
-                log.error(f"Ошибка при отправке сообщения пользователю {user.tg_user_id}: {e}")
 
 
 
