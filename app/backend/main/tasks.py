@@ -22,7 +22,7 @@ from .models import TGUser, Newsletter, Category, Promt
 
 bot = Bot(token=settings.BOT_TOKEN)
 
-BATCH_SIZE = 50
+BATCH_SIZE = 100
 DELAY_BETWEEN_BATCHES = 1
 BASE_DIR = Path(__file__).resolve().parent.parent
 
