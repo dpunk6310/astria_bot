@@ -70,6 +70,6 @@ async def generate_video_from_image(image_url: str) -> str:
             
             return video_url
     except Exception as e:
-        log.error(f"Непредвиденная ошибка: {e}", exc_info=True)
+        log.error(f"Непредвиденная ошибка: {e}")
     
     return None
