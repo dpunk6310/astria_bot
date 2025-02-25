@@ -12,6 +12,7 @@ HEADERS = {
 
 async def generate_video_from_image(image_url: str) -> str:
     """Отправляет изображение в API и возвращает ссылку на видео."""
+    
     data = {
         "prompt": "bring the photo to life",
         "image_url": image_url
@@ -31,7 +32,8 @@ async def generate_video_from_image(image_url: str) -> str:
             
             # Шаг 2: Ожидание завершения обработки
             log.info(f"Ожидание завершения обработки. status_url={status_url}")
-            for i in range(1, 11):  # Ограничим количество попыток до 10
+            i = 1
+            while True: 
                 await asyncio.sleep(10)
                 r2 = await client.get(url=status_url, headers=HEADERS)
                 r2.raise_for_status()
@@ -44,13 +46,12 @@ async def generate_video_from_image(image_url: str) -> str:
                     break
                 elif status in ["IN_PROGRESS", "IN_QUEUE"]:
                     log.info(f"Попытка {i}... Видео еще создается. status={status}")
+                    i += 1
                     continue
                 else:
                     log.error(f"Неизвестный статус обработки: {status}. r2_data={r2_data}")
                     return None
-            else:
-                log.error(f"Превышено количество попыток получения статуса. r2_data={r2_data}")
-                return None
+                
             
             # Шаг 3: Получение результата
             log.info(f"Получение результата. response_url={response_url}")

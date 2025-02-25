@@ -215,7 +215,9 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
     await call.message.answer(text="Превратить в видео 📹", reply_markup=builder.as_markup())
 
 
-async def generate_video_from_photo_task(call: types.CallbackQuery, photo_url: str, user_db: dict):    
+async def generate_video_from_photo_task(call: types.CallbackQuery, photo_url: str, user_db: dict):
+    log.info(f"Функция generate_video_from_photo_task вызвана | UserID={call.message.chat.id}")
+
     try:
         new_count_gen = user_db.get("count_video_generations") - 1
         asyncio.create_task(
@@ -236,6 +238,10 @@ async def generate_video_from_photo_task(call: types.CallbackQuery, photo_url: s
 <a href="https://t.me/photopingvin_bot?start">🖼 Создано в Пингвин ИИ</a>""", parse_mode="HTML")
 
     except Exception as e:
+        new_count_gen = user_db.get("count_video_generations") + 1
+        asyncio.create_task(
+            update_user(str(call.message.chat.id), count_video_generations=new_count_gen)
+        )
         await call.message.answer("Произошла ошибка при генерации видео. Попробуйте еще раз 😢. Код ошибки: 33")
         log.error(f"Произошла ошибка при генерации видео | UserID={call.message.chat.id}| Error: {e} | Код ошибки: 33")
 
