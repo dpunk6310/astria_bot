@@ -221,8 +221,11 @@ async def inst_payment_callback(call: types.CallbackQuery):
     amount = int(data[2])
     сount_generations = int(data[3])
     learn_model = data[4]
-    count_video_generations = int(data[5])
-
+    count_video_generations = 0
+    try:
+        count_video_generations = int(data[5])
+    except IndexError as err:
+        log.error(f"call data = {call.data}, err = {err}")
     while True:
         payment_id = random.randint(10, 214748347)
         pay_db = await get_payment(str(payment_id))
