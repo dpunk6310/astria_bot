@@ -58,7 +58,7 @@ class TGUser(models.Model):
     last_activity = models.DateTimeField(verbose_name="Последняя активность", auto_now=True)
     has_purchased = models.BooleanField(verbose_name="Сделал покупку", default=True)
     
-    sent_messages = models.JSONField(default=list, verbose_name="Отправленные рассылки")
+    sent_messages = models.JSONField(default=[0], verbose_name="Отправленные рассылки")
 
     def __str__(self):
         return str(self.tg_user_id)

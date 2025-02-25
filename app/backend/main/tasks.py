@@ -16,9 +16,8 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram import types
 from django.db.utils import IntegrityError
 
-from .robo import generate_payment_link
 from celery import shared_task
-from .models import TGUser, Newsletter, Payment, Category, Promt
+from .models import TGUser, Newsletter, Category, Promt
 
 
 bot = Bot(token=settings.BOT_TOKEN)
@@ -34,25 +33,35 @@ def send_discount_reminders_task(amount: int | float, сount_generations: int = 
     newsletters = Newsletter.objects.filter(squeeze=True)
     
     for newsletter in newsletters:
+        # Фильтрация пользователей
         inactive_users = TGUser.objects.filter(
-            last_activity__lte=now() - timedelta(seconds=newsletter.delay_hours),
+            last_activity__lte=now() - timedelta(hours=newsletter.delay_hours),
             has_purchased=False
-        ).exclude(sent_messages__contains=newsletter.id)
+        ).exclude(sent_messages__contains=[newsletter.id])  # Используем список для contains
+        
         log.debug(f"Пользователей для рассылки: {len(inactive_users)}")
-        user_ids = list(inactive_users.values_list("tg_user_id", flat=True))
-            
+        
         builder = InlineKeyboardBuilder()
         builder.button(
             text="Купить!",
             callback_data=f"reminders_{amount}_{сount_generations}_{count_video_generations}"
         )
-        if user_ids:
-            async_to_sync(_send_messages_reminders)(user_ids, newsletter.message_text, builder.as_markup())
-            
-    for user in inactive_users:
-        user.sent_messages = (user.sent_messages or []) + [newsletter.id]
-
-    TGUser.objects.bulk_update(inactive_users, ["sent_messages"])
+        
+        # Обходим каждого пользователя
+        for user in inactive_users:
+            try:
+                # Отправляем сообщение пользователю
+                async_to_sync(_send_messages_reminders)([user.tg_user_id], newsletter.message_text, builder.as_markup())
+                
+                # Обновляем sent_messages
+                if user.sent_messages is None:
+                    user.sent_messages = []
+                user.sent_messages.append(newsletter.id)
+                
+                # Сохраняем изменения в базе данных
+                user.save()
+            except Exception as e:
+                log.error(f"Ошибка при отправке сообщения пользователю {user.tg_user_id}: {e}")
 
 
 
