@@ -5,7 +5,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import asyncio
-from asgiref.sync import async_to_sync
+from asgiref.sync import async_to_sync, sync_to_async
 from loguru import logger as log
 from aiogram.exceptions import TelegramAPIError
 from aiogram import Bot
@@ -108,8 +108,8 @@ async def _send_message(user_id: int, text: str, reply_markup):
         )
     except TelegramAPIError as e:
         log.error(f"Ошибка при отправке {user_id}: {e}")
-        user = TGUser.objects.get(tg_user_id=user_id)
-        user.delete()
+        user = await sync_to_async(TGUser.objects.get)(tg_user_id=user_id)
+        await sync_to_async(user.delete)()
 
 
 @shared_task
