@@ -1,73 +1,60 @@
 import json
-import random
-import time
 from datetime import timedelta
 from pathlib import Path
 
-import asyncio
-from asgiref.sync import async_to_sync, sync_to_async
+from asgiref.sync import async_to_sync
 from loguru import logger as log
-from aiogram.exceptions import TelegramAPIError
-from aiogram import Bot
-from django.conf import settings
 from django.utils.timezone import now
 from django.core.paginator import Paginator
+from django.db import transaction
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram import types
 from django.db.utils import IntegrityError
-
 from celery import shared_task
+
 from .models import TGUser, Newsletter, Category, Promt
+from .utils import send_messages_newsletters, send_messages_reminders
 
 
-bot = Bot(token=settings.BOT_TOKEN)
-
-BATCH_SIZE = 50
-DELAY_BETWEEN_BATCHES = 1
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 
 @shared_task
-def send_discount_reminders_task(amount: int | float, сount_generations: int = 10, count_video_generations: int = 0):
-    newsletters = Newsletter.objects.filter(squeeze=True)
+def send_discount_reminders_task(slug: str, amount: int | float, сount_generations: int = 10, count_video_generations: int = 0):
+    """ Таска для рассылки дожимки
+    """
+    newsletter = Newsletter.objects.get(slug=slug)
     
-    for newsletter in newsletters:
-        # Фильтрация пользователей
-        inactive_users = TGUser.objects.filter(
-            last_activity__lte=now() - timedelta(hours=newsletter.delay_hours),
-            has_purchased=False
-        ).exclude(sent_messages__contains=[newsletter.id])  # Используем список для contains
-        
-        log.debug(f"Пользователей для рассылки: {len(inactive_users)}")
-        
-        builder = InlineKeyboardBuilder()
-        builder.button(
-            text="Купить!",
-            callback_data=f"reminders_{amount}_{сount_generations}_{count_video_generations}"
-        )
-        
-        # Обходим каждого пользователя
+    inactive_users = TGUser.objects.filter(
+        last_activity__lte=now() - timedelta(seconds=newsletter.delay_hours),
+        has_purchased=False
+    ).exclude(sent_messages__contains=newsletter.id)
+    
+    log.debug(f"Пользователей для рассылки: {len(inactive_users)}")
+    
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Купить!",
+        callback_data=f"reminders_{amount}_{сount_generations}_{count_video_generations}"
+    )
+    
+    user_ids = [user.tg_user_id for user in inactive_users]
+    
+    async_to_sync(send_messages_reminders)(user_ids, newsletter.message_text, builder.as_markup())
+    
+    with transaction.atomic():
         for user in inactive_users:
-            try:
-                # Отправляем сообщение пользователю
-                async_to_sync(_send_messages_reminders)([user.tg_user_id], newsletter.message_text, builder.as_markup())
-                
-                # Обновляем sent_messages
-                if user.sent_messages is None:
-                    user.sent_messages = []
+            user = TGUser.objects.select_for_update().get(tg_user_id=user.tg_user_id)
+            if newsletter.id not in user.sent_messages:
                 user.sent_messages.append(newsletter.id)
-                
-                # Сохраняем изменения в базе данных
                 user.save()
-            except Exception as e:
-                log.error(f"Ошибка при отправке сообщения пользователю {user.tg_user_id}: {e}")
-
 
 
 @shared_task
 def send_newsletters_task(slug: str):
-
+    """ Таска для рассылки сообщений пользователям
+    """
     newsletter = Newsletter.objects.get(slug=slug)
     users_ids = TGUser.objects.values_list("tg_user_id", flat=True)
     paginator = Paginator(users_ids, 500)
@@ -75,57 +62,13 @@ def send_newsletters_task(slug: str):
     for page_number in paginator.page_range:
         page = paginator.page(page_number)
         user_ids_batch = list(page.object_list)
-        async_to_sync(_send_messages_newsletters)(user_ids_batch, newsletter.message_text)
-
-
-async def _send_messages_reminders(user_ids: list[int], text: str, reply_markup: types.InlineKeyboardMarkup):
-    """
-    Асинхронно отправляет сообщения группами (batch), предотвращая блокировку API.
-    :param user_ids: Список ID пользователей.
-    :param text: Текст сообщения.
-    :param reply_markups: Словарь с клавиатурами для каждого пользователя.
-    """
-    async with bot.session:
-        for i in range(0, len(user_ids), BATCH_SIZE):
-            batch = user_ids[i:i + BATCH_SIZE]
-            tasks = []
-            for user_id in batch:
-                if reply_markup:
-                    tasks.append(_send_message(user_id, text, reply_markup))
-            await asyncio.gather(*tasks)
-            await asyncio.sleep(DELAY_BETWEEN_BATCHES)
-            
-            
-async def _send_messages_newsletters(user_ids: list[int], text: str):
-    async with bot.session:
-        for i in range(0, len(user_ids), BATCH_SIZE):
-            batch = user_ids[i:i + BATCH_SIZE]
-            tasks = []
-            for user_id in batch:
-                tasks.append(_send_message(user_id, text, None))
-            await asyncio.gather(*tasks)
-            await asyncio.sleep(DELAY_BETWEEN_BATCHES)
-
-
-async def _send_message(user_id: int, text: str, reply_markup):
-    """ Отправляет сообщение пользователю и обрабатывает ошибки.
-    """
-    try:
-        await bot.send_message(
-            user_id, 
-            text, 
-            parse_mode="HTML", 
-            reply_markup=reply_markup
-        )
-    except TelegramAPIError as e:
-        log.error(f"Ошибка при отправке {user_id}: {e}")
-        user = await sync_to_async(TGUser.objects.get)(tg_user_id=user_id)
-        await sync_to_async(user.delete)()
+        async_to_sync(send_messages_newsletters)(user_ids_batch, newsletter.message_text)
 
 
 @shared_task
 def import_promts_from_json():
-    
+    """ Таска для импорта json файла с промтами в базу данных
+    """
     json_file_path = BASE_DIR / "media" / "promts.json"
     
     with open(json_file_path, 'r', encoding='utf-8') as file:

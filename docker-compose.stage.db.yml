@@ -12,6 +12,10 @@ services:
       - ./.docker-volumes/idx_pg_data:/var/lib/postgresql/data
     env_file:
       - .env
+    logging:
+      options:
+        max-size: "100m"
+        max-file: "100"
 
   redis:
     container_name: redis
@@ -22,3 +26,7 @@ services:
     command: [ "redis-server", "--requirepass", "${REDIS_PASSWORD}" ]
     env_file:
       - .env
+    logging:
+      options:
+        max-size: "100m"
+        max-file: "100"

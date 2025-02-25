@@ -1,0 +1,61 @@
+import asyncio
+from pathlib import Path
+
+from asgiref.sync import sync_to_async
+from loguru import logger as log
+from aiogram.exceptions import TelegramAPIError
+from aiogram import Bot
+from django.conf import settings
+from aiogram import types
+
+from .models import TGUser
+
+
+bot = Bot(token=settings.BOT_TOKEN)
+
+BATCH_SIZE = 100
+DELAY_BETWEEN_BATCHES = 1
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+async def send_messages_reminders(user_ids: list[int], text: str, reply_markup: types.InlineKeyboardMarkup):
+    """ Отправляет сообщение о дожимки батчами
+    """
+    async with bot.session:
+        for i in range(0, len(user_ids), BATCH_SIZE):
+            batch = user_ids[i:i + BATCH_SIZE]
+            tasks = []
+            for user_id in batch:
+                if reply_markup:
+                    tasks.append(_send_message(user_id, text, reply_markup))
+            await asyncio.gather(*tasks)
+            await asyncio.sleep(DELAY_BETWEEN_BATCHES)
+            
+            
+async def send_messages_newsletters(user_ids: list[int], text: str):
+    """ Отправляет сообщение любой рассыки батчами
+    """
+    async with bot.session:
+        for i in range(0, len(user_ids), BATCH_SIZE):
+            batch = user_ids[i:i + BATCH_SIZE]
+            tasks = []
+            for user_id in batch:
+                tasks.append(_send_message(user_id, text, None))
+            await asyncio.gather(*tasks)
+            await asyncio.sleep(DELAY_BETWEEN_BATCHES)
+
+
+async def _send_message(user_id: int, text: str, reply_markup):
+    """ Отправляет сообщение пользователю и обрабатывает ошибки.
+    """
+    try:
+        await bot.send_message(
+            user_id, 
+            text, 
+            parse_mode="HTML", 
+            reply_markup=reply_markup
+        )
+    except TelegramAPIError as e:
+        log.error(f"Ошибка при отправке {user_id}: {e}")
+        user = await sync_to_async(TGUser.objects.get)(tg_user_id=user_id)
+        await sync_to_async(user.delete)()
