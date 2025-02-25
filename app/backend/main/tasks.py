@@ -27,7 +27,7 @@ def send_discount_reminders_task(slug: str, amount: int | float, сount_generati
     newsletter = Newsletter.objects.get(slug=slug)
     
     inactive_users = TGUser.objects.filter(
-        last_activity__lte=now() - timedelta(seconds=newsletter.delay_hours),
+        last_activity__lte=now() - timedelta(hours=newsletter.delay_hours),
         has_purchased=False
     ).exclude(sent_messages__contains=newsletter.id)
     
