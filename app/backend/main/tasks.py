@@ -43,12 +43,14 @@ def send_discount_reminders_task(slug: str, amount: int | float, сount_generati
     
     async_to_sync(send_messages_reminders)(user_ids, newsletter.message_text, builder.as_markup())
     
-    with transaction.atomic():
-        for user in inactive_users:
-            user = TGUser.objects.select_for_update().get(tg_user_id=user.tg_user_id)
-            if newsletter.id not in user.sent_messages:
-                user.sent_messages.append(newsletter.id)
-                user.save()
+    users_to_update = []
+    for user in inactive_users:
+        if newsletter.id not in user.sent_messages:
+            user.sent_messages.append(newsletter.id)
+            users_to_update.append(user)
+    
+    # Массовое обновление
+    TGUser.objects.bulk_update(users_to_update, ['sent_messages'])
 
 
 @shared_task
