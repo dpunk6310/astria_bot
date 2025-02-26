@@ -117,9 +117,9 @@ async def generate_images(tune_id: int, prompt: str, effect: str = None) -> dict
                 log.info("Запрос успешно выполнен, получен ответ от сервера")
                 return response.json()
             except httpx.HTTPStatusError as err:
-                log.error(f"Ошибка HTTP при запросе: {err} {data} {response.text}")
+                log.warning(f"Ошибка HTTP при запросе: {err} {data} {response.text}")
             except Exception as err:
-                log.error(f"Неожиданная ошибка при запросе: {err} {response.text if response else ''}")
+                log.warning(f"Неожиданная ошибка при запросе: {err}")
             finally:
                 attempts += 1
                 if attempts < max_attempts:
