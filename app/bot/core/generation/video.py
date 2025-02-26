@@ -67,7 +67,7 @@ async def generate_video_from_image(image_url: str) -> str:
             return video_url
         
         except httpx.HTTPStatusError as e:
-            log.error(f"Ошибка HTTP запроса: {e}. URL={e.request.url}, Статус={e.response.status_code}, Ответ={e.response.text}")
+            log.error(f"Ошибка HTTP запроса: {e}. URL={e.request.url}, Статус={e.response.status_code}, Ответ={e.response.text} {image_url}")
         except httpx.RequestError as e:
             log.error(f"Ошибка при выполнении запроса: {e}. URL={e.request.url if e.request else 'неизвестно'}")
         except KeyError as e:
