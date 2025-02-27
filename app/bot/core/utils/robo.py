@@ -4,6 +4,7 @@ import hmac
 import hashlib
 from typing import List
 from unicodedata import decimal
+from urllib.parse import urlencode
 
 import requests
 import os
@@ -60,6 +61,11 @@ def send_invoice_request(
     return response.json()
 
 
+def calculate_signature(*args) -> str:
+    """Создание MD5 подписи."""
+    return hashlib.md5(':'.join(str(arg) for arg in args).encode()).hexdigest()
+
+
 def generate_payment_link(
     merchant_login: str,  # Merchant login
     merchant_password_1: str,  # Merchant password
@@ -90,30 +96,27 @@ def generate_payment_link(
     return None
 
 
-# if __name__ == "__main__":
+def generate_subscribe_payment_link(
+    merchant_login: str,  
+    merchant_password_1: str, 
+    cost: decimal,  
+    number: int, 
+    description: str,
+    items: dict
+) -> str:
+    """Генерация ссылки для переадресации пользователя на оплату."""
+    robokassa_payment_url: str = 'https://auth.robokassa.ru/Merchant/Index.aspx'
+    r = json.dumps(items)
+    signature = calculate_signature(merchant_login, cost, number, r, merchant_password_1)
 
-#     import environ
-#     from pathlib import Path
+    data = {
+        'MerchantLogin': merchant_login,
+        'OutSum': cost,
+        'invoiceID': number,
+        'Description': description,
+        'SignatureValue': signature,
+        'Recurring': 'true',
+        'Receipt': r
+    }
+    return f'{robokassa_payment_url}?{urlencode(data)}'
 
-#     BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
-
-#     env = environ.Env()
-#     env.read_env(str(BASE_DIR / ".env"))
-#     ROBOKASSA_MERCHANT_ID = env.str("ROBOKASSA_MERCHANT_ID", "")
-#     ROBOKASSA_PASSWORD1 = env.str("ROBOKASSA_PASSWORD1", "")
-#     ROBOKASSA_PASSWORD2 = env.str("ROBOKASSA_PASSWORD2", "")
-#     ROBOKASSA_TEST_PASSWORD1 = env.str("ROBOKASSA_TEST_PASSWORD1", "")
-#     ROBOKASSA_TEST_PASSWORD2 = env.str("ROBOKASSA_TEST_PASSWORD2", "")
-#     current_dir = os.path.dirname(os.path.realpath(__file__))
-#     file_path = os.path.join(current_dir, 'payload.json')
-#     with open(file_path, 'r', encoding='utf-8') as file:
-#         data = json.load(file)
-#     payment_link = generate_payment_link(
-#         ROBOKASSA_MERCHANT_ID,
-#         ROBOKASSA_PASSWORD1,
-#         490, # Деньга столько же
-#         10, # рандомное число 1 до 2 147 483 647
-#         "Описание тестовое",
-#         items=[data[1]] # индекс из файла
-#     )
-#     print(payment_link)

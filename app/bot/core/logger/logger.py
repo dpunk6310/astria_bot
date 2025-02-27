@@ -11,9 +11,9 @@ def get_logger():
     log_path = BASE_DIR / "media" / "logs" / "bot.log"
     l.add(
         log_path,
-        format="{time} {level} {message}",
+        format="{time} {level} {message} {file}:{line}",
         level="ERROR",
-        rotation="2 MB",
+        rotation="50 MB",
         compression="zip",
         serialize=False
     )

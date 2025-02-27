@@ -8,7 +8,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from loguru import logger as log
 
 from data.config import ROBOKASSA_MERCHANT_ID, ROBOKASSA_PASSWORD1
-from core.utils.robo import generate_payment_link
+from core.utils.robo import generate_payment_link, generate_subscribe_payment_link
 from core.backend.api import (
     create_payment,
     get_user,
@@ -93,7 +93,19 @@ async def prices_video_callback(call: types.CallbackQuery):
 @payment_router.callback_query(F.data.contains("first_payment"))
 async def first_payment_callback(call: types.CallbackQuery):
     user_db = await get_user(str(call.message.chat.id))
+    file_path = BASE_DIR / "media" / "payload.json"
+    with open(file_path, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+    index = 0
+    description = ""
     amount = 1290
+    for i, v in enumerate(data):
+        if v.get("name") == "Оплата подписки":
+            amount = v.get("sum")
+            index = i
+            description = v.get("name")
+            break
+    
     сount_generations = 100
     learn_model = user_db.get("is_learn_model", True)
 
@@ -112,23 +124,14 @@ async def first_payment_callback(call: types.CallbackQuery):
         is_first_payment=True,
         count_video_generations=1
     ))
-    file_path = BASE_DIR / "media" / "payload.json"
-    with open(file_path, 'r', encoding='utf-8') as file:
-        data = json.load(file)
-    index = 0
-    description = ""
-    for i, v in enumerate(data):
-        if v.get("Cost") == amount and v.get("Name") == "Стартовая покупка":
-            index = i
-            description = v.get("Name")
-            break
-    payment_link = generate_payment_link(
+
+    payment_link = generate_subscribe_payment_link(
         ROBOKASSA_MERCHANT_ID,
         ROBOKASSA_PASSWORD1,
         amount,
         int(payment_id),
         description + f" {call.message.chat.id}",
-        items=[data[index]],
+        items={"items": [data[index]]}
     )
     builder = InlineKeyboardBuilder()
     builder.button(
@@ -182,17 +185,17 @@ async def reminders_callback(call: types.CallbackQuery):
     index = 0
     description = ""
     for i, v in enumerate(data):
-        if v.get("Cost") == amount and v.get("Name") == "Акция 1" or v.get("Name") == "Акция 2":
+        if v.get("sum") == amount and v.get("name") == "Акция 1" or v.get("name") == "Акция 2":
             index = i
-            description = f"{v.get('Name')} {call.message.chat.id}"
+            description = f"{v.get('name')} {call.message.chat.id}"
             break
-    payment_link = generate_payment_link(
+    payment_link = generate_subscribe_payment_link(
         ROBOKASSA_MERCHANT_ID,
         ROBOKASSA_PASSWORD1,
         amount,
         int(payment_id),
         description,
-        items=[data[index]],
+        items={"items": [data[index]]},
     )
     builder = InlineKeyboardBuilder()
     builder.button(
@@ -247,7 +250,7 @@ async def inst_payment_callback(call: types.CallbackQuery):
     index = None
     description = ""
     for i, v in enumerate(data):
-        if v.get("Cost") == amount and v.get("Name") != "Стартовая покупка" and \
+        if v.get("Cost") == amount and v.get("Name") != "Оплата подписки" and \
             v.get("Name") != "Акция 1" and v.get("Name") != "Акция 2" and v.get("Name"):
             index = i
             description = v.get("Name")
