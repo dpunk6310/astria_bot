@@ -80,7 +80,7 @@ class PaymentAdmin(ModelAdmin):
     ]
     list_display_links = ["payment_id",]
     search_fields = [
-        "payment_id",
+        "payment_id", "tg_user_id"
     ]
     save_as = True
     save_on_top = True
