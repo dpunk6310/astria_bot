@@ -65,7 +65,7 @@ async def payment_received(request):
         raw_body = request.body.decode("utf-8", errors="ignore")
         content_type = request.headers.get("Content-Type", "Unknown")
         data = request.POST.dict()
-
+        log.debug(data)
         payment = await sync_to_async(Payment.objects.get)(payment_id=data["inv_id"])
         if payment.status:
             return 200, {"status": "ok", "message": "Success"}
