@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import random
 
 from ninja import Router
@@ -78,6 +79,8 @@ async def payment_received(request):
         if payment.is_first_payment:
             callback_data = "start_upload_photo"
             button_text = "Инструкция"
+            tg_user.maternity_payment_id = payment.payment_id
+            tg_user.subscribe = datetime.now() + timedelta(days=30)
         if not payment.is_first_payment and payment.learn_model:
             callback_data = "start_upload_photo"
             button_text = "Инструкция"

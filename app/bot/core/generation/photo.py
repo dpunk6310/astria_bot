@@ -90,7 +90,7 @@ def load_image(file_path):
 async def generate_images(tune_id: int, prompt: str, effect: str = None) -> dict:
     attempts = 0
     delay = 8
-    max_attempts = 1000
+    max_attempts = 10
     data = {
         'prompt[text]': f'<lora:{tune_id}:1> {prompt}',
         'prompt[super_resolution]': "true",
@@ -119,7 +119,7 @@ async def generate_images(tune_id: int, prompt: str, effect: str = None) -> dict
             except httpx.HTTPStatusError as err:
                 log.error(f"Ошибка HTTP при запросе: {err} {data} {response.text}")
             except Exception as err:
-                log.error(f"Неожиданная ошибка при запросе: {err}")
+                log.error(f"Неожиданная ошибка при запросе: {err} {response.text if response else ''}")
             finally:
                 attempts += 1
                 if attempts < max_attempts:
@@ -170,7 +170,7 @@ async def wait_for_generation(prompt_id: int):
             await asyncio.sleep(delay)
 
         except httpx.HTTPStatusError as err:
-            log.error(f"Ошибка HTTP при проверке статуса генерации: {err}")
+            log.error(f"Ошибка HTTP при проверке статуса генерации: {err} {status_response.text}")
         except httpx.RequestError as err:
             log.error(f"Ошибка соединения при проверке статуса генерации: {err}")
         except Exception as err:

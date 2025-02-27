@@ -57,7 +57,10 @@ class TGUser(models.Model):
     gender = models.CharField(verbose_name="Выбраный пол", max_length=300, null=True, blank=True)
     last_activity = models.DateTimeField(verbose_name="Последняя активность", auto_now=True)
     has_purchased = models.BooleanField(verbose_name="Сделал покупку", default=True)
-    
+    subscribe = models.DateField(verbose_name="Подписка до", null=True, blank=True)
+    maternity_payment_id = models.CharField(
+        verbose_name="Материнский платежный ID", max_length=200, null=True, blank=True
+    )
     sent_messages = models.JSONField(default=[0], verbose_name="Отправленные рассылки")
 
     def __str__(self):
@@ -218,6 +221,9 @@ class Payment(models.Model):
     amount = models.CharField(max_length=20, verbose_name="Сумма")
     learn_model = models.BooleanField(verbose_name="Обучение модели", default=False)
     is_first_payment = models.BooleanField(verbose_name="Первый платеж", default=False)
+    created_at = models.DateTimeField(
+        verbose_name="Создан", auto_now_add=True, null=True, blank=True,
+    )
     
     def __str__(self):
         return str(self.payment_id)
