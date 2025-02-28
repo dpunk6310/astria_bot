@@ -1,3 +1,5 @@
+from typing import Optional
+
 from ninja import Schema
 
 
@@ -8,4 +10,5 @@ class TGImageDTO(Schema):
 
 
 class CreateTGImageDTO(Schema):
-    image: TGImageDTO
+    tg_user_id: str
+    tg_hash: str
