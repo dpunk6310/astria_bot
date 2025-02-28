@@ -180,6 +180,28 @@ class Image(models.Model):
         db_table = "images"
         
         
+class TGImage(models.Model):
+    tg_user = models.ForeignKey(
+        TGUser, 
+        on_delete=models.CASCADE, 
+        related_name="tg_images", 
+        verbose_name="TG User"
+    )
+    img_hash = models.CharField(
+        max_length=1000,
+        unique=True,
+        verbose_name="Image hash",
+    )
+    
+    def __str__(self):
+        return str(self.tg_user)
+    
+    class Meta:
+        verbose_name = "TG Image"
+        verbose_name_plural = "TG Images"
+        db_table = "tg_images"
+        
+        
 class Tune(models.Model):
     tg_user_id = models.CharField(
         max_length=30,

@@ -6,7 +6,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from core.backend.api import (
     get_user,
-    update_user,
+    get_tgimage,
 )
 from .utils import (
     generate_video_from_photo_task
@@ -22,7 +22,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 @gen_video_router.callback_query(F.data.contains("tovideo"))
 async def bring_photo_to_life(call: types.CallbackQuery):
     
-    file_path = call.data.split("&&")[1]
+    file_id = call.data.split("&&")[1]
+
     user_db = await get_user(str(call.message.chat.id))
     
     if user_db.get("count_video_generations") <= 0:
@@ -33,7 +34,9 @@ async def bring_photo_to_life(call: types.CallbackQuery):
         )
         await call.message.answer("У вас закончились попытки для генерации видео. 😢", reply_markup=builder.as_markup())
         return
-    photo_url = f"https://api.telegram.org/file/bot{bot.token}/{file_path}"
+    img_response =  await get_tgimage(int(file_id))
+    file_info = await bot.get_file(img_response.get("tg_hash"))
+    photo_url = f"https://api.telegram.org/file/bot{bot.token}/{file_info.file_path}"
     await call.message.answer("""<b>Фото получено!</b> 👌
 
 Начинаю обработку...

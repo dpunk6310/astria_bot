@@ -17,7 +17,16 @@ from dto.tune import TuneListDTO, CreateTuneDTO
 from dto.err import ErrorDTO, SuccessDTO
 from dto.category import CategoryDTO
 from dto.price_list import PriceListDTO
-from .models import TGUser, Image, Payment, Tune, PriceList, Category
+from dto.tgimage import TGImageDTO, CreateTGImageDTO
+from .models import (
+    TGUser, 
+    Image, 
+    Payment, 
+    Tune, 
+    PriceList, 
+    Category, 
+    TGImage,
+)
 
 
 router = Router()
@@ -189,6 +198,34 @@ async def create_img_path(request, create_image: CreateImageDTO):
             img_path=create_image.image.path,
         )
         return 201, ImageDTO(path=cln.img_path, tg_user_id=cln.tg_user.tg_user_id)
+    except ObjectDoesNotExist:
+        return 400, {"message": "error", "err": "User not found"}
+    except Exception as err:
+        return 400, {"message": "error", "err": str(err)}
+    
+    
+@router.post("/create-tgimg", response={201: TGImageDTO, 400: ErrorDTO})
+async def create_tg_img(request, create_image: CreateTGImageDTO):
+    try:
+        user = await sync_to_async(TGUser.objects.get)(tg_user_id=create_image.image.tg_user_id)
+        cln, created = await sync_to_async(TGImage.objects.get_or_create)(
+            tg_user=user,
+            img_hash=create_image.image.tg_hash,
+        )
+        return 201, TGImageDTO(tg_hash=cln.img_hash, tg_user_id=cln.tg_user.tg_user_id, id=cln.id)
+    except ObjectDoesNotExist:
+        return 400, {"message": "error", "err": "User not found"}
+    except Exception as err:
+        return 400, {"message": "error", "err": str(err)}
+    
+    
+@router.get("/get-tgimg/{id}", response={200: TGImageDTO, 400: ErrorDTO})
+async def create_tg_img(request, id: int):
+    try:
+        cln = await sync_to_async(TGImage.objects.get)(
+            id=id,
+        )
+        return 200, TGImageDTO(tg_hash=cln.img_hash, tg_user_id=cln.tg_user.tg_user_id, id=cln.id)
     except ObjectDoesNotExist:
         return 400, {"message": "error", "err": "User not found"}
     except Exception as err:
