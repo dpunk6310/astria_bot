@@ -24,6 +24,14 @@
         "payment_object": "commodity"
     },
     {
+        "name": "Продление подписки",
+        "quantity": 1,
+        "sum": 1290,
+        "tax": "none",
+        "payment_method": "full_prepayment",
+        "payment_object": "commodity"
+    },
+    {
         "Name": "Создание дополнительной модели",
         "Quantity": 1,
         "Cost": 499,

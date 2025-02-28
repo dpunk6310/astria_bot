@@ -213,7 +213,7 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
             
             builder.button(
                 text=f"Фото {i}",
-                callback_data=f"tovideo&&{img_response.get("image").get('id')}"
+                callback_data=f"tovideo&&{img_response.get('id')}"
             )
     
     await call.message.answer(text="Превратить в видео 📹", reply_markup=builder.as_markup())

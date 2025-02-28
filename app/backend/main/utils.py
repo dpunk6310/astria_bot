@@ -57,5 +57,5 @@ async def _send_message(user_id: int, text: str, reply_markup):
         )
     except TelegramAPIError as e:
         log.error(f"Ошибка при отправке {user_id}: {e}")
-        user = await sync_to_async(TGUser.objects.get)(tg_user_id=user_id)
-        await sync_to_async(user.delete)()
+        # user = await sync_to_async(TGUser.objects.get)(tg_user_id=user_id)
+        # await sync_to_async(user.delete)()

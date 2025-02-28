@@ -6,9 +6,9 @@ from asgiref.sync import async_to_sync
 from loguru import logger as log
 from django.utils.timezone import now
 from django.core.paginator import Paginator
-from django.db import transaction
+from django.conf import settings
+from django.utils import timezone
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram import types
 from django.db.utils import IntegrityError
 from celery import shared_task
 
@@ -80,7 +80,6 @@ def import_promts_from_json():
         for category_data in categories['categories']:
             category, created = Category.objects.get_or_create(
                 name=category_data['name'],
-                # slug=slugify(category_data['name']),
                 gender=gender
             )
 
@@ -93,4 +92,18 @@ def import_promts_from_json():
                 except IntegrityError as err:
                     log.error(err)
                     continue
+                
+
+# @shared_task
+# def debiting_money_for_subscription_task(days: Optional[int]):
+#     now = timezone.now()
+#     today = now.date()
+#     notify_date = now + timedelta(days=days)
+    
+#     users_to_notify_days = TGUser.objects.filter(subscribe__lte=notify_date, subscribe__gt=now)
+#     users_to_notify = TGUser.objects.filter(subscribe__date=today)
+#     for user in users_to_notify:
+#         # Отправляем уведомление пользователю
+#         message = f"Ваша подписка заканчивается сегодня ({user.subscribe.strftime('%Y-%m-%d')}). Продлите подписку, чтобы продолжить пользоваться услугами."
+#         send_message(user.tg_user_id, message)
                 
