@@ -92,7 +92,6 @@ def generate_payment_link(
     )
     if response["isSuccess"]:
         return response["url"]
-    print(response)
     return None
 
 

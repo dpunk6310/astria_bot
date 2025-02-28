@@ -39,10 +39,37 @@ async def select_avatar_callback(call: types.CallbackQuery):
         text=f"Смена модели прошла успешно, теперь используется «Модель №{tune_num}» ✅",
         reply_markup=keyboard
     )
+    
+    
+@avatar_router.message(F.data == "set_avatar")
+async def avatar_callback(message: types.Message):
+    tunes = await get_tunes(str(message.chat.id))
+    if not tunes:
+        builder = InlineKeyboardBuilder()
+        builder.button(
+            text=f"Добавить аватар",
+            callback_data=f"start_upload_photo"
+        )
+        await message.answer("У Вас нет аватара, создайте его!", reply_markup=builder.as_markup())
+    builder = InlineKeyboardBuilder()
+    for i, tune in enumerate(tunes, 1):
+        builder.button(
+            text=f"Модель {i}",
+            callback_data=f"tune_{tune.get('tune_id')}_{i}"
+        )
+    builder.adjust(1, 1, 1, 1)
+    builder.button(
+        text=f"Добавить аватар",
+        callback_data=f"start_upload_photo"
+    )
+    await message.answer(
+        text="Выберите модель:",
+        reply_markup=builder.as_markup()
+    )
 
 
 @avatar_router.message(F.text == "Выбор аватара")
-async def avatar_callback(message: types.Message):
+async def avatar_handler(message: types.Message):
     tunes = await get_tunes(str(message.chat.id))
     if not tunes:
         builder = InlineKeyboardBuilder()

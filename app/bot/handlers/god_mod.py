@@ -127,6 +127,14 @@ async def set_text_in_godmod_callback(message: types.Message):
         await message.answer("Сначала включите режим бога", reply_markup=builder.as_markup())
         return
     
+    if not user_db.get("tune_id"):
+        builder = InlineKeyboardBuilder()
+        builder.button(
+            text="Выбрать",
+            callback_data="set_avatar"
+        )
+        await message.answer("Пожалуйста выберите аватар", reply_markup=builder.as_markup())
+        return
 
     await save_promt(message)
 
