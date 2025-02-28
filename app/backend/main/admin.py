@@ -16,7 +16,8 @@ from .models import (
     PriceList, 
     Category,
     Promt,
-    Newsletter
+    Newsletter,
+    TGImage,
 )
 
 
@@ -28,6 +29,19 @@ class ImageAdmin(ModelAdmin):
     list_display_links = ["tg_user",]
     search_fields = [
         "tg_user",
+    ]
+    save_as = True
+    save_on_top = True
+    
+    
+@admin.register(TGImage)
+class TGImageAdmin(ModelAdmin):
+    list_display = [
+        "id", "tg_user", "img_hash"
+    ]
+    list_display_links = ["tg_user", "img_hash"]
+    search_fields = [
+        "tg_user", "img_hash"
     ]
     save_as = True
     save_on_top = True

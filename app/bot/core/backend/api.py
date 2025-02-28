@@ -129,6 +129,24 @@ async def get_payment(
     return response
 
 
+async def get_tgimage(
+    img_id: int,
+) -> dict:
+    response = await client.get_request(url=DJANGO_URL+f"/api/main/get-tgimg/{img_id}")
+    return response
+
+
+async def create_tg_image(
+    tg_user_id: str,
+    image_hash: str,
+) -> dict:
+    response = await client.post_request(url=DJANGO_URL+"/api/main/create-tgimg", data={
+        "tg_user_id": tg_user_id,
+        "tg_hash": image_hash
+    })
+    return response
+
+
 async def get_user_images(
     tg_user_id: str,
 ) -> dict:

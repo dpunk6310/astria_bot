@@ -11,6 +11,7 @@ from core.backend.api import (
     get_user,
     create_tune,
     update_user,
+    create_tg_image,
 )
 from core.logger.logger import get_logger
 from aiogram.utils.media_group import MediaGroupBuilder
@@ -24,7 +25,6 @@ from core.generation.photo import (
 )
 from core.backend.api import get_random_prompt
 from core.generation.video import generate_video_from_image
-# from core.generation.utils import get_random_prompt
 from loader import bot
 
 
@@ -207,18 +207,19 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
     for i, message in enumerate(messages, 1):
         if message.photo:
             file_id = message.photo[-1].file_id
-            file_info = await bot.get_file(file_id)
+            log.debug(file_id)
+            img_response = await create_tg_image(str(call.message.chat.id), file_id)
+            log.debig(img_response)
+            
             builder.button(
                 text=f"Фото {i}",
-                callback_data=f"tovideo&&{file_info.file_path}"
+                callback_data=f"tovideo&&{img_response.get("image").get('id')}"
             )
     
     await call.message.answer(text="Превратить в видео 📹", reply_markup=builder.as_markup())
 
 
 async def generate_video_from_photo_task(call: types.CallbackQuery, photo_url: str, user_db: dict):
-    log.info(f"Функция generate_video_from_photo_task вызвана | UserID={call.message.chat.id}")
-
     try:
         new_count_gen = user_db.get("count_video_generations") - 1
         asyncio.create_task(
