@@ -1,12 +1,12 @@
 import json
 from datetime import timedelta
 from pathlib import Path
-from typing import Optional
 
 from asgiref.sync import async_to_sync
 from loguru import logger as log
 from django.utils.timezone import now
 from django.core.paginator import Paginator
+from django.conf import settings
 from django.utils import timezone
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from django.db.utils import IntegrityError
