@@ -212,7 +212,7 @@ async def create_tg_img(request, create_image: CreateTGImageDTO):
             tg_user=user,
             img_hash=create_image.image.tg_hash,
         )
-        return 201, TGImageDTO(tg_hash=cln.img_hash, tg_user_id=cln.tg_user.tg_user_id)
+        return 201, TGImageDTO(tg_hash=cln.img_hash, tg_user_id=cln.tg_user.tg_user_id, id=cln.id)
     except ObjectDoesNotExist:
         return 400, {"message": "error", "err": "User not found"}
     except Exception as err:
@@ -225,7 +225,7 @@ async def create_tg_img(request, id: int):
         cln = await sync_to_async(TGImage.objects.get)(
             id=id,
         )
-        return 200, TGImageDTO(tg_hash=cln.img_hash, tg_user_id=cln.tg_user.tg_user_id)
+        return 200, TGImageDTO(tg_hash=cln.img_hash, tg_user_id=cln.tg_user.tg_user_id, id=cln.id)
     except ObjectDoesNotExist:
         return 400, {"message": "error", "err": "User not found"}
     except Exception as err:
