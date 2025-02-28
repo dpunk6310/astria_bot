@@ -209,7 +209,7 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
             file_id = message.photo[-1].file_id
             log.debug(file_id)
             img_response = await create_tg_image(str(call.message.chat.id), file_id)
-            log.debig(img_response)
+            log.debug(img_response)
             
             builder.button(
                 text=f"Фото {i}",
