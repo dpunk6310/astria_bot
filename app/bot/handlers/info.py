@@ -10,6 +10,7 @@ from core.backend.api import (
     create_user_db, 
     get_user,
 )
+from core.logger.logger import get_logger
 from .utils import (
     create_referal,
     get_main_keyboard,
@@ -18,6 +19,7 @@ from .utils import (
 
 info_router = Router()
 BASE_DIR = Path(__file__).resolve().parent.parent
+log = get_logger()
 
 
 @info_router.message(CommandStart())
@@ -46,7 +48,7 @@ async def start_handler(message: types.Message, messages):
     )
     
     keyboard = builder.as_markup()
-    if user_db.get("count_generations", 0) > 3:
+    if user_db.get("count_generations", 0) > 0:
         keyboard = get_main_keyboard()
     
     asyncio.create_task(create_referal(user_db, message))
@@ -180,7 +182,8 @@ async def home_callback(call: types.CallbackQuery):
     )
     
     keyboard = builder.as_markup()
-    if user_db.get("count_generations") > 3:
+    # log.debug(user_db.get("count_generations"))
+    if user_db.get("count_generations") > 0:
         keyboard = get_main_keyboard()
     
     await call.message.answer_photo(

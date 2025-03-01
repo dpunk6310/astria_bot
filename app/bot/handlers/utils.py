@@ -144,19 +144,23 @@ async def run_generation_photo(
     
 async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_prompt: str, effect: str):
     user_db = await get_user(str(call.message.chat.id))
-    new_count_gen = user_db.get("count_generations") - 3
+    count_gen = 3
+    if user_db.get("count_generations") < 3:
+        count_gen = user_db.get("count_generations")
+    new_count_gen = user_db.get("count_generations") - count_gen
     asyncio.create_task(
         update_user(str(call.message.chat.id), count_generations=new_count_gen)
     )
     gen_response = await generate_images(
         tune_id=int(tune_id), 
         prompt=user_prompt,
-        effect=effect
+        effect=effect,
+        num_images=count_gen
     )
     if not gen_response or "id" not in gen_response:
         await call.message.answer("❌ Ошибка при запуске генерации изображений. Код ошибки 1.", reply_markup=get_main_keyboard())
         log.error(f"Ошибка при запуске генерации изображений | UserID={call.message.chat.id} | User promt:{user_prompt} | Response = {gen_response} | Код ошибки: 1")
-        new_count_gen = user_db.get("count_generations") + 3
+        new_count_gen = user_db.get("count_generations") + count_gen
         asyncio.create_task(
             update_user(str(call.message.chat.id), count_generations=new_count_gen)
         )

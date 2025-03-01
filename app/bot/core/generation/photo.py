@@ -87,7 +87,7 @@ def load_image(file_path):
         return f.read()
     
     
-async def generate_images(tune_id: int, prompt: str, effect: str = None) -> dict:
+async def generate_images(tune_id: int, prompt: str, effect: str = None, num_images: int = 3) -> dict:
     attempts = 0
     delay = 8
     max_attempts = 10
@@ -95,7 +95,7 @@ async def generate_images(tune_id: int, prompt: str, effect: str = None) -> dict
         'prompt[text]': f'<lora:{tune_id}:1> {prompt}',
         'prompt[super_resolution]': "true",
         'prompt[inpaint_faces]': "true",
-        'prompt[num_images]': 3,
+        'prompt[num_images]': num_images,
         'prompt[w]': 896,
         'prompt[h]': 1152
     }
