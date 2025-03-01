@@ -17,7 +17,7 @@ from .utils import send_messages_newsletters, send_messages_reminders
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+DOMAIN = "http://185.104.112.58/"
 
 
 @shared_task
@@ -64,7 +64,10 @@ def send_newsletters_task(slug: str):
     for page_number in paginator.page_range:
         page = paginator.page(page_number)
         user_ids_batch = list(page.object_list)
-        async_to_sync(send_messages_newsletters)(user_ids_batch, newsletter.message_text)
+        photo_url = None
+        if newsletter.photo:
+            photo_url = newsletter.photo.path
+        async_to_sync(send_messages_newsletters)(user_ids_batch, newsletter.message_text, photo_url)
 
 
 @shared_task
