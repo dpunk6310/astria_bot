@@ -88,11 +88,79 @@ async def prices_video_callback(call: types.CallbackQuery):
 """.format(price_str=price_str),
         reply_markup=builder.as_markup()
     )
+    
+    
+async def shakhova_payment(call: types.CallbackQuery):
+    file_path = BASE_DIR / "media" / "payload.json"
+    with open(file_path, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+    index = 0
+    description = ""
+    amount = 990
+    for i, v in enumerate(data):
+        if v.get("name") == "Акция 3":
+            amount = v.get("sum")
+            index = i
+            description = v.get("name")
+            break
+    
+    сount_generations = 80
+    learn_model = True
+
+    while True:
+        payment_id = random.randint(10, 214748347)
+        pay_db = await get_payment(str(payment_id))
+        if pay_db:
+            continue
+        break
+    asyncio.create_task(create_payment(
+        tg_user_id=str(call.message.chat.id),
+        amount=str(amount),
+        payment_id=str(payment_id),
+        сount_generations=сount_generations,
+        learn_model=learn_model,
+        is_first_payment=True,
+        count_video_generations=1
+    ))
+
+    payment_link = generate_subscribe_payment_link(
+        ROBOKASSA_MERCHANT_ID,
+        ROBOKASSA_PASSWORD1,
+        amount,
+        int(payment_id),
+        description + f" {call.message.chat.id}",
+        items={"items": [data[index]]}
+    )
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Карта РФ",
+        url=payment_link
+    )
+    builder.button(
+        text="Зарубежная карта",
+        url=payment_link
+    )
+    builder.button(
+        text="Служба поддержки",
+        callback_data="support"
+    )
+    builder.adjust(1,1,1)
+    await call.message.answer(
+        text="""
+Теперь самое время перейти к оплате! Можно оплатить как с карты РФ, так и с зарубежной.""",
+        reply_markup=builder.as_markup(),
+        parse_mode="HTML"
+    )
 
 
 @payment_router.callback_query(F.data.contains("first_payment"))
 async def first_payment_callback(call: types.CallbackQuery):
     user_db = await get_user(str(call.message.chat.id))
+    
+    if user_db.get("referal") == "691579474":
+        await shakhova_payment(call)
+        return
+    
     file_path = BASE_DIR / "media" / "payload.json"
     with open(file_path, 'r', encoding='utf-8') as file:
         data = json.load(file)

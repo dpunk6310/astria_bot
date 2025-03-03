@@ -182,7 +182,6 @@ async def home_callback(call: types.CallbackQuery):
     )
     
     keyboard = builder.as_markup()
-    # log.debug(user_db.get("count_generations"))
     if user_db.get("count_generations") > 0:
         keyboard = get_main_keyboard()
     
