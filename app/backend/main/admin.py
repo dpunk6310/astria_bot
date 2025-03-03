@@ -102,7 +102,20 @@ class TuneAdmin(ModelAdmin):
 @admin.register(TGUser)
 class TGUserAdmin(ModelAdmin):
     list_display = [
-        "id", "tg_user_id", "username", "first_name", "last_name", "god_mod", "is_learn_model", "has_purchased"
+        "id", 
+        "tg_user_id", 
+        "username", 
+        "first_name", 
+        "last_name", 
+        "god_mod", 
+        "is_learn_model", 
+        "has_purchased"
+        "subscribe",
+        "referral_count",
+        "reward_generations",
+        "referral_purchases",
+        "user_purchases_count",
+        "user_purchases_amount",
     ]
     list_display_links = ["tg_user_id", "username",]
     search_fields = [
