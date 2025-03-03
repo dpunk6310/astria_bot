@@ -91,9 +91,9 @@ async def payment_received(request):
             tg_user.maternity_payment_id = payment.payment_id
             tg_user.subscribe = datetime.now() + timedelta(days=30)
             if tg_user.referal:
-                referal = TGUser.objects.get(tg_user_id=tg_user.referal)
+                referal = await sync_to_async(TGUser.objects.get)(tg_user_id=tg_user.referal)
                 referal.count_generations += 20
-                referal.save()
+                await sync_to_async(referal.save)()
         if not payment.is_first_payment and payment.learn_model:
             callback_data = "start_upload_photo"
             button_text = "Инструкция"
@@ -108,8 +108,10 @@ async def payment_received(request):
 
         return 200, {"status": "ok", "message": "Success"}
     except ObjectDoesNotExist as err:
+        print(err)
         return 400, {"message": "error", "err": "Payment or user not found"}
     except Exception as err:
+        print(err)
         return 400, {"message": "error", "err": str(err)}
 
 
