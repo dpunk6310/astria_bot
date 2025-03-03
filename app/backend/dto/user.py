@@ -21,6 +21,10 @@ class UserDTO(Schema):
     category: Optional[str]
     gender: Optional[str]
     count_video_generations: int
+    referral_count: int
+    reward_generations: int
+    referral_purchases: int
+    has_purchased: bool
     
     
 class UpdateUserDTO(Schema):

@@ -9,6 +9,7 @@ __pycache__/
 .venv/
 .docker-volumes
 media/photos
+media/newsletter
 logs
 .env_web
 .env_letsencrypt

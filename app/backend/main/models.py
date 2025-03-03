@@ -1,5 +1,7 @@
 from django.db import models
-# from django.utils.text import slugify
+from django.db.models import Sum, Count
+from django.db.models import F, ExpressionWrapper, DecimalField
+from django.db.models.functions import Cast
 from pytils.translit import slugify
 
 GENDER_CHOICES = [
@@ -62,7 +64,30 @@ class TGUser(models.Model):
         verbose_name="Материнский платежный ID", max_length=200, null=True, blank=True
     )
     sent_messages = models.JSONField(default=[0], verbose_name="Отправленные рассылки")
-
+    
+    referral_count = models.PositiveIntegerField(
+        verbose_name="Количество рефералов", 
+        default=0
+    )
+    reward_generations = models.PositiveIntegerField(
+        verbose_name="Количество генераций от рефералов", 
+        default=0
+    )
+    referral_purchases = models.PositiveIntegerField(
+        verbose_name="Количество покупок рефералов", 
+        default=0
+    )
+    user_purchases_count = models.PositiveIntegerField(
+        verbose_name="Количество покупок пользователя", 
+        default=0
+    )
+    user_purchases_amount = models.DecimalField(
+        verbose_name="Сумма покупок пользователя", 
+        max_digits=10, 
+        decimal_places=2, 
+        default=0
+    )
+    
     def __str__(self):
         return str(self.tg_user_id)
     
@@ -77,8 +102,7 @@ class Newsletter(models.Model):
     slug = models.CharField(max_length=255, verbose_name="Уникальный slug", unique=True)
     message_text = models.TextField(verbose_name="Текст сообщения")
     delay_hours = models.FloatField(verbose_name="Задержка в часах", null=True, blank=True)
-    # button = models.CharField(verbose_name="Название кнопки", null=True, blank=True)
-    # button_data = models.CharField(verbose_name="URL или Callback для кнопки", null=True, blank=True)
+    photo = models.ImageField(verbose_name="Изображение", null=True, blank=True, upload_to="media/newsletter")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создана")
     squeeze = models.BooleanField(verbose_name="Дожимка", default=False)
 

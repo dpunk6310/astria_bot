@@ -27,7 +27,7 @@ def create_recurring_payment(
         data = json.load(file)
     index = 0
     description = "Продление подписки"
-    amount = 1290
+    amount = 1390
     for i, v in enumerate(data):
         if v.get("name") == "Продление подписки":
             amount = v.get("sum")

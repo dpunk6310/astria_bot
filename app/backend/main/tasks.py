@@ -8,16 +8,18 @@ from django.utils.timezone import now
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.utils import timezone
+from django.db.models import Sum, Count, F
+from django.db.models.functions import Cast
+from django.db.models import DecimalField
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from django.db.utils import IntegrityError
 from celery import shared_task
 
-from .models import TGUser, Newsletter, Category, Promt
+from .models import TGUser, Newsletter, Category, Promt, Payment
 from .utils import send_messages_newsletters, send_messages_reminders
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 
 @shared_task
@@ -58,13 +60,16 @@ def send_newsletters_task(slug: str):
     """ Таска для рассылки сообщений пользователям
     """
     newsletter = Newsletter.objects.get(slug=slug)
-    users_ids = TGUser.objects.values_list("tg_user_id", flat=True)
+    users_ids = TGUser.objects.values_list("tg_user_id", flat=True).order_by('id')
     paginator = Paginator(users_ids, 500)
 
     for page_number in paginator.page_range:
         page = paginator.page(page_number)
         user_ids_batch = list(page.object_list)
-        async_to_sync(send_messages_newsletters)(user_ids_batch, newsletter.message_text)
+        photo_url = None
+        if newsletter.photo:
+            photo_url = newsletter.photo.path
+        async_to_sync(send_messages_newsletters)(user_ids_batch, newsletter.message_text, photo_url)
 
 
 @shared_task
@@ -92,7 +97,90 @@ def import_promts_from_json():
                 except IntegrityError as err:
                     log.error(err)
                     continue
+
+
+@shared_task
+def update_referral_statistics():
+    """ Обновляет статистику рефералов и начисляет бонусы за успешные платежи.
+    """
+    users_with_referrals = TGUser.objects.exclude(referal=None)
+
+    master_refs = [user.referal for user in users_with_referrals]
+
+    TGUser.objects.filter(tg_user_id__in=master_refs).update(
+        reward_generations=0,
+        referral_purchases=0,
+        referral_count=0  
+    )
+
+    successful_payments = Payment.objects.filter(
+        tg_user_id__in=[user.tg_user_id for user in users_with_referrals],
+        status=True,
+        is_first_payment=True
+    )
+
+    referral_data = {}
+
+    for payment in successful_payments:
+        tg_user_id = payment.tg_user_id 
+        referal_user = TGUser.objects.filter(tg_user_id=tg_user_id).first() 
+
+        if referal_user and referal_user.referal:  
+            referal_id = referal_user.referal 
+
+            if referal_id in referral_data:
+                referral_data[referal_id]['reward_generations'] += 20
+            else:
+                referral_data[referal_id] = {'reward_generations': 20, 'referral_purchases': 0}
+
+            referral_data[referal_id]['referral_purchases'] += 1
+
+    referral_counts = (
+        TGUser.objects.filter(referal__in=master_refs)  
+        .values('referal') 
+        .annotate(referral_count=Count('id')) 
+    )
+
+    referral_counts_dict = {item['referal']: item['referral_count'] for item in referral_counts}
+
+    users_to_update = []
+    for referal_id, data in referral_data.items():
+        referal_user = TGUser.objects.filter(tg_user_id=referal_id).first()
+        if referal_user:
+            referal_user.reward_generations = data['reward_generations']
+            referal_user.referral_purchases = data['referral_purchases']
+            referal_user.referral_count = referral_counts_dict.get(referal_id, 0)
+            users_to_update.append(referal_user)
+
+    TGUser.objects.bulk_update(users_to_update, ['reward_generations', 'referral_purchases', 'referral_count'])
+    
+
+@shared_task
+def update_user_purchases_task():
+    users = TGUser.objects.all().order_by('id')
+    paginator = Paginator(users, 500)
+    total_processed = 0
+
+    for page_number in paginator.page_range:
+        page = paginator.page(page_number)
+        for user in page.object_list.iterator():
+            user_purchases = Payment.objects.filter(
+                tg_user_id=user.tg_user_id,
+                status=True
+            ).annotate(
+                amount_as_decimal=Cast('amount', output_field=DecimalField(max_digits=10, decimal_places=2))
+            ).aggregate(
+                total_count=Count('id'),
+                total_amount=Sum('amount_as_decimal')
+            )
+
+            user.user_purchases_count = user_purchases['total_count'] or 0
+            user.user_purchases_amount = float(user_purchases['total_amount'] or 0)
+            user.save()
+            total_processed += 1
                 
+    return total_processed
+
 
 # @shared_task
 # def debiting_money_for_subscription_task(days: Optional[int]):

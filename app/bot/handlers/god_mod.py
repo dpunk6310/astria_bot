@@ -108,16 +108,7 @@ async def set_text_in_godmod_callback(message: types.Message):
         return
     
     user_db = await get_user(str(message.chat.id))
-    if user_db.get("count_generations") < 3:
-        builder = InlineKeyboardBuilder()
-        builder.add(
-            types.InlineKeyboardButton(
-                text="Купить!",
-                callback_data="prices_photo"
-            ),
-        )
-        await message.answer("У вас недостаточно генераций", reply_markup=builder.as_markup())
-        return
+
     if not user_db.get("god_mod"):
         builder = InlineKeyboardBuilder()
         builder.button(

@@ -16,9 +16,17 @@
         "payment_object": "commodity"
     },
     {
+        "name": "Акция 3",
+        "quantity": 1,
+        "sum": 990,
+        "tax": "none",
+        "payment_method": "full_prepayment",
+        "payment_object": "commodity"
+    },
+    {
         "name": "Оплата подписки",
         "quantity": 1,
-        "sum": 1290,
+        "sum": 1390,
         "tax": "none",
         "payment_method": "full_prepayment",
         "payment_object": "commodity"
@@ -26,7 +34,7 @@
     {
         "name": "Продление подписки",
         "quantity": 1,
-        "sum": 1290,
+        "sum": 1390,
         "tax": "none",
         "payment_method": "full_prepayment",
         "payment_object": "commodity"
