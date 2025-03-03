@@ -109,7 +109,7 @@ class TGUserAdmin(ModelAdmin):
         "last_name", 
         "god_mod", 
         "is_learn_model", 
-        "has_purchased"
+        "has_purchased",
         "subscribe",
         "referral_count",
         "reward_generations",
