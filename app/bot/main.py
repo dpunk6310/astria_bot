@@ -12,6 +12,7 @@ from handlers.info import setup as info_setup
 from handlers.payment import setup as payment_setup
 from handlers.support import setup as support_setup
 from handlers.gen_video import setup as gen_video_setup
+from handlers.referal import setup as referal_setup
 
 
 async def on_startup():
@@ -21,6 +22,7 @@ async def on_startup():
     payment_setup(loader.dp)
     support_setup(loader.dp)
     gen_video_setup(loader.dp)
+    referal_setup(loader.dp)
     god_mod_setup(loader.dp)
     
     await loader.dp.start_polling(loader.bot)

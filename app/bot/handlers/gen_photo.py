@@ -61,16 +61,7 @@ async def styles_effect_handler(message: types.Message):
                 god_mod_text=None,
             )
         )
-    
-    # if user_db.get("count_generations") < 3:
-    #     builder = InlineKeyboardBuilder()
-    #     builder.button(
-    #         text="Купить",
-    #         callback_data="prices_photo"
-    #     )
-    #     await message.answer("У вас недостаточно генераций", reply_markup=builder.as_markup()) 
-    #     return
-    
+
     tunes = await get_tunes(str(message.chat.id))
     if not tunes or not user_db.get("gender"):
         builder = InlineKeyboardBuilder()
