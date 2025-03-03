@@ -166,7 +166,7 @@ async def first_payment_callback(call: types.CallbackQuery):
         data = json.load(file)
     index = 0
     description = ""
-    amount = 1290
+    amount = 1390
     for i, v in enumerate(data):
         if v.get("name") == "Оплата подписки":
             amount = v.get("sum")
