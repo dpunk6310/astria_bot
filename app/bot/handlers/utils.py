@@ -145,7 +145,7 @@ async def run_generation_photo(
 async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_prompt: str, effect: str):
     user_db = await get_user(str(call.message.chat.id))
     count_gen = 3
-    if user_db.get("count_generations") < 3:
+    if 0 < user_db.get("count_generations", 0) < 3:
         count_gen = user_db.get("count_generations")
     new_count_gen = user_db.get("count_generations") - count_gen
     asyncio.create_task(
