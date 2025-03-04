@@ -47,6 +47,12 @@ func (t *telegramBot) HandleUpdates(log logging.Logger, bot *tgbotapi.BotAPI, up
 			// if update.CallbackQuery.Data == "promote" {
 			// 	t.sendPromoteHandlerCallback(update)
 			// }
+
+			// count, totalAmount, err := storage.GetPaymentStats(ctx, "758103378")
+			// log.Infoln(count, totalAmount)
+
+			// referralCount, totalReferralPurchases, err := storage.GetReferalStats(ctx, "939392408")
+			// log.Infoln(referralCount, totalReferralPurchases)
 		}
 	}
 }
