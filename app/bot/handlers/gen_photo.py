@@ -94,6 +94,14 @@ async def styles_effect_handler(message: types.Message):
 async def handle_effect_handler(call: types.CallbackQuery):
     await call.message.delete()
     user_db = await get_user(str(call.message.chat.id))
+    if user_db.get("count_generations") == 0:
+        builder = InlineKeyboardBuilder()
+        builder.button(
+            text=f"Купить",
+            callback_data=f"prices_photo"
+        )
+        await call.message.answer("У Вас недостаточно генераций😱", reply_markup=builder.as_markup())
+        return
     effect = call.data
     if not effect:
         effect = "no_effect"
