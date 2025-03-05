@@ -28,7 +28,7 @@ func (t *telegramBot) sendStatMsg(update tgbotapi.Update) {
 		return
 	}
 	msgText := fmt.Sprintf(
-		"Общая прибыль: %.2f\nКол-во пользователей, сделавшие минимум 1 покупку: %d",
+		"Общая прибыль: %.2f руб.\nПользователей, сделавшие минимум 1 покупку: %d",
 		totalProfit, userCount,
 	)
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, msgText)
