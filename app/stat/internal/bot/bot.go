@@ -41,6 +41,8 @@ func (t *telegramBot) HandleUpdates(log logging.Logger, bot *tgbotapi.BotAPI, up
 				switch update.Message.Command() {
 				case "start":
 					t.sendStartMsg(update)
+				case "stat":
+					t.sendStatMsg(update)
 				default:
 					err := t.deleteCurrentUserMessage(update)
 					if err != nil {

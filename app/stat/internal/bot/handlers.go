@@ -7,8 +7,32 @@ import (
 )
 
 func (t *telegramBot) sendStartMsg(update tgbotapi.Update) {
+
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, t.getStartMessage())
 	_, err := t.bot.Send(msg)
+	if err != nil {
+		t.log.Errorf("Error sending message to telegram: %v", err)
+		return
+	}
+}
+
+func (t *telegramBot) sendStatMsg(update tgbotapi.Update) {
+	totalProfit, err := t.st.CalculateTotalProfit(t.ctx)
+	if err != nil {
+		t.log.Errorln(err)
+		return
+	}
+	userCount, err := t.st.CountUsersWithSuccessfulPayments(t.ctx)
+	if err != nil {
+		t.log.Errorln(err)
+		return
+	}
+	msgText := fmt.Sprintf(
+		"Общая прибыль: %.2f\nКол-во пользователей, сделавшие минимум 1 покупку: %d",
+		totalProfit, userCount,
+	)
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, msgText)
+	_, err = t.bot.Send(msg)
 	if err != nil {
 		t.log.Errorf("Error sending message to telegram: %v", err)
 		return

@@ -124,3 +124,32 @@ func (s *Storage) GetUserInfo(ctx context.Context, tgUserID string) (map[string]
 
 	return userInfo, nil
 }
+
+func (s *Storage) CalculateTotalProfit(ctx context.Context) (float64, error) {
+	var totalProfit float64
+
+	if err := s.db.WithContext(ctx).
+		Model(&entity.Payment{}).
+		Where("status = ?", true).
+		Select("COALESCE(SUM(CAST(amount AS numeric)), 0)").
+		Scan(&totalProfit).Error; err != nil {
+		return 0, err
+	}
+
+	return totalProfit, nil
+}
+
+func (s *Storage) CountUsersWithSuccessfulPayments(ctx context.Context) (int64, error) {
+	var userCount int64
+
+	// Выполняем запрос для подсчета уникальных пользователей с успешными платежами
+	if err := s.db.WithContext(ctx).
+		Model(&entity.Payment{}).
+		Where("status = ?", true).
+		Distinct("tg_user_id").
+		Count(&userCount).Error; err != nil {
+		return 0, err
+	}
+
+	return userCount, nil
+}
