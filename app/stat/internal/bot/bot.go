@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"strings"
 
 	"github.com/dpunk6310/astria_bot/app/stat/internal/storage"
 	"github.com/dpunk6310/astria_bot/app/stat/pkg/logging"
@@ -32,15 +33,25 @@ func NewTelegramBot(
 func (t *telegramBot) HandleUpdates(log logging.Logger, bot *tgbotapi.BotAPI, updates tgbotapi.UpdatesChannel) {
 	for update := range updates {
 		if update.Message != nil {
-			switch update.Message.Command() {
-			case "start":
-				t.sendStartMsg(update)
-			default:
-				err := t.deleteCurrentUserMessage(update)
-				if err != nil {
-					t.log.Errorln(err)
-					return
+			text := update.Message.Text
+
+			switch {
+			case update.Message.IsCommand():
+				// Обработка команд
+				switch update.Message.Command() {
+				case "start":
+					t.sendStartMsg(update)
+				default:
+					err := t.deleteCurrentUserMessage(update)
+					if err != nil {
+						t.log.Errorln(err)
+						return
+					}
 				}
+			case strings.HasPrefix(text, "#"):
+				// Сообщение начинается с #
+				tgID := strings.TrimPrefix(text, "#")
+				t.handleTgUserIdMessage(update, tgID)
 			}
 		}
 		if update.CallbackQuery != nil {
@@ -48,11 +59,6 @@ func (t *telegramBot) HandleUpdates(log logging.Logger, bot *tgbotapi.BotAPI, up
 			// 	t.sendPromoteHandlerCallback(update)
 			// }
 
-			// count, totalAmount, err := storage.GetPaymentStats(ctx, "758103378")
-			// log.Infoln(count, totalAmount)
-
-			// referralCount, totalReferralPurchases, err := storage.GetReferalStats(ctx, "939392408")
-			// log.Infoln(referralCount, totalReferralPurchases)
 		}
 	}
 }
