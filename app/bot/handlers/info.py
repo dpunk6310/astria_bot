@@ -3,6 +3,7 @@ from pathlib import Path
 
 from aiogram import types, Router, F
 from aiogram.filters import CommandStart
+from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from data.messages import use_messages
@@ -24,7 +25,8 @@ log = get_logger()
 
 @info_router.message(CommandStart())
 @use_messages
-async def start_handler(message: types.Message, messages):
+async def start_handler(message: types.Message, messages, state: FSMContext):
+    await state.clear()
     user_db = await get_user(str(message.chat.id))
     if not user_db:
         user_db = await create_user_db(
@@ -65,7 +67,8 @@ async def start_handler(message: types.Message, messages):
     
 
 @info_router.callback_query(F.data == "inst")
-async def inst_callback(call: types.CallbackQuery):
+async def inst_callback(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     builder = InlineKeyboardBuilder()
     builder.add(
         types.InlineKeyboardButton(
@@ -84,7 +87,8 @@ async def inst_callback(call: types.CallbackQuery):
     
     
 @info_router.callback_query(F.data == "inst_next2")
-async def inst_next2_callback(call: types.CallbackQuery):
+async def inst_next2_callback(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     builder = InlineKeyboardBuilder()
     builder.add(
         types.InlineKeyboardButton(
@@ -100,7 +104,8 @@ async def inst_next2_callback(call: types.CallbackQuery):
     
 
 @info_router.callback_query(F.data == "inst_next3")
-async def inst_next3_callback(call: types.CallbackQuery):
+async def inst_next3_callback(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     builder = InlineKeyboardBuilder()
     builder.add(
         types.InlineKeyboardButton(
@@ -122,7 +127,8 @@ async def inst_next3_callback(call: types.CallbackQuery):
     
     
 @info_router.callback_query(F.data == "inst_next4")
-async def inst_next4_callback(call: types.CallbackQuery):
+async def inst_next4_callback(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     builder = InlineKeyboardBuilder()
     builder.add(
         types.InlineKeyboardButton(
@@ -186,7 +192,8 @@ async def inst_next4_callback(call: types.CallbackQuery):
     
     
 @info_router.callback_query(F.data == "home")
-async def home_callback(call: types.CallbackQuery):
+async def home_callback(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     user_db = await get_user(str(call.message.chat.id))
     if not user_db:
         user_db = await create_user_db(
@@ -226,7 +233,8 @@ async def home_callback(call: types.CallbackQuery):
 
 
 @info_router.callback_query(F.data == "driving")
-async def driving_callback(call: types.CallbackQuery):
+async def driving_callback(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     await call.message.answer_photo(
         photo=types.FSInputFile(BASE_DIR / "media" / "87.jpg"),
         caption="""<b>Для тебя подготовили два режима на выбор:</b>

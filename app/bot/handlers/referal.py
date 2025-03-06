@@ -1,4 +1,5 @@
 from aiogram import types, Router, F
+from aiogram.fsm.context import FSMContext
 
 from core.backend.api import (
     get_user,
@@ -11,7 +12,8 @@ log = get_logger()
 
     
 @referal_router.message(F.text == "Партнёрская программа")
-async def referal_handler(message: types.Message):
+async def referal_handler(message: types.Message, state: FSMContext):
+    await state.clear()
     user_db = await get_user(str(message.chat.id))
     await message.answer(
         text="""

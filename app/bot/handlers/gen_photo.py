@@ -32,7 +32,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 @gen_photo_router.message(F.text == "Генерации")
-async def generations_stat_callback(message: types.Message):
+async def generations_stat_callback(message: types.Message, state: FSMContext):
+    await state.clear()
     user_db = await get_user(message.chat.id)
     builder = InlineKeyboardBuilder()
     builder.button(
@@ -57,7 +58,8 @@ async def generations_stat_callback(message: types.Message):
   
     
 @gen_photo_router.message(F.text == "Стили")
-async def styles_effect_handler(message: types.Message):
+async def styles_effect_handler(message: types.Message, state: FSMContext):
+    await state.clear()
     user_db = await get_user(str(message.chat.id))
     if user_db.get("god_mod"):
         await message.answer(text="Режим бога выключен", reply_markup=get_main_keyboard())
@@ -137,7 +139,7 @@ async def inst_photo_from_photo_handler(message: types.Message, state: FSMContex
     """, parse_mode="HTML", reply_markup=builder.as_markup())
         return
     
-    await state.set_state(PhotoFromPhoto.photo)
+    # await state.set_state(PhotoFromPhoto.photo)
     builder = InlineKeyboardBuilder()
     builder.button(
         text=f"Выкл. Фото по фото",
@@ -175,7 +177,7 @@ async def on_photo_from_photo_callback(call: types.CallbackQuery, state: FSMCont
         )
     )
     await call.message.answer(
-        text="Режим Фото по фото включен ✅\n\n👇<b>Отправь фото, которое хочешь повторить</b>👇",
+        text='Режим <i>"Фото по фото"</i> включен ✅\n\n👇<b>Отправь фото, которое хочешь повторить</b>👇',
         parse_mode="HTML",
     )
     
@@ -190,13 +192,13 @@ async def off_photo_from_photo_callback(call: types.CallbackQuery, state: FSMCon
         )
     )
     await call.message.answer(
-        text="Режим Фото по фото выключен ✅",
+        text='Режим <i>"Фото по фото"</i> выключен ✅',
         parse_mode="HTML",
         reply_markup=get_main_keyboard()
     )
     
     
-@gen_photo_router.message(PhotoFromPhoto.photo, F.photo)
+@gen_photo_router.message(F.photo)
 async def handle_photo(message: types.Message, state: FSMContext):
     user_db = await get_user(str(message.chat.id))
     
@@ -210,7 +212,7 @@ async def handle_photo(message: types.Message, state: FSMContext):
             text=f"Вкл. Фото по фото",
             callback_data=f"on_photo_from_photo"
         )
-        await message.answer(f"Режим Фото по фото выключен!", reply_markup=builder.as_markup())
+        await message.answer(f'Режим <i>"Фото по фото"</i> выключен!', reply_markup=builder.as_markup(), parse_mode="HTML")
         return
     
     if user_db.get("count_generations", 0) < 2:
@@ -259,6 +261,11 @@ async def handle_effect_photo_to_photo_handler(call: types.CallbackQuery, state:
     
     data = await state.get_data()
     file_id = data.get("file_id")
+    
+    # if file_id is None:
+    #     await call.message.answer("Error: File ID is missing. Please try again.")
+    #     return
+    
     file_info = await bot.get_file(file_id)
     image_url = f"https://api.telegram.org/file/bot{bot.token}/{file_info.file_path}"
     
@@ -300,7 +307,8 @@ async def handle_effect_photo_to_photo_handler(call: types.CallbackQuery, state:
 
     
 @gen_photo_router.callback_query(F.data.contains("_effect"))
-async def handle_effect_handler(call: types.CallbackQuery):
+async def handle_effect_handler(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     await call.message.delete()
     user_db = await get_user(str(call.message.chat.id))
     if user_db.get("count_generations") == 0:
@@ -364,7 +372,8 @@ async def handle_effect_handler(call: types.CallbackQuery):
     
    
 @gen_photo_router.callback_query(F.data.contains("category_"))
-async def handle_category_handler(call: types.CallbackQuery):
+async def handle_category_handler(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     asyncio.create_task(
         update_user(
             str(call.message.chat.id), 

@@ -5,6 +5,7 @@ from pathlib import Path
 
 from aiogram import types, Router, F
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.fsm.context import FSMContext
 from loguru import logger as log
 
 from data.config import ROBOKASSA_MERCHANT_ID, ROBOKASSA_PASSWORD1
@@ -23,7 +24,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 @payment_router.callback_query(F.data == "prices_photo")
-async def prices_photo_callback(call: types.CallbackQuery):
+async def prices_photo_callback(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     price_list = await get_price_list("photo")
     builder = InlineKeyboardBuilder()
     price_str = ""
@@ -55,7 +57,8 @@ async def prices_photo_callback(call: types.CallbackQuery):
     
     
 @payment_router.callback_query(F.data == "prices_video")
-async def prices_video_callback(call: types.CallbackQuery):
+async def prices_video_callback(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     price_list = await get_price_list("video")
     builder = InlineKeyboardBuilder()
     price_str = ""
@@ -154,7 +157,8 @@ async def shakhova_payment(call: types.CallbackQuery):
 
 
 @payment_router.callback_query(F.data.contains("first_payment"))
-async def first_payment_callback(call: types.CallbackQuery):
+async def first_payment_callback(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     user_db = await get_user(str(call.message.chat.id))
     
     if user_db.get("referal") == "691579474":
@@ -224,7 +228,8 @@ async def first_payment_callback(call: types.CallbackQuery):
     
     
 @payment_router.callback_query(F.data.contains("reminders_"))
-async def reminders_callback(call: types.CallbackQuery):
+async def reminders_callback(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     user_db = await get_user(str(call.message.chat.id))
     call_data = call.data.split("_")
     amount = int(call_data[1])
@@ -287,7 +292,8 @@ async def reminders_callback(call: types.CallbackQuery):
 
  
 @payment_router.callback_query(F.data.contains("inst_payment"))
-async def inst_payment_callback(call: types.CallbackQuery):
+async def inst_payment_callback(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     data = call.data.split("_")
     amount = int(data[2])
     сount_generations = int(data[3])

@@ -1,12 +1,14 @@
 from aiogram import types, Router, F
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.fsm.context import FSMContext
 
 
 support_router = Router()
 
 
 @support_router.message(F.text == "Служба поддержки")
-async def callcenter_callback(message: types.Message):
+async def callcenter_callback(message: types.Message, state: FSMContext):
+    await state.clear()
     builder = InlineKeyboardBuilder()
     builder.button(
         text="На главную",
@@ -22,7 +24,8 @@ async def callcenter_callback(message: types.Message):
 
 
 @support_router.callback_query(F.data == "support")
-async def support_handler(call: types.CallbackQuery):
+async def support_handler(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     builder = InlineKeyboardBuilder()
     builder.button(
         text="На главную",

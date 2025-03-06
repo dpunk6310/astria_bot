@@ -213,11 +213,11 @@ async def create_img_path(request, create_image: CreateImageDTO):
     
     
 @router.post("/create-tgimg", response={201: TGImageDTO, 400: ErrorDTO})
-async def create_tg_img(request, create_image: CreateTGImageDTO):
+def create_tg_img(request, create_image: CreateTGImageDTO):
     try:
-        user = await sync_to_async(TGUser.objects.get)(tg_user_id=create_image.tg_user_id)
+        user = TGUser.objects.get(tg_user_id=create_image.tg_user_id)
         
-        cln, created = await sync_to_async(TGImage.objects.get_or_create)(
+        cln, created = TGImage.objects.get_or_create(
             tg_user=user,
             img_hash=create_image.tg_hash,
         )
