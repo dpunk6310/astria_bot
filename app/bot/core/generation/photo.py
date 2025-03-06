@@ -128,6 +128,51 @@ async def generate_images(tune_id: int, prompt: str, effect: str = None, num_ima
                 else:
                     log.warning("Достигнуто максимальное количество попыток. Генерация изображений прервана.")
     return None
+
+
+
+async def generate_images_from_image(tune_id: int, prompt: str, image_url: str, effect: str = None, num_images: int = 2) -> dict:
+    attempts = 0
+    delay = 8
+    max_attempts = 10
+    data = {
+        'prompt[text]': f'<lora:{tune_id}:1> {prompt}',
+        'prompt[super_resolution]': "true",
+        'prompt[inpaint_faces]': "true",
+        'prompt[num_images]': num_images,
+        'prompt[w]': 896,
+        'prompt[h]': 1152,
+        'prompt[controlnet_conditioning_scale]': 0.5,
+        'prompt[input_image_url]': image_url,
+        'prompt[mask_image_url]': image_url
+    }
+    if effect is not None:
+        data['prompt[style]'] = effect
+
+    while attempts < max_attempts:
+        async with httpx.AsyncClient() as client:
+            try:
+                log.info(f"Попытка {attempts + 1}/{max_attempts}: отправка запроса на генерацию изображений")
+                response = await client.post(
+                    f"https://api.astria.ai/tunes/{tune_id}/prompts",
+                    data=data,
+                    headers=headers
+                )
+                response.raise_for_status()
+                log.info("Запрос успешно выполнен, получен ответ от сервера")
+                return response.json()
+            except httpx.HTTPStatusError as err:
+                log.warning(f"Ошибка HTTP при запросе: {err} {data} {response.text}")
+            except Exception as err:
+                log.warning(f"Неожиданная ошибка при запросе: {err}")
+            finally:
+                attempts += 1
+                if attempts < max_attempts:
+                    log.info(f"Повторная попытка через {delay} секунд...")
+                    await asyncio.sleep(delay)
+                else:
+                    log.warning("Достигнуто максимальное количество попыток. Генерация изображений прервана.")
+    return None
                     
 
 
