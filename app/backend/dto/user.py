@@ -33,14 +33,14 @@ class UpdateUserDTO(Schema):
     count_generations: Optional[int] = None
     count_video_generations: Optional[int] = None
     is_learn_model: Optional[bool] = None
-    god_mod: bool = False
+    god_mod: Optional[bool] = None
     referal: Optional[str] = None
     effect: Optional[str] = None
     tune_id: Optional[str] = None
     god_mod_text: Optional[str] = None
     category: Optional[str] = None
     gender: Optional[str] = None
-    photo_from_photo: bool = False
+    photo_from_photo: Optional[bool] = None
     # last_activity: Optional[datetime]
     # has_purchased: Optional[bool] = True
 
