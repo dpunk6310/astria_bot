@@ -51,6 +51,7 @@ class TGUser(models.Model):
         default=True
     )
     god_mod = models.BooleanField(verbose_name="Режим бога", default=False)
+    photo_from_photo = models.BooleanField(verbose_name="Режим Фото по фото", default=False)
     referal = models.CharField(verbose_name="Реферал", max_length=30, null=True, blank=True)
     effect = models.CharField(verbose_name="Выбранный фильтр(эффект)", max_length=100, null=True, blank=True)
     tune_id = models.CharField(verbose_name="Выбранный TUNE", max_length=30, null=True, blank=True)

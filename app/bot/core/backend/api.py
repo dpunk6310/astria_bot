@@ -39,7 +39,8 @@ async def update_user(
     tg_user_id: str,
     count_generations: int = None,
     is_learn_model: bool = None,
-    god_mod: bool = None,
+    god_mod: bool = False,
+    photo_from_photo: bool = False,
     referal: str = None,
     effect: str = None,
     tune_id: str = None,
@@ -59,7 +60,8 @@ async def update_user(
         "god_mod_text": god_mod_text,
         "category": category,
         "gender": gender,
-        "count_video_generations": count_video_generations
+        "count_video_generations": count_video_generations,
+        "photo_from_photo": photo_from_photo,
     })
     return response
 

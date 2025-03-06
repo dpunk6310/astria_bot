@@ -14,6 +14,7 @@ class UserDTO(Schema):
     count_generations: Optional[int]
     is_learn_model: Optional[bool]
     god_mod: bool
+    photo_from_photo: bool
     referal: Optional[str]
     effect: Optional[str]
     tune_id: Optional[str]
@@ -32,13 +33,14 @@ class UpdateUserDTO(Schema):
     count_generations: Optional[int] = None
     count_video_generations: Optional[int] = None
     is_learn_model: Optional[bool] = None
-    god_mod: Optional[bool] = None
+    god_mod: bool = False
     referal: Optional[str] = None
     effect: Optional[str] = None
     tune_id: Optional[str] = None
     god_mod_text: Optional[str] = None
     category: Optional[str] = None
     gender: Optional[str] = None
+    photo_from_photo: bool = False
     # last_activity: Optional[datetime]
     # has_purchased: Optional[bool] = True
 
