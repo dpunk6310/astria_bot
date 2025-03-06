@@ -171,7 +171,7 @@ async def handle_photo(message: types.Message, state: FSMContext):
     
     builder.adjust(1, 1, 1, 1)
     await message.answer(
-        text="Фото получено!\n\nВыберите эффект",
+        text="Выберите эффект",
         reply_markup=builder.as_markup()
     )
 
