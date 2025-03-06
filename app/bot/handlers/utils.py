@@ -186,7 +186,7 @@ async def generate_photo_from_photo_helper(call: types.CallbackQuery, user_db: d
             update_user(str(call.message.chat.id), count_generations=new_count_gen)
         )
         return
-    
+    log.warning(effect)
     gen_response = await generate_images_from_image(
         tune_id=int(user_db.get("tune_id")), 
         prompt=f"sks {user_db.get('gender')} " + user_prompt,

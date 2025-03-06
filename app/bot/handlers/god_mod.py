@@ -117,22 +117,17 @@ async def set_text_in_godmod_callback(message: types.Message, state: FSMContext)
     
     if not user_db.get("god_mod"):
         if message.photo or message.document:
-            if not user_db.get("photo_from_photo"):
-                builder = InlineKeyboardBuilder()
-                builder.button(
-                    text="Инструкция",
-                    callback_data="inst_photo_from_photo"
-                )
-                builder.button(
-                    text="Вкл. Фото по фото",
-                    callback_data="on_photo_from_photo"
-                )
-                builder.adjust(1, 1)
-                await message.answer(
-                    'Если вы хотите сделать генерацию как на фото, используйте функцию <i>"Фото по фото"</i>', 
-                    parse_mode="HTML",
-                    reply_markup=builder.as_markup()
-                )
+            builder = InlineKeyboardBuilder()
+            builder.button(
+                text="Фото по фото",
+                callback_data="inst_photo_from_photo"
+            )
+            builder.adjust(1, 1)
+            await message.answer(
+                'Если вы хотите сделать генерацию как на фото, используйте функцию <i>"Фото по фото"</i>', 
+                parse_mode="HTML",
+                reply_markup=builder.as_markup()
+            )
             return
         # await message.delete()
         builder = InlineKeyboardBuilder()

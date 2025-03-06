@@ -100,6 +100,7 @@ async def styles_effect_handler(message: types.Message, state: FSMContext):
     
     
 async def inst_photo_from_photo_handler(message: types.Message, state: FSMContext):
+    await state.set_state(PhotoFromPhoto.photo)
     user_db = await get_user(str(message.chat.id))
     
     if user_db.get("god_mod"):
@@ -122,29 +123,6 @@ async def inst_photo_from_photo_handler(message: types.Message, state: FSMContex
         await message.answer("У Вас нет аватара, создайте его!", reply_markup=builder.as_markup())
         return
 
-    if not user_db.get("photo_from_photo"):
-        builder = InlineKeyboardBuilder()
-        builder.button(
-            text=f"Вкл. Фото по фото",
-            callback_data=f"on_photo_from_photo"
-        )
-        await message.answer_photo(
-            photo=types.FSInputFile(BASE_DIR / "media" / "198.png"),
-            caption="""<b>Перевоплотись в стиле любимого фото!</b> 🤩
-
-— <b>Отправь фото</b>, которое хочешь повторить.
-— Получи 2 эксклюзивных фото в этом стиле, <b>но с твоим аватаром!</b>
-
-Стоимость: За 2 фото, спишется 4 генерации.
-    """, parse_mode="HTML", reply_markup=builder.as_markup())
-        return
-    
-    # await state.set_state(PhotoFromPhoto.photo)
-    builder = InlineKeyboardBuilder()
-    builder.button(
-        text=f"Выкл. Фото по фото",
-        callback_data=f"off_photo_from_photo"
-    )
     await message.answer_photo(
         photo=types.FSInputFile(BASE_DIR / "media" / "198.png"),
         caption="""<b>Перевоплотись в стиле любимого фото!</b> 🤩
@@ -153,8 +131,9 @@ async def inst_photo_from_photo_handler(message: types.Message, state: FSMContex
 — Получи 2 эксклюзивных фото в этом стиле, <b>но с твоим аватаром!</b>
 
 Стоимость: За 2 фото, спишется 4 генерации.
-👇<b>Отправь фото, которое хочешь повторить</b>👇
-    """, parse_mode="HTML", reply_markup=builder.as_markup())
+
+👇 Отправь фото, которое хочешь повторить👇
+""", parse_mode="HTML")
     
     
 @gen_photo_router.message(F.text == "Фото по фото")
@@ -167,53 +146,9 @@ async def start_gen_photo_from_photo_callback(call: types.CallbackQuery, state: 
     await inst_photo_from_photo_handler(call.message, state)
     
     
-@gen_photo_router.callback_query(F.data == "on_photo_from_photo")
-async def on_photo_from_photo_callback(call: types.CallbackQuery, state: FSMContext):
-    await state.set_state(PhotoFromPhoto.photo)
-    asyncio.create_task(
-        update_user(
-            str(call.message.chat.id), 
-            photo_from_photo=True, 
-        )
-    )
-    await call.message.answer(
-        text='Режим <i>"Фото по фото"</i> включен ✅\n\n👇<b>Отправь фото, которое хочешь повторить</b>👇',
-        parse_mode="HTML",
-    )
-    
-    
-@gen_photo_router.callback_query(F.data == "off_photo_from_photo")
-async def off_photo_from_photo_callback(call: types.CallbackQuery, state: FSMContext):
-    await state.clear()
-    asyncio.create_task(
-        update_user(
-            str(call.message.chat.id), 
-            photo_from_photo=False, 
-        )
-    )
-    await call.message.answer(
-        text='Режим <i>"Фото по фото"</i> выключен ✅',
-        parse_mode="HTML",
-        reply_markup=get_main_keyboard()
-    )
-    
-    
-@gen_photo_router.message(F.photo)
+@gen_photo_router.message(PhotoFromPhoto.photo, F.photo)
 async def handle_photo(message: types.Message, state: FSMContext):
     user_db = await get_user(str(message.chat.id))
-    
-    if not user_db.get("photo_from_photo"):
-        builder = InlineKeyboardBuilder()
-        builder.button(
-            text="Инструкция",
-            callback_data="inst_photo_from_photo"
-        )
-        builder.button(
-            text=f"Вкл. Фото по фото",
-            callback_data=f"on_photo_from_photo"
-        )
-        await message.answer(f'Режим <i>"Фото по фото"</i> выключен!', reply_markup=builder.as_markup(), parse_mode="HTML")
-        return
     
     if user_db.get("count_generations", 0) < 2:
         builder = InlineKeyboardBuilder()
@@ -255,7 +190,7 @@ async def handle_photo(message: types.Message, state: FSMContext):
     )
 
 
-@gen_photo_router.callback_query(StateFilter(PhotoFromPhoto.photo), F.data.contains("_effect"))
+@gen_photo_router.callback_query(StateFilter(PhotoFromPhoto.photo), F.data.contains("effect"))
 async def handle_effect_photo_to_photo_handler(call: types.CallbackQuery, state: FSMContext):
     await call.message.delete()
     
