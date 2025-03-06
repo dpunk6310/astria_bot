@@ -3,6 +3,7 @@ from pathlib import Path
 
 from aiogram import types, Router, F
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.fsm.context import FSMContext
 
 from core.backend.api import (
     get_user,
@@ -24,8 +25,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 @gen_video_router.callback_query(F.data.contains("tovideo"))
-async def bring_photo_to_life(call: types.CallbackQuery):
-    
+async def bring_photo_to_life(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     file_id = call.data.split("&&")[1]
 
     user_db = await get_user(str(call.message.chat.id))

@@ -3,6 +3,7 @@ from pathlib import Path
 
 from aiogram import types, Router, F
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.fsm.context import FSMContext
 
 from core.backend.api import (
     get_user,
@@ -31,7 +32,8 @@ BUTTON_TEXTS = {
 
 
 @god_mod_router.message(F.text == "Режим бога")
-async def god_mod_callback(message: types.Message):
+async def god_mod_callback(message: types.Message, state: FSMContext):
+    await state.clear()
     tunes = await get_tunes(str(message.chat.id))
     if not tunes:
         builder = InlineKeyboardBuilder()
@@ -65,7 +67,8 @@ async def god_mod_callback(message: types.Message):
     
     
 @god_mod_router.callback_query(F.data == "on_god_mod")
-async def on_god_mod_callback(call: types.CallbackQuery):
+async def on_god_mod_callback(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     asyncio.create_task(
         update_user(str(call.message.chat.id), god_mod=True)
     )
@@ -87,7 +90,8 @@ async def on_god_mod_callback(call: types.CallbackQuery):
     
     
 @god_mod_router.callback_query(F.data == "off_god_mod")
-async def off_god_mod_callback(call: types.CallbackQuery):
+async def off_god_mod_callback(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     asyncio.create_task(
         update_user(str(call.message.chat.id), god_mod=False)
     )
@@ -103,9 +107,11 @@ async def off_god_mod_callback(call: types.CallbackQuery):
     
     
 @god_mod_router.message(~F.text.in_(BUTTON_TEXTS))
-async def set_text_in_godmod_callback(message: types.Message):
+async def set_text_in_godmod_callback(message: types.Message, state: FSMContext):
     if message.text in BUTTON_TEXTS:
         return
+    
+    await state.clear()
     
     user_db = await get_user(str(message.chat.id))
     
@@ -118,9 +124,10 @@ async def set_text_in_godmod_callback(message: types.Message):
                     callback_data="inst_photo_from_photo"
                 )
                 builder.button(
-                    text="Вкл. режим Фото по фото",
+                    text="Вкл. Фото по фото",
                     callback_data="on_photo_from_photo"
                 )
+                builder.adjust(1, 1)
                 await message.answer(
                     'Если вы хотите сделать генерацию как на фото, используйте функцию <i>"Фото по фото"</i>', 
                     parse_mode="HTML",
@@ -174,7 +181,8 @@ async def set_text_in_godmod_callback(message: types.Message):
     
 
 @god_mod_router.callback_query(F.data == "inst_god_mod")
-async def inst_god_mod_callback(call: types.CallbackQuery):
+async def inst_god_mod_callback(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     await call.message.answer(
         text="""📝 <b>Инструкция: как создать идеальный запрос для вашего фото?</b>
 1️⃣ Укажи какое именно фото вы хотите: портрет, в полный рост и т.д.

@@ -31,7 +31,8 @@ class LearnModel(StatesGroup):
 
 
 @avatar_router.callback_query(F.data.contains("tune_"))
-async def select_avatar_callback(call: types.CallbackQuery):
+async def select_avatar_callback(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     tune_id = call.data.split("_")[1]
     tune_num = call.data.split("_")[-1]
     tune = await get_tune(str(tune_id))
@@ -46,7 +47,8 @@ async def select_avatar_callback(call: types.CallbackQuery):
     
     
 @avatar_router.callback_query(F.data == "set_avatar")
-async def avatar_callback(call: types.CallbackQuery):
+async def avatar_callback(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     tunes = await get_tunes(str(call.message.chat.id))
     if not tunes:
         builder = InlineKeyboardBuilder()
@@ -73,7 +75,8 @@ async def avatar_callback(call: types.CallbackQuery):
 
 
 @avatar_router.message(F.text == "Выбор аватара")
-async def avatar_handler(message: types.Message):
+async def avatar_handler(message: types.Message, state: FSMContext):
+    await state.clear()
     tunes = await get_tunes(str(message.chat.id))
     if not tunes:
         builder = InlineKeyboardBuilder()
@@ -148,6 +151,7 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
 
 @avatar_router.callback_query(F.data.in_(["man", "woman"]))
 async def gender_selection(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     await state.set_state(LearnModel.photo)
     asyncio.create_task(
         update_user(str(call.message.chat.id), gender=call.data)
@@ -177,7 +181,8 @@ async def gender_selection(call: types.CallbackQuery, state: FSMContext):
     
     
 @avatar_router.callback_query(F.data == "start_upload_photo")
-async def start_upload_photo_callback(call: types.CallbackQuery):
+async def start_upload_photo_callback(call: types.CallbackQuery, state: FSMContext):
+    await state.clear()
     user_db = await get_user(str(call.message.chat.id))
     if not user_db.get("is_learn_model"):
         avatar_price_list = await get_avatar_price_list()
