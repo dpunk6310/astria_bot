@@ -126,7 +126,6 @@ async def set_text_in_godmod_callback(message: types.Message):
                     parse_mode="HTML",
                     reply_markup=builder.as_markup()
                 )
-            # await message.delete()
             return
         # await message.delete()
         builder = InlineKeyboardBuilder()
