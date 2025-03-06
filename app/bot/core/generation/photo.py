@@ -24,36 +24,30 @@ async def learn_model_api(images: list[str], gender: str) -> dict:
     max_attempts: int = 5
 
     # Подготовка данных для запроса
+    # data = {
+    #     "tune[title]": model_title,
+    #     "tune[name]": gender,
+    #     "tune[base_tune_id]": 1504944,
+    #     "tune[model_type]": "lora",
+    #     "tune[preset]": "flux-lora-portrait",
+    #     "tune[training_face_correct]": "true",
+    #     "tune[steps]": 400,
+    #     "tune[callback]": "https://webhook.site/f9674fa9-1bd3-4e31-b6b5-624dd7f045e9",
+    # }
+
     data = {
-        "tune[title]": model_title,
-        "tune[name]": gender,
-        "tune[base_tune_id]": 1504944,
-        "tune[model_type]": "lora",
-        "tune[preset]": "flux-lora-portrait",
-        "tune[training_face_correct]": "true",
-        "tune[steps]": 400,
-        "tune[callback]": "https://webhook.site/f9674fa9-1bd3-4e31-b6b5-624dd7f045e9",
+        "tune": {
+            "title": model_title,
+            "name": gender,
+            "base_tune_id": 1504944,
+            "model_type": "lora",
+            "preset": "flux-lora-portrait",
+            "training_face_correct": "true",
+            "steps": 400,
+            "callback": "https://webhook.site/f9674fa9-1bd3-4e31-b6b5-624dd7f045e9",
+            "image_urls": images,
+        }
     }
-
-    files = []
-    for image in images:
-        try:
-            image_data = load_image(image)  
-            files.append(("tune[images][]", image_data))
-            log.info(f"Изображение {image} успешно загружено для обучения модели.")
-        except Exception as err:
-            log.error(f"Ошибка загрузки изображения {image}: {err}")
-            continue 
-        finally:
-            try:
-                os.remove(image)
-                log.info(f"Изображение {image} удалено после загрузки.")
-            except Exception as err:
-                log.error(f"Ошибка удаления изображения {image}: {err}")
-
-    if not files:
-        log.error("Нет доступных изображений для обучения модели.")
-        return None
 
     log.info(f"Начало обучения модели с названием '{model_title}' для пола '{gender}'.")
 
@@ -62,7 +56,7 @@ async def learn_model_api(images: list[str], gender: str) -> dict:
             attempts += 1
             try:
                 log.info(f"Попытка {attempts}/{max_attempts}: отправка запроса на обучение модели...")
-                response = await client.post(API_URL, data=data, files=files, headers=headers)
+                response = await client.post(API_URL, json=data, headers=headers)
                 response.raise_for_status() 
                 return response.json()
             except httpx.HTTPStatusError as err:

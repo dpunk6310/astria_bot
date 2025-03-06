@@ -88,19 +88,6 @@ async def get_tune(
     return response
 
 
-async def create_img_path(
-    tg_user_id: str,
-    path: str,
-) -> dict:
-    response = await client.post_request(url=DJANGO_URL+"/api/main/create-img-path", data={
-        "image": {
-            "tg_user_id": str(tg_user_id),
-            "path": path,
-        }
-    })
-    return response
-
-
 async def create_payment(
     tg_user_id: str,
     payment_id: str,
@@ -147,15 +134,6 @@ async def create_tg_image(
     return response
 
 
-async def get_user_images(
-    tg_user_id: str,
-) -> dict:
-    response = await client.get_request(
-        url=DJANGO_URL+f"/api/main/user-images/{tg_user_id}"
-    )
-    return response
-
-
 async def get_user(
     tg_user_id: str,
 ) -> dict:
@@ -166,16 +144,8 @@ async def get_user(
         if not response:
             return None
     except Exception as err:
+        log.error(err)
         return None
-    return response
-
-
-async def delete_user_images(
-    tg_user_id: str,
-) -> dict:
-    response = await client.delete_request(
-        url=DJANGO_URL+f"/api/main/delete-user-images/{tg_user_id}"
-    )
     return response
 
 

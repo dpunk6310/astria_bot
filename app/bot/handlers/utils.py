@@ -1,17 +1,15 @@
 import os
 import asyncio
 from pathlib import Path
-from uuid import uuid4
 
 from aiogram import types
 
 from core.backend.api import (
-    create_img_path, 
-    delete_user_images, 
     get_user,
     create_tune,
     update_user,
     create_tg_image,
+    get_random_prompt,
 )
 from core.logger.logger import get_logger
 from aiogram.utils.media_group import MediaGroupBuilder
@@ -24,12 +22,11 @@ from core.generation.photo import (
     generate_images_from_image,
     wait_for_generation,
 )
-from core.backend.api import get_random_prompt
 from core.generation.video import generate_video_from_image
 from loader import bot
 
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+# BASE_DIR = Path(__file__).resolve().parent.parent
 log = get_logger()
 
 async def create_referal(user_db: dict, message: types.Message) -> dict:
@@ -41,42 +38,53 @@ async def create_referal(user_db: dict, message: types.Message) -> dict:
                 await update_user(str(message.chat.id), referal=referal)
 
  
-async def download_user_images(m: types.Message):
-    photos_path = BASE_DIR / "media" / "photos"
+# async def download_user_images(m: types.Message):
+#     photos_path = BASE_DIR / "media" / "photos"
     
-    if not os.path.exists(photos_path):
-        os.makedirs(photos_path)
+#     if not os.path.exists(photos_path):
+#         os.makedirs(photos_path)
         
+#     if m.photo:
+#         photo = await bot.get_file(m.photo[-1].file_id)
+#         file_path = photo.file_path
+#         output_filename = f"{photos_path}/{uuid4()}_{file_path.replace('photos/', '')}"
+#         await m.bot.download_file(
+#             file_path, destination=output_filename
+#         )
+#         await create_img_path(
+#             tg_user_id=str(m.chat.id),
+#             path=output_filename
+#         )
+#     if m.document:
+#         photo = await m.bot.get_file(m.document.file_id)
+#         file_path = photo.file_path
+#         output_filename = f"{photos_path}/{uuid4()}_{file_path.replace('documents/', '')}"
+#         await m.bot.download_file(
+#             file_path, destination=output_filename
+#         )
+#         await create_img_path(
+#             tg_user_id=str(m.chat.id),
+#             path=output_filename
+#         )
+        
+        
+async def get_user_url_images(m: types.Message):
     if m.photo:
         photo = await bot.get_file(m.photo[-1].file_id)
         file_path = photo.file_path
-        output_filename = f"{photos_path}/{uuid4()}_{file_path.replace('photos/', '')}"
-        await m.bot.download_file(
-            file_path, destination=output_filename
-        )
-        await create_img_path(
-            tg_user_id=str(m.chat.id),
-            path=output_filename
-        )
+        return f"https://api.telegram.org/file/bot{bot.token}/{file_path}"
     if m.document:
         photo = await m.bot.get_file(m.document.file_id)
         file_path = photo.file_path
-        output_filename = f"{photos_path}/{uuid4()}_{file_path.replace('documents/', '')}"
-        await m.bot.download_file(
-            file_path, destination=output_filename
-        )
-        await create_img_path(
-            tg_user_id=str(m.chat.id),
-            path=output_filename
-        )
-        
+        return f"https://api.telegram.org/file/bot{bot.token}/{file_path}"
+
         
 async def process_learning(
     messages: list[types.Message],
-    imgs: list[str],
+    imgs_url: list[str],
     gender: str,
 ):
-    response = await learn_model_api(imgs, gender)
+    response = await learn_model_api(imgs_url, gender)
     tune_id = response.get("id")
     if not tune_id:
         builder = InlineKeyboardBuilder()
@@ -107,11 +115,7 @@ async def process_learning(
 Теперь можно приступать к генерациям! Для этого нажми на кнопки "Стили" или "Режим бога" внизу экрана.
 """, reply_markup=get_main_keyboard()
         )
-        for i in imgs:
-            try:
-                os.remove(i)
-            except Exception as err:
-                continue
+
     else:
         await messages[-1].answer(
             text="Произошла ошибка во время обучения модели. Пожалуйста, обратитесь в техническую поддержку. Код ошибки: 22", 
@@ -125,7 +129,6 @@ async def save_promt(message: types.Message):
     promt = translate_promt2(message.text)
     upd_user = await update_user(str(message.chat.id), god_mod_text=promt)
     log.debug(f"update user promt = {upd_user}")
-    
     
 
 async def run_generation_photo(
@@ -239,7 +242,6 @@ async def generate_photo_from_photo_helper(call: types.CallbackQuery, user_db: d
         return
     
     messages = await bot.send_media_group(chat_id=call.message.chat.id, media=media_group.build())
-    asyncio.create_task(delete_user_images(str(call.message.chat.id)))
     
     builder = InlineKeyboardBuilder()
     for i, message in enumerate(messages, 1):
@@ -319,7 +321,6 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
         return
     
     messages = await bot.send_media_group(chat_id=call.message.chat.id, media=media_group.build())
-    asyncio.create_task(delete_user_images(str(call.message.chat.id)))
     
     builder = InlineKeyboardBuilder()
     for i, message in enumerate(messages, 1):
