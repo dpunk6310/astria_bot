@@ -77,6 +77,12 @@ class TGUser(models.Model):
         verbose_name="Количество покупок рефералов", 
         default=0
     )
+    referral_purchases_amount = models.DecimalField(
+        verbose_name="Сумма покупок реферала", 
+        max_digits=10, 
+        decimal_places=2, 
+        default=0
+    )
     user_purchases_count = models.PositiveIntegerField(
         verbose_name="Количество покупок пользователя", 
         default=0

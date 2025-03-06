@@ -10,15 +10,15 @@ from core.backend.api import (
     update_user,
 )
 from core.logger.logger import get_logger
-
 from .utils import save_promt
+from loader import bot
 
 
 log = get_logger()
 
 god_mod_router = Router()
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+# BASE_DIR = Path(__file__).resolve().parent.parent
 BUTTON_TEXTS = {
     "Стили", 
     "Режим бога", 
@@ -108,8 +108,13 @@ async def set_text_in_godmod_callback(message: types.Message):
         return
     
     user_db = await get_user(str(message.chat.id))
-
+    
     if not user_db.get("god_mod"):
+        if message.photo or message.document:
+            await message.answer('Если вы хотите сделать генерацию как на фото, используйте функцию <s>"Фото по фото"</s>')
+            # await message.delete()
+            return
+        # await message.delete()
         builder = InlineKeyboardBuilder()
         builder.button(
             text="Вкл. режим бога",
@@ -127,8 +132,9 @@ async def set_text_in_godmod_callback(message: types.Message):
         await message.answer("Пожалуйста выберите аватар", reply_markup=builder.as_markup())
         return
 
+    prompt_msg = await message.answer("Сохраняю текст...")
     await save_promt(message)
-
+    await bot.delete_message(message.chat.id, prompt_msg.message_id)
     builder = InlineKeyboardBuilder()
     builder.button(
         text="Киноэффект",
@@ -139,11 +145,17 @@ async def set_text_in_godmod_callback(message: types.Message):
         callback_data="Neonpunk_effect"
     )
     builder.button(
+        text="Портретный",
+        callback_data="Photographic_effect"
+    )
+    builder.button(
         text="Без эффекта",
         callback_data="no_effect"
     )
+    
+    builder.adjust(1, 1, 1, 1)
     await message.answer(
-        text="Ваш промт сохранен",
+        text="Ваш промпт сохранен",
         reply_markup=builder.as_markup()
     )
     

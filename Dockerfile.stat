@@ -1,0 +1,14 @@
+FROM golang:1.24.0-bookworm
+
+RUN apt-get update && \
+    apt-get install -y libsecp256k1-1 libsodium23 wget openssh-client openssl
+
+WORKDIR /app
+
+COPY .env .
+COPY app/stat/ .
+
+RUN go mod download
+RUN go mod tidy
+
+

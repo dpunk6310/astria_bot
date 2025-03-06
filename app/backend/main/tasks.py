@@ -103,46 +103,60 @@ def import_promts_from_json():
 def update_referral_statistics():
     """ Обновляет статистику рефералов и начисляет бонусы за успешные платежи.
     """
+    # Находим всех пользователей с рефералами
     users_with_referrals = TGUser.objects.exclude(referal=None)
 
+    # Собираем список всех рефереров
     master_refs = [user.referal for user in users_with_referrals]
 
+    # Обнуляем статистику у всех рефереров
     TGUser.objects.filter(tg_user_id__in=master_refs).update(
         reward_generations=0,
         referral_purchases=0,
-        referral_count=0  
+        referral_count=0,
+        referral_purchases_amount=0.0  # Обнуляем сумму платежей
     )
 
+    # Находим все успешные первые платежи рефералов
     successful_payments = Payment.objects.filter(
         tg_user_id__in=[user.tg_user_id for user in users_with_referrals],
         status=True,
         is_first_payment=True
     )
 
+    # Словарь для хранения данных о рефералах
     referral_data = {}
 
+    # Обрабатываем каждый успешный платеж
     for payment in successful_payments:
-        tg_user_id = payment.tg_user_id 
-        referal_user = TGUser.objects.filter(tg_user_id=tg_user_id).first() 
+        tg_user_id = payment.tg_user_id
+        referal_user = TGUser.objects.filter(tg_user_id=tg_user_id).first()
 
-        if referal_user and referal_user.referal:  
-            referal_id = referal_user.referal 
+        if referal_user and referal_user.referal:
+            referal_id = referal_user.referal
 
-            if referal_id in referral_data:
-                referral_data[referal_id]['reward_generations'] += 20
-            else:
-                referral_data[referal_id] = {'reward_generations': 20, 'referral_purchases': 0}
+            # Инициализируем данные, если реферер еще не в словаре
+            if referal_id not in referral_data:
+                referral_data[referal_id] = {
+                    'reward_generations': 0,
+                    'referral_purchases': 0,
+                    'referral_purchases_amount': 0.0
+                }
 
+            # Начисляем бонусы и считаем платежи
+            referral_data[referal_id]['reward_generations'] += 20
             referral_data[referal_id]['referral_purchases'] += 1
+            referral_data[referal_id]['referral_purchases_amount'] += float(payment.amount)
 
+    # Считаем количество рефералов для каждого реферера
     referral_counts = (
-        TGUser.objects.filter(referal__in=master_refs)  
-        .values('referal') 
-        .annotate(referral_count=Count('id')) 
+        TGUser.objects.filter(referal__in=master_refs)
+        .values('referal')
+        .annotate(referral_count=Count('id'))
     )
-
     referral_counts_dict = {item['referal']: item['referral_count'] for item in referral_counts}
 
+    # Подготавливаем пользователей для обновления
     users_to_update = []
     for referal_id, data in referral_data.items():
         referal_user = TGUser.objects.filter(tg_user_id=referal_id).first()
@@ -150,9 +164,14 @@ def update_referral_statistics():
             referal_user.reward_generations = data['reward_generations']
             referal_user.referral_purchases = data['referral_purchases']
             referal_user.referral_count = referral_counts_dict.get(referal_id, 0)
+            referal_user.referral_purchases_amount = data['referral_purchases_amount']
             users_to_update.append(referal_user)
 
-    TGUser.objects.bulk_update(users_to_update, ['reward_generations', 'referral_purchases', 'referral_count'])
+    # Массовое обновление пользователей
+    TGUser.objects.bulk_update(
+        users_to_update,
+        ['reward_generations', 'referral_purchases', 'referral_count', 'referral_purchases_amount']
+    )
     
 
 @shared_task

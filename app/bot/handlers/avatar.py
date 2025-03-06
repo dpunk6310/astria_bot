@@ -4,9 +4,10 @@ from pathlib import Path
 from aiogram_media_group import media_group_handler
 from aiogram import types, Router, F
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 
 from core.backend.api import (
-    get_user_images,
     get_user,  
     update_user,
     get_avatar_price_list,
@@ -15,7 +16,7 @@ from core.backend.api import (
 )
 
 from .utils import (
-    download_user_images,
+    get_user_url_images,
     process_learning,
     get_main_keyboard,
 )
@@ -24,6 +25,9 @@ from .utils import (
 avatar_router = Router()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+class LearnModel(StatesGroup):
+    photo = State()
 
 
 @avatar_router.callback_query(F.data.contains("tune_"))
@@ -95,9 +99,9 @@ async def avatar_handler(message: types.Message):
     )
 
 
-@avatar_router.message(F.media_group_id)
+@avatar_router.message(F.media_group_id, LearnModel.photo)
 @media_group_handler
-async def handle_albums(messages: list[types.Message]):
+async def handle_albums(messages: list[types.Message], state: FSMContext):
     user_db = await get_user(messages[-1].chat.id)
     if not user_db.get("is_learn_model"):
         avatar_price_list = await get_avatar_price_list()
@@ -125,6 +129,8 @@ async def handle_albums(messages: list[types.Message]):
         )
     )
     
+    await state.clear()
+    
     await messages[-1].answer(
         """Мы получили твои фото и запустили разработку твоего персонального аватара, это займёт около 5-10 минут … 🔄
 
@@ -132,20 +138,17 @@ async def handle_albums(messages: list[types.Message]):
 
 Там мы публикуем оригинальные идеи стилей и промтов для твоих новых фотографий, а также актуальные новости.
 """)
+    img_urls = []
     for m in messages:
-        await download_user_images(m)
-    
-    images = await get_user_images(str(messages[-1].chat.id))
-    imgs = []
-    for i in images:
-        i = i.get("path")
-        imgs.append(i)
+        url = await get_user_url_images(m)
+        img_urls.append(url)
         
-    asyncio.create_task(process_learning(messages, imgs, gender))
+    asyncio.create_task(process_learning(messages, img_urls, gender))
     
 
 @avatar_router.callback_query(F.data.in_(["man", "woman"]))
-async def gender_selection(call: types.CallbackQuery):
+async def gender_selection(call: types.CallbackQuery, state: FSMContext):
+    await state.set_state(LearnModel.photo)
     asyncio.create_task(
         update_user(str(call.message.chat.id), gender=call.data)
     )

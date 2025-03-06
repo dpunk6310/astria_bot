@@ -79,6 +79,21 @@ services:
       options:
         max-size: "100m"
         max-file: "100"
+  
+  stat:
+    build:
+      context: .
+      dockerfile: Dockerfile.stat
+    container_name: stat
+    command: ["go", "run", "cmd/main/main.go"]
+    env_file:
+      - .env
+    restart: always
+    logging:
+      options:
+        max-size: "100m"
+        max-file: "100"
+
 
 networks:
  default:
