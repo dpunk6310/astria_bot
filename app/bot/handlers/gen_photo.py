@@ -169,7 +169,7 @@ async def handle_photo(message: types.Message, state: FSMContext):
         callback_data="no_effect"
     )
     
-    builder.adjust(2, 1, 1, 1)
+    builder.adjust(1, 1, 1, 1)
     await message.answer(
         text="Фото получено!\n\nВыберите эффект",
         reply_markup=builder.as_markup()
@@ -312,7 +312,7 @@ async def handle_category_handler(call: types.CallbackQuery):
         callback_data="no_effect"
     )
     
-    builder.adjust(2, 1, 1, 1)
+    builder.adjust(1, 1, 1, 1)
     await call.message.answer(
         text="Выберите эффект",
         reply_markup=builder.as_markup()

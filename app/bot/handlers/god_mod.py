@@ -110,13 +110,17 @@ async def set_text_in_godmod_callback(message: types.Message):
     user_db = await get_user(str(message.chat.id))
     
     if not user_db.get("god_mod"):
-        await message.delete()
-        # builder = InlineKeyboardBuilder()
-        # builder.button(
-        #     text="Вкл. режим бога",
-        #     callback_data="on_god_mod"
-        # )
-        # await message.answer("Сначала включите режим бога", reply_markup=builder.as_markup())
+        if message.photo or message.document:
+            await message.answer('Если вы хотите сделать генерацию как на фото, используйте функцию <s>"Фото по фото"</s>')
+            # await message.delete()
+            return
+        # await message.delete()
+        builder = InlineKeyboardBuilder()
+        builder.button(
+            text="Вкл. режим бога",
+            callback_data="on_god_mod"
+        )
+        await message.answer("Сначала включите режим бога", reply_markup=builder.as_markup())
         return
     
     if not user_db.get("tune_id"):
@@ -141,9 +145,15 @@ async def set_text_in_godmod_callback(message: types.Message):
         callback_data="Neonpunk_effect"
     )
     builder.button(
+        text="Портретный",
+        callback_data="Photographic_effect"
+    )
+    builder.button(
         text="Без эффекта",
         callback_data="no_effect"
     )
+    
+    builder.adjust(1, 1, 1, 1)
     await message.answer(
         text="Ваш промпт сохранен",
         reply_markup=builder.as_markup()
