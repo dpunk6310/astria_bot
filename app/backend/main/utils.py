@@ -1,20 +1,17 @@
 import asyncio
 from pathlib import Path
 
-from asgiref.sync import sync_to_async
 from loguru import logger as log
 from aiogram.exceptions import TelegramAPIError
 from aiogram import Bot
 from django.conf import settings
 from aiogram import types
 
-from .models import TGUser
-
 
 bot = Bot(token=settings.BOT_TOKEN)
 
-BATCH_SIZE = 100
-DELAY_BETWEEN_BATCHES = 1
+BATCH_SIZE = 10
+DELAY_BETWEEN_BATCHES = 0.5
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 

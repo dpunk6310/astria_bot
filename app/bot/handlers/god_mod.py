@@ -19,7 +19,6 @@ log = get_logger()
 
 god_mod_router = Router()
 
-# BASE_DIR = Path(__file__).resolve().parent.parent
 BUTTON_TEXTS = {
     "Стили", 
     "Режим бога", 
@@ -27,7 +26,7 @@ BUTTON_TEXTS = {
     "Генерации", 
     "Доп. опции", 
     "Служба поддержки", 
-    "Аккаунт",
+    "Фото по фото",
 }
 
 
