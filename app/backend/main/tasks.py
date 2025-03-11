@@ -229,13 +229,17 @@ def recurring_payment_task(robo_pay: bool = False, attempt: int = 5):
                 cr_payment_id = str(payment_id)
                 break
 
+        amount = int(payment.amount)
+        if amount == 1390:
+            amount = 990
+        
         new_payment = Payment.objects.create(
             tg_user_id=user.tg_user_id,
             payment_id=cr_payment_id,
             status=False,
             сount_generations=payment.сount_generations,
             count_video_generations=payment.count_video_generations,
-            amount=int(payment.amount),
+            amount=amount,
             learn_model=bool(payment.learn_model),
             is_first_payment=False,
             subscription_renewal=True,
@@ -249,7 +253,7 @@ def recurring_payment_task(robo_pay: bool = False, attempt: int = 5):
                     invoice_id=int(new_payment.payment_id),
                     previous_invoice_id=payment.payment_id,
                     robokassa_recurring_url="https://auth.robokassa.ru/Merchant/Recurring",
-                    amount=int(payment.amount)
+                    amount=amount
                 )
 
                 log.debug(f"Создан дочерний платеж для пользователя {user.tg_user_id}. Payment ID: {new_payment.payment_id}")
