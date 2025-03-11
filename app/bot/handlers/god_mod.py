@@ -69,7 +69,10 @@ async def god_mod_callback(message: types.Message, state: FSMContext):
 async def on_god_mod_callback(call: types.CallbackQuery, state: FSMContext):
     await state.clear()
     asyncio.create_task(
-        update_user(str(call.message.chat.id), god_mod=True)
+        update_user(data={
+            "tg_user_id": str(call.message.chat.id),
+            "god_mod": True,
+        })
     )
     builder = InlineKeyboardBuilder()
     builder.button(
@@ -92,7 +95,10 @@ async def on_god_mod_callback(call: types.CallbackQuery, state: FSMContext):
 async def off_god_mod_callback(call: types.CallbackQuery, state: FSMContext):
     await state.clear()
     asyncio.create_task(
-        update_user(str(call.message.chat.id), god_mod=False)
+        update_user(data={
+            "tg_user_id": str(call.message.chat.id),
+            "god_mod": False,
+        })
     )
     builder = InlineKeyboardBuilder()
     builder.button(

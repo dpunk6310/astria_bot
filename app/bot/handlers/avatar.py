@@ -37,7 +37,11 @@ async def select_avatar_callback(call: types.CallbackQuery, state: FSMContext):
     tune_num = call.data.split("_")[-1]
     tune = await get_tune(str(tune_id))
     asyncio.create_task(
-        update_user(tg_user_id=str(call.message.chat.id), tune_id=str(tune_id), gender=tune.get("gender"))
+        update_user(data={
+            "tg_user_id": str(call.message.chat.id),
+            "tune_id": str(tune_id),
+            "gender": tune.get("gender")
+        })
     )
     keyboard = get_main_keyboard()
     await call.message.answer(
@@ -125,11 +129,11 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
         return
     
     asyncio.create_task(
-        update_user(
-            tg_user_id=str(messages[0].chat.id), 
-            is_learn_model=False, 
-            gender=gender
-        )
+        update_user(data={
+            "tg_user_id": str(messages[0].chat.id),
+            "is_learn_model": False,
+            "gender": gender
+        })
     )
     
     await state.clear()
@@ -153,8 +157,12 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
 async def gender_selection(call: types.CallbackQuery, state: FSMContext):
     await state.clear()
     await state.set_state(LearnModel.photo)
+
     asyncio.create_task(
-        update_user(str(call.message.chat.id), gender=call.data)
+        update_user(data={
+            "tg_user_id": str(call.message.chat.id),
+            "gender": call.data
+        })
     )
     await call.message.answer_photo(
         photo=types.FSInputFile(BASE_DIR / "media" / "inst.png"),

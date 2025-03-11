@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import random
+import json
 
 from ninja import Router
 from django.db.utils import IntegrityError
@@ -183,14 +184,24 @@ async def create_tune(request, req: CreateTuneDTO):
 
 @router.post("/update-user")
 async def update_user(request, req: UpdateUserDTO):
+    
     try:
-        updates = {k: v for k, v in req.dict().items() if v is not None}
-        if updates:
-            updated_rows = await sync_to_async(TGUser.objects.filter(tg_user_id=req.tg_user_id).update)(**updates)
-            if updated_rows == 0:
-                return {"message": "error", "err": "User not found"}
+        updates = req.dict()
+        tg_user_id = updates.pop("tg_user_id")
+        request_data = json.loads(request.body.decode("utf-8"))
+        updates = {k: v for k, v in updates.items() if k in request_data}
+        
+        log.debug(f"Updates to apply: {updates}")
+        updated_rows = await sync_to_async(TGUser.objects.filter(tg_user_id=tg_user_id).update)(**updates)
+        
+        if updated_rows == 0:
+            log.warning(f"User not found: tg_user_id={tg_user_id}")
+            return {"message": "error", "err": "User not found"}
+        
+        log.info(f"User updated: tg_user_id={tg_user_id}, updates={updates}")
         return {"status": "success"}
     except Exception as err:
+        log.error(f"Error updating user: {err}")
         return {"message": "error", "err": str(err)}
 
 

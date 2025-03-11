@@ -16,6 +16,7 @@ from core.backend.api import (
     get_price_list,    
     get_payment,
 )
+from .utils import get_prices_photo
 
 
 payment_router = Router()
@@ -26,34 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 @payment_router.callback_query(F.data == "prices_photo")
 async def prices_photo_callback(call: types.CallbackQuery, state: FSMContext):
     await state.clear()
-    price_list = await get_price_list("photo")
-    builder = InlineKeyboardBuilder()
-    price_str = ""
-    user_db = await get_user(str(call.message.chat.id))
-    for i in price_list:
-        if i.get("learn_model"):
-            continue
-        sale = i.get("sale", None)
-        builder.button(
-            text=f"{i.get('count')} фото",
-            callback_data=f"inst_payment_{i.get('price')}_{i.get('count')}_{user_db.get('is_learn_model')}_0"
-        )
-        if not sale or sale == "":
-            price_str += f"* {i.get('count')} фото: {i.get('price')}₽\n"
-        else:
-            price_str += f"* {i.get('count')} фото: {i.get('price')}₽ ({sale})\n"
-    builder.adjust(2, 2, 2)
-    await call.message.answer(
-        text="""
-Рады, что вам понравилось! 
-Хотите больше генераций? 📸
-Варианты:
-{price_str}
-Выберите свой вариант!
-
-""".format(price_str=price_str),
-        reply_markup=builder.as_markup()
-    )
+    await get_prices_photo(call=call)
     
     
 @payment_router.callback_query(F.data == "prices_video")

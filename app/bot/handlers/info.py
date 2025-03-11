@@ -10,11 +10,13 @@ from data.messages import use_messages
 from core.backend.api import (
     create_user_db, 
     get_user,
+    update_user,
 )
 from core.logger.logger import get_logger
 from .utils import (
     create_referal,
     get_main_keyboard,
+    get_prices_photo
 )
 
 
@@ -250,6 +252,11 @@ async def driving_callback(call: types.CallbackQuery, state: FSMContext):
 
 @info_router.message(F.text == "FAQ")
 async def faq_handler(message: types.Message):
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Отменить подписку",
+        callback_data="drop_subscribe_1"
+    )
     await message.answer(
         text="""<b>Часто задаваемые вопросы:</b>
 
@@ -279,32 +286,42 @@ async def faq_handler(message: types.Message):
 
 <b>Как отменить подписку?</b>
 Для отмены подписки, пожалуйста, свяжитесь с нашим менеджером: @managerpingvin_ai""",
-        parse_mode="HTML"
+        parse_mode="HTML",
+        reply_markup=builder.as_markup()
     )
     
-    
-@info_router.message(F.text == "Аккаунт")
-async def account_handler(message: types.Message):
+@info_router.callback_query(F.data == "drop_subscribe_1")
+async def drop_subscribe_1_callback(call: types.CallbackQuery):
     builder = InlineKeyboardBuilder()
     builder.button(
-        text="Отменить подписку",
-        callback_data="drop"
+        text="Оставить подписку",
+        callback_data="home"
     )
-    await message.answer(
-        text="Чтобы отменить подписку нажмите на кнопку отмены",
+    builder.button(
+        text="Отменить подписку",
+        callback_data="drop_subscribe_2"
+    )
+    await call.message.answer(
+        text="Вы уверены?",
         reply_markup=builder.as_markup(),
         parse_mode="HTML"
     )
     
     
-@info_router.callback_query(F.data == "drop")
-async def drop_callback(call: types.CallbackQuery):
-    await call.message.delete()
+@info_router.callback_query(F.data == "drop_subscribe_2")
+async def drop_subscribe_2_callback(call: types.CallbackQuery):
+    asyncio.create_task(
+        update_user(data={
+            "tg_user_id": str(call.message.chat.id),
+            "maternity_payment_id": None,
+            "subscribe": None
+        })
+    )
     await call.message.answer(
-        text="Подписка успешно отменена!",
-        reply_markup=types.ReplyKeyboardRemove(),
+        text="Ваша подписка отменена!",
         parse_mode="HTML"
     )
+    await get_prices_photo(call=call)
     
 
 def setup(dp):

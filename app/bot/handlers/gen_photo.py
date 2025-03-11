@@ -64,11 +64,11 @@ async def styles_effect_handler(message: types.Message, state: FSMContext):
     if user_db.get("god_mod"):
         await message.answer(text="Режим бога выключен", reply_markup=get_main_keyboard())
         asyncio.create_task(
-            update_user(
-                str(message.chat.id), 
-                god_mod=False, 
-                god_mod_text=None,
-            )
+            update_user(data={
+                "tg_user_id": str(message.chat.id),
+                "god_mod": False,
+                "god_mod_text": None
+            })
         )
 
     tunes = await get_tunes(str(message.chat.id))
@@ -106,11 +106,11 @@ async def inst_photo_from_photo_handler(message: types.Message, state: FSMContex
     if user_db.get("god_mod"):
         await message.answer(text="Режим бога выключен", reply_markup=get_main_keyboard())
         asyncio.create_task(
-            update_user(
-                str(message.chat.id), 
-                god_mod=False, 
-                god_mod_text=None,
-            )
+            update_user(data={
+                "tg_user_id": str(message.chat.id),
+                "god_mod": False,
+                "god_mod_text": None
+            })
         )
 
     tunes = await get_tunes(str(message.chat.id))
@@ -213,7 +213,10 @@ async def handle_effect_photo_to_photo_handler(call: types.CallbackQuery, state:
         effect = None
         
     asyncio.create_task(
-        update_user(str(call.message.chat.id), effect=effect)
+        update_user(data={
+            "tg_user_id": str(call.message.chat.id),
+            "effect": effect,
+        })
     )
 
     tunes = await get_tunes(str(call.message.chat.id))
@@ -232,7 +235,11 @@ async def handle_effect_photo_to_photo_handler(call: types.CallbackQuery, state:
         user_db["tune_id"] = tunes[0].get("tune_id")
         user_db["gender"] = tunes[0].get("gender")
         asyncio.create_task(
-            update_user(str(call.message.chat.id), tune_id=user_db["tune_id"], gender=user_db["gender"])
+            update_user(data={
+                "tg_user_id": str(call.message.chat.id),
+                "tune_id": user_db["tune_id"],
+                "gender": user_db["gender"]
+            })
         )
     asyncio.create_task(
         generate_photo_from_photo_helper(call=call, user_db=user_db, effect=effect, image_url=image_url)
@@ -261,9 +268,12 @@ async def handle_effect_handler(call: types.CallbackQuery, state: FSMContext):
         effect = effect.split("_")[0]
     else:
         effect = None
-        
+    
     asyncio.create_task(
-        update_user(str(call.message.chat.id), effect=effect)
+        update_user(data={
+            "tg_user_id": str(call.message.chat.id),
+            "effect": effect,
+        })
     )
 
     tunes = await get_tunes(str(call.message.chat.id))
@@ -288,7 +298,10 @@ async def handle_effect_handler(call: types.CallbackQuery, state: FSMContext):
                 user_prompt=god_mod_text
             ))
             asyncio.create_task(
-                update_user(str(call.message.chat.id), god_mod_text=None)
+                update_user(data={
+                    "tg_user_id": str(call.message.chat.id),
+                    "god_mod_text": None,
+                })
             )
             return
         else:
@@ -310,10 +323,10 @@ async def handle_effect_handler(call: types.CallbackQuery, state: FSMContext):
 async def handle_category_handler(call: types.CallbackQuery, state: FSMContext):
     await state.clear()
     asyncio.create_task(
-        update_user(
-            str(call.message.chat.id), 
-            category=call.data
-        )
+        update_user(data={
+            "tg_user_id": str(call.message.chat.id),
+            "category": call.data,
+        })
     )
     builder = InlineKeyboardBuilder()
     builder.button(
