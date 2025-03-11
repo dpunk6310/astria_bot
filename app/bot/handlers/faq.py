@@ -251,7 +251,7 @@ async def drop_subscribe_1_callback(call: types.CallbackQuery):
 
 Если у вас возникли проблемы с качеством, напишите в наш отдел поддержки — мы оперативно поможем и решим вопрос.
 
-Нажмите: "Поддержка".'''.format(first_name=call.message.from_user.first_name),
+Нажмите: "Поддержка".'''.format(first_name=call.message.chat.first_name),
         parse_mode="HTML",
         reply_markup=builder.as_markup()
     )
@@ -272,7 +272,7 @@ async def drop_subscribe_2_callback(call: types.CallbackQuery):
     await call.message.answer(
         text="""{first_name}, ваша подписка успешно отменена
 
-Нам очень жаль с вами расставаться, поэтому предлагаем разовые пакеты генераций. 😔""".format(first_name=call.message.from_user.first_name),
+Нам очень жаль с вами расставаться, поэтому предлагаем разовые пакеты генераций. 😔""".format(first_name=call.message.chat.first_name),
         parse_mode="HTML"
     )
     await get_prices_photo(call=call)
