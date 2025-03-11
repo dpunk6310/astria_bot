@@ -50,7 +50,7 @@ async def start_handler(message: types.Message, messages, state: FSMContext):
     )
     
     keyboard = builder.as_markup()
-    if user_db.get("has_purchased", True) and user_db.get("count_generations") > 0:
+    if user_db.get("has_purchased", True) and user_db.get("count_generations", 0) > 0:
         keyboard = get_main_keyboard()
     
     asyncio.create_task(create_referal(user_db, message))
