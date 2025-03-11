@@ -26,6 +26,8 @@ class UserDTO(Schema):
     reward_generations: int
     referral_purchases: int
     has_purchased: bool
+    subscribe: Optional[date]
+    maternity_payment_id: Optional[str]
     
     
 class UpdateUserDTO(Schema):
