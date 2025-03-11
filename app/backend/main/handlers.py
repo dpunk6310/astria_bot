@@ -98,6 +98,12 @@ async def payment_received(request):
                     await sync_to_async(referal.save)()
             except Exception as err:
                 log.error(err)
+        if payment.subscription_renewal:
+            callback_data = "start_upload_photo"
+            button_text = "Инструкция"
+            tg_user.subscribe = datetime.now() + timedelta(days=30)
+            tg_user.attempt = 0
+        
         if not payment.is_first_payment and payment.learn_model:
             callback_data = "start_upload_photo"
             button_text = "Инструкция"

@@ -94,6 +94,7 @@ class TGUser(models.Model):
         decimal_places=2, 
         default=0
     )
+    attempt = models.PositiveIntegerField(verbose_name="Попытка", default=0)
     
     def __str__(self):
         return str(self.tg_user_id)
@@ -277,6 +278,7 @@ class Payment(models.Model):
     created_at = models.DateTimeField(
         verbose_name="Создан", auto_now_add=True, null=True, blank=True,
     )
+    subscription_renewal = models.BooleanField(verbose_name="Продление подписки", default=False)
     
     def __str__(self):
         return str(self.payment_id)
@@ -285,3 +287,23 @@ class Payment(models.Model):
         verbose_name = "Payment"
         verbose_name_plural = "Payments"
         db_table = "payments"
+        
+        
+# class RecurringPaymentAttempt(models.Model):
+#     tg_user = models.ForeignKey(
+#         TGUser, 
+#         on_delete=models.CASCADE, 
+#         verbose_name="Пользователь",
+#         related_name="recurring_payment_attempts"
+#     )
+#     attempt_date = models.DateField(verbose_name="Дата попытки")
+#     status = models.BooleanField(verbose_name="Статус попытки", default=False)
+#     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
+    
+#     def __str__(self):
+#         return str(self.tg_user.tg_user_id)
+
+#     class Meta:
+#         verbose_name = "Попытка автосписания"
+#         verbose_name_plural = "Попытки автосписания"
+#         db_table = "recurring_payment_attempts"

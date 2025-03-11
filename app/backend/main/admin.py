@@ -18,6 +18,7 @@ from .models import (
     Promt,
     Newsletter,
     TGImage,
+    # RecurringPaymentAttempt,
 )
 
 
@@ -58,6 +59,19 @@ class NewsletterAdmin(ModelAdmin):
     ]
     save_as = True
     save_on_top = True
+    
+    
+# @admin.register(RecurringPaymentAttempt)
+# class RecurringPaymentAttemptAdmin(ModelAdmin):
+#     list_display = [
+#         "id", "tg_user.tg_user_id", "attempt_date", "status", "created_at"
+#     ]
+#     list_display_links = ["tg_user.tg_user_id",]
+#     search_fields = [
+#         "tg_user.tg_user_id",
+#     ]
+#     save_as = True
+#     save_on_top = True
     
     
 @admin.register(PriceList)

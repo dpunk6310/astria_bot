@@ -19,7 +19,8 @@ def create_recurring_payment(
     merchant_password_1: str,
     invoice_id: int,
     previous_invoice_id: int,
-    robokassa_recurring_url: str
+    robokassa_recurring_url: str,
+    amount: int = 1390
 ):
     """Создание дочернего платежа."""
     file_path = BASE_DIR / "media" / "payload.json"
@@ -27,12 +28,9 @@ def create_recurring_payment(
         data = json.load(file)
     index = 0
     description = "Продление подписки"
-    amount = 1390
     for i, v in enumerate(data):
         if v.get("name") == "Продление подписки":
-            amount = v.get("sum")
             index = i
-            description = v.get("name")
             break
     
     pay_data = json.dumps({
