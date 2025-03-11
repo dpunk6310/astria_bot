@@ -10,13 +10,11 @@ from data.messages import use_messages
 from core.backend.api import (
     create_user_db, 
     get_user,
-    update_user,
 )
 from core.logger.logger import get_logger
 from .utils import (
     create_referal,
     get_main_keyboard,
-    get_prices_photo
 )
 
 
@@ -248,82 +246,6 @@ async def driving_callback(call: types.CallbackQuery, state: FSMContext):
         reply_markup=get_main_keyboard(),
         parse_mode="HTML"
     )
-    
-
-@info_router.message(F.text == "FAQ")
-async def faq_handler(message: types.Message):
-    builder = InlineKeyboardBuilder()
-    builder.button(
-        text="Отменить подписку",
-        callback_data="drop_subscribe_1"
-    )
-    await message.answer(
-        text="""<b>Часто задаваемые вопросы:</b>
-
-<b>Остаются ли мои фото и аватар конфиденциальными?</b>
-Абсолютно! Ваши фотографии и созданные на их основе модели используются исключительно вами и хранятся с максимальной степенью защиты.
-
-<b>Как быстро создаются фотографии?</b>
-Получайте 3 готовых изображения всего за 40-50 секунд!
-
-<b>Какие способы оплаты доступны?</b>
-Мы принимаем карты практически всех стран мира через безопасные, лицензированные платежные системы, полностью соответствующие законам.
-
-<b>Есть ли бесплатный пробный период?</b>
-К сожалению, нет.  Высокая производительность нашей нейросети требует значительных вычислительных мощностей, что делает бесплатный доступ невозможным.
-
-<b>Насколько реалистичны получаемые изображения?</b>
-Созданные ИИ фотографии поразительно реалистичны.  Многие клиенты используют их даже в своих профессиональных резюме!
-
-<b>Что происходит после оплаты?</b>
-После оплаты вы получаете доступ к личному кабинету, где сможете загружать фото, создавать новые изображения и управлять своей подпиской.
-
-<b>Сколько стилей доступно?</b>
-Сейчас доступно более 100 уникальных стилей! Вы сможете изучить все варианты после создания своего аватара.
-
-<b>Есть ли реферальная программа?</b>
-Конечно! Приглашайте друзей и получайте вознаграждение: 30 бесплатных генераций за каждого друга, оплатившего подписку.  Создайте свою реферальную ссылку в личном кабинете после оплаты.
-
-<b>Как отменить подписку?</b>
-Для отмены подписки, пожалуйста, свяжитесь с нашим менеджером: @managerpingvin_ai""",
-        parse_mode="HTML",
-        reply_markup=builder.as_markup()
-    )
-    
-@info_router.callback_query(F.data == "drop_subscribe_1")
-async def drop_subscribe_1_callback(call: types.CallbackQuery):
-    builder = InlineKeyboardBuilder()
-    builder.button(
-        text="Оставить подписку",
-        callback_data="home"
-    )
-    builder.button(
-        text="Отменить подписку",
-        callback_data="drop_subscribe_2"
-    )
-    await call.message.answer(
-        text="Вы уверены?",
-        reply_markup=builder.as_markup(),
-        parse_mode="HTML"
-    )
-    
-    
-@info_router.callback_query(F.data == "drop_subscribe_2")
-async def drop_subscribe_2_callback(call: types.CallbackQuery):
-    # user_db = await get_user(str(call.message.chat.id))
-    # if not user_db.get("maternity_payment_id"):
-    asyncio.create_task(
-        update_user(data={
-            "tg_user_id": str(call.message.chat.id),
-            "maternity_payment_id": None,
-            "subscribe": None
-        })
-    )
-    await call.message.answer(
-        text="Ваша подписка отменена!",
-        parse_mode="HTML"
-    )
-    await get_prices_photo(call=call)
     
 
 def setup(dp):
