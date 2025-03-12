@@ -10,6 +10,7 @@ from core.backend.api import (
     update_user,
     create_tg_image,
     get_random_prompt,
+    get_price_list,
 )
 from core.logger.logger import get_logger
 from aiogram.utils.media_group import MediaGroupBuilder
@@ -35,7 +36,10 @@ async def create_referal(user_db: dict, message: types.Message) -> dict:
         if len(referal) == 2:
             referal = referal[1]
             if referal != str(message.chat.id):
-                await update_user(str(message.chat.id), referal=referal)
+                await update_user(data={
+                    "tg_user_id": str(message.chat.id),
+                    "referal": referal,
+                })
 
  
 # async def download_user_images(m: types.Message):
@@ -97,7 +101,11 @@ async def process_learning(
             reply_markup=builder.as_markup(),
         )
         log.error(f"Ошибка в обучении модели. UserID={messages[-1].chat.id} | Gender={gender} Код ошибки: 2")
-        await update_user(tg_user_id=str(messages[0].chat.id), is_learn_model=True)
+        await update_user(data={
+            "tg_user_id": str(messages[0].chat.id), 
+            "is_learn_model": True
+        })
+        
         return
     training_complete = await wait_for_training(tune_id)
     if training_complete:
@@ -109,7 +117,12 @@ async def process_learning(
             )
             log.error(f"Ошибка в обучении модели. UserID={messages[-1].chat.id} | Gender={gender} tune_db = {tune_db} Код ошибки: 2222")
             return
-        await update_user(tg_user_id=str(messages[0].chat.id), is_learn_model=False, tune_id=str(tune_id), gender=gender)
+        await update_user(data={
+            "tg_user_id": str(messages[0].chat.id), 
+            "is_learn_model": False, 
+            "tune_id": str(tune_id), 
+            "gender": gender
+        })
         await messages[-1].answer(
             """Твой аватар создан ☑️
 Теперь можно приступать к генерациям! Для этого нажми на кнопки "Стили" или "Режим бога" внизу экрана.
@@ -122,13 +135,18 @@ async def process_learning(
             reply_markup=builder.as_markup(),
         )
         log.error(f"Ошибка в обучении модели | UserID={messages[-1].chat.id} | Gender={gender} Код ошибки: 22")
-        await update_user(tg_user_id=str(messages[0].chat.id), is_learn_model=True)
+        await update_user(data={
+            "tg_user_id": str(messages[0].chat.id), 
+            "is_learn_model": True
+        })
 
 
 async def save_promt(message: types.Message):
     promt = translate_promt2(message.text)
-    upd_user = await update_user(str(message.chat.id), god_mod_text=promt)
-    log.debug(f"update user promt = {upd_user}")
+    await update_user(data={
+        "tg_user_id": str(message.chat.id), 
+        "god_mod_text": promt, 
+    })
     
 
 async def run_generation_photo(
@@ -162,7 +180,10 @@ async def generate_photo_from_photo_helper(call: types.CallbackQuery, user_db: d
     if user_gen_count >= deduct_gen:
         new_count_gen = user_gen_count - deduct_gen
         asyncio.create_task(
-            update_user(str(call.message.chat.id), count_generations=new_count_gen)
+            update_user(data={
+                "tg_user_id": str(call.message.chat.id), 
+                "count_generations": new_count_gen, 
+            })
         )
     else:
         builder = InlineKeyboardBuilder()
@@ -180,10 +201,13 @@ async def generate_photo_from_photo_helper(call: types.CallbackQuery, user_db: d
     user_prompt = get_image_prompt(image_url)
     if user_prompt == "":
         await call.message.answer("❌ Ошибка при запуске генерации изображений. Код ошибки 221.", reply_markup=get_main_keyboard())
-        log.error(f"Ошибка при запуске генерации изображений | UserID={call.message.chat.id} | User promt:{user_prompt} | Response = {gen_response} | Код ошибки: 221")
+        log.error(f"Ошибка при сохранение промпта | UserID={call.message.chat.id} | User promt:{user_prompt if user_prompt else 'пустой'} | Код ошибки: 221")
         new_count_gen = user_db.get("count_generations") + count_gen
         asyncio.create_task(
-            update_user(str(call.message.chat.id), count_generations=new_count_gen)
+            update_user(data={
+                "tg_user_id": str(call.message.chat.id), 
+                "count_generations": new_count_gen, 
+            })
         )
         return
     log.warning(effect)
@@ -199,7 +223,10 @@ async def generate_photo_from_photo_helper(call: types.CallbackQuery, user_db: d
         log.error(f"Ошибка при запуске генерации изображений | UserID={call.message.chat.id} | User promt:{user_prompt} | Response = {gen_response} | Код ошибки: 21")
         new_count_gen = user_db.get("count_generations") + count_gen
         asyncio.create_task(
-            update_user(str(call.message.chat.id), count_generations=new_count_gen)
+            update_user(data={
+                "tg_user_id": str(call.message.chat.id), 
+                "count_generations": new_count_gen, 
+            })
         )
         return
 
@@ -265,7 +292,10 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
         count_gen = user_db.get("count_generations")
     new_count_gen = user_db.get("count_generations") - count_gen
     asyncio.create_task(
-        update_user(str(call.message.chat.id), count_generations=new_count_gen)
+        update_user(data={
+            "tg_user_id": str(call.message.chat.id), 
+            "count_generations": new_count_gen, 
+        })
     )
     gen_response = await generate_images(
         tune_id=int(tune_id), 
@@ -278,7 +308,10 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
         log.error(f"Ошибка при запуске генерации изображений | UserID={call.message.chat.id} | User promt:{user_prompt} | Response = {gen_response} | Код ошибки: 1")
         new_count_gen = user_db.get("count_generations") + count_gen
         asyncio.create_task(
-            update_user(str(call.message.chat.id), count_generations=new_count_gen)
+            update_user(data={
+                "tg_user_id": str(call.message.chat.id), 
+                "count_generations": new_count_gen, 
+            })
         )
         return
 
@@ -341,14 +374,20 @@ async def generate_video_from_photo_task(call: types.CallbackQuery, photo_url: s
     try:
         new_count_gen = user_db.get("count_video_generations") - 1
         asyncio.create_task(
-            update_user(str(call.message.chat.id), count_video_generations=new_count_gen)
+            update_user(data={
+                "tg_user_id": str(call.message.chat.id), 
+                "count_video_generations": new_count_gen, 
+            })
         )
         video_url = await generate_video_from_image(photo_url)
         if not video_url:
             await call.message.answer("Произошла ошибка при генерации видео. Попробуйте еще раз 😢. Код ошибки: 3")
             new_count_gen = user_db.get("count_video_generations") + 1
             asyncio.create_task(
-                update_user(str(call.message.chat.id), count_video_generations=new_count_gen)
+                update_user(data={
+                    "tg_user_id": str(call.message.chat.id), 
+                    "count_video_generations": new_count_gen, 
+                })
             )
             log.error(f"Произошла ошибка при генерации видео | UserID={call.message.chat.id} | Код ошибки: 3")
             return
@@ -360,10 +399,44 @@ async def generate_video_from_photo_task(call: types.CallbackQuery, photo_url: s
     except Exception as e:
         new_count_gen = user_db.get("count_video_generations") + 1
         asyncio.create_task(
-            update_user(str(call.message.chat.id), count_video_generations=new_count_gen)
+            update_user(data={
+                "tg_user_id": str(call.message.chat.id), 
+                "count_video_generations": new_count_gen, 
+            })
         )
         await call.message.answer("Произошла ошибка при генерации видео. Попробуйте еще раз 😢. Код ошибки: 33")
         log.error(f"Произошла ошибка при генерации видео | UserID={call.message.chat.id}| Error: {e} | Код ошибки: 33")
+
+
+async def get_prices_photo(call: types.CallbackQuery):
+    price_list = await get_price_list("photo")
+    builder = InlineKeyboardBuilder()
+    price_str = ""
+    user_db = await get_user(str(call.message.chat.id))
+    for i in price_list:
+        if i.get("learn_model"):
+            continue
+        sale = i.get("sale", None)
+        builder.button(
+            text=f"{i.get('count')} фото",
+            callback_data=f"inst_payment_{i.get('price')}_{i.get('count')}_{user_db.get('is_learn_model')}_0"
+        )
+        if not sale or sale == "":
+            price_str += f"* {i.get('count')} фото: {i.get('price')}₽\n"
+        else:
+            price_str += f"* {i.get('count')} фото: {i.get('price')}₽ ({sale})\n"
+    builder.adjust(2, 2, 2)
+    await call.message.answer(
+        text="""
+Рады, что вам понравилось! 
+Хотите больше генераций? 📸
+Варианты:
+{price_str}
+Выберите свой вариант!
+
+""".format(price_str=price_str),
+        reply_markup=builder.as_markup()
+    )
 
 
 def get_main_keyboard():
@@ -372,7 +445,7 @@ def get_main_keyboard():
             [types.KeyboardButton(text="Стили"), types.KeyboardButton(text="Режим бога")],
             [types.KeyboardButton(text="Выбор аватара"), types.KeyboardButton(text="Фото по фото")],
             [types.KeyboardButton(text="Генерации"), types.KeyboardButton(text="Служба поддержки")],
-            [types.KeyboardButton(text="Партнёрская программа")]
+            [types.KeyboardButton(text="Партнёрская программа"), types.KeyboardButton(text="FAQ")]
         ],
         resize_keyboard=True
     )

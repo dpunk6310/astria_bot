@@ -1,22 +1,30 @@
 import json
-from datetime import timedelta
+import random
+from datetime import timedelta, date
 from pathlib import Path
 
 from asgiref.sync import async_to_sync
 from loguru import logger as log
+from django.conf import settings
 from django.utils.timezone import now
 from django.core.paginator import Paginator
-from django.conf import settings
-from django.utils import timezone
-from django.db.models import Sum, Count, F
+from django.db.models import Sum, Count
 from django.db.models.functions import Cast
 from django.db.models import DecimalField
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from django.db.utils import IntegrityError
 from celery import shared_task
 
-from .models import TGUser, Newsletter, Category, Promt, Payment
+from .models import (
+    TGUser, 
+    Newsletter, 
+    Category, 
+    Promt, 
+    Payment,
+    # RecurringPaymentAttempt,
+)
 from .utils import send_messages_newsletters, send_messages_reminders
+from .robo import create_recurring_payment
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -201,16 +209,59 @@ def update_user_purchases_task():
     return total_processed
 
 
-# @shared_task
-# def debiting_money_for_subscription_task(days: Optional[int]):
-#     now = timezone.now()
-#     today = now.date()
-#     notify_date = now + timedelta(days=days)
-    
-#     users_to_notify_days = TGUser.objects.filter(subscribe__lte=notify_date, subscribe__gt=now)
-#     users_to_notify = TGUser.objects.filter(subscribe__date=today)
-#     for user in users_to_notify:
-#         # Отправляем уведомление пользователю
-#         message = f"Ваша подписка заканчивается сегодня ({user.subscribe.strftime('%Y-%m-%d')}). Продлите подписку, чтобы продолжить пользоваться услугами."
-#         send_message(user.tg_user_id, message)
+@shared_task
+def recurring_payment_task(robo_pay: bool = False, attempt: int = 5):
+    users = TGUser.objects.filter(subscribe__lte=date.today(), maternity_payment_id__isnull=False, attempt__lte=5)
+    log.debug(users)
+    for user in users:
+        if user.attempt == attempt:
+            user.subscribe = None
+            user.maternity_payment_id = None
+            user.attempt = 0
+            user.save()
+            continue
+        payment = Payment.objects.filter(payment_id=user.maternity_payment_id).first()
+        if not payment:
+            continue 
+        while True:
+            payment_id = random.randint(10, 214748347)
+            if not Payment.objects.filter(payment_id=str(payment_id)).exists():
+                cr_payment_id = str(payment_id)
+                break
+
+        amount = int(payment.amount)
+        if amount == 1390:
+            amount = 990
+        
+        new_payment = Payment.objects.create(
+            tg_user_id=user.tg_user_id,
+            payment_id=cr_payment_id,
+            status=False,
+            сount_generations=payment.сount_generations,
+            count_video_generations=payment.count_video_generations,
+            amount=amount,
+            learn_model=bool(payment.learn_model),
+            is_first_payment=False,
+            subscription_renewal=True,
+        )
+
+        try:
+            if robo_pay:
+                response = create_recurring_payment(
+                    merchant_login=settings.ROBOKASSA_MERCHANT_ID,
+                    merchant_password_1=settings.ROBOKASSA_PASSWORD1,
+                    invoice_id=int(new_payment.payment_id),
+                    previous_invoice_id=payment.payment_id,
+                    robokassa_recurring_url="https://auth.robokassa.ru/Merchant/Recurring",
+                    amount=amount
+                )
+
+                log.debug(f"Создан дочерний платеж для пользователя {user.tg_user_id}. Payment ID: {new_payment.payment_id}")
+
+        except Exception as e:
+            log.error(f"Ошибка при создании дочернего платежа для пользователя {user.tg_user_id}: {e}")
+        user.attempt += 1
+        user.save()
+
+        log.debug(f"Пользователь {user.tg_user_id}. Текущее количество попыток: {user.attempt}")
                 

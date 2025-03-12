@@ -64,11 +64,11 @@ async def styles_effect_handler(message: types.Message, state: FSMContext):
     if user_db.get("god_mod"):
         await message.answer(text="Режим бога выключен", reply_markup=get_main_keyboard())
         asyncio.create_task(
-            update_user(
-                str(message.chat.id), 
-                god_mod=False, 
-                god_mod_text=None,
-            )
+            update_user(data={
+                "tg_user_id": str(message.chat.id),
+                "god_mod": False,
+                "god_mod_text": None
+            })
         )
 
     tunes = await get_tunes(str(message.chat.id))
@@ -100,18 +100,26 @@ async def styles_effect_handler(message: types.Message, state: FSMContext):
     
     
 async def inst_photo_from_photo_handler(message: types.Message, state: FSMContext):
-    await state.set_state(PhotoFromPhoto.photo)
+    # await state.set_state(PhotoFromPhoto.photo)
     user_db = await get_user(str(message.chat.id))
     
     if user_db.get("god_mod"):
         await message.answer(text="Режим бога выключен", reply_markup=get_main_keyboard())
         asyncio.create_task(
-            update_user(
-                str(message.chat.id), 
-                god_mod=False, 
-                god_mod_text=None,
-            )
+            update_user(data={
+                "tg_user_id": str(message.chat.id),
+                "god_mod": False,
+                "god_mod_text": None
+            })
         )
+    
+    photo_from_photo_status_text = ""
+    photo_from_photo_status_text_btn = "Вкл. Фото по фото"
+    callback_data = "on_photofromphoto"
+    if user_db.get("photo_from_photo"):
+        photo_from_photo_status_text = "👇 Отправь фото, которое хочешь повторить👇"
+        photo_from_photo_status_text_btn = "Выкл. Фото по фото"
+        callback_data = "off_photofromphoto"
 
     tunes = await get_tunes(str(message.chat.id))
     if not tunes or not user_db.get("gender"):
@@ -122,7 +130,12 @@ async def inst_photo_from_photo_handler(message: types.Message, state: FSMContex
         )
         await message.answer("У Вас нет аватара, создайте его!", reply_markup=builder.as_markup())
         return
-
+    
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text=photo_from_photo_status_text_btn,
+        callback_data=callback_data
+    )
     await message.answer_photo(
         photo=types.FSInputFile(BASE_DIR / "media" / "198.png"),
         caption="""<b>Перевоплотись в стиле любимого фото!</b> 🤩
@@ -132,12 +145,37 @@ async def inst_photo_from_photo_handler(message: types.Message, state: FSMContex
 
 Стоимость: За 2 фото, спишется 4 генерации.
 
-👇 Отправь фото, которое хочешь повторить👇
-""", parse_mode="HTML")
+{photo_from_photo_status_text}
+""".format(photo_from_photo_status_text=photo_from_photo_status_text), 
+        parse_mode="HTML", 
+        reply_markup=builder.as_markup()
+    )
+    
+    
+@gen_photo_router.callback_query(F.data.contains("photofromphoto"))
+async def on_off_photofromphoto_callback(call: types.CallbackQuery):
+    data = call.data.split("_")[0]
+    if data == "on":
+        await update_user(data={"tg_user_id": str(call.message.chat.id), "photo_from_photo": True})
+        await call.message.answer("""Режим Фото по фото включен 🟢
+                                  
+👇<b>Отправь фото, которое хочешь повторить</b>👇""", parse_mode="HTML")
+        return
+    await update_user(data={"tg_user_id": str(call.message.chat.id), "photo_from_photo": False})
+    await call.message.answer("Режим Фото по фото выключен 🔴")
     
     
 @gen_photo_router.message(F.text == "Фото по фото")
 async def start_gen_photo_from_photo_handler(message: types.Message, state: FSMContext):
+    user_db = await get_user(str(message.chat.id))
+    if user_db.get("god_mod"):
+        asyncio.create_task(
+            update_user(data={
+                "tg_user_id": str(message.chat.id),
+                "god_mod": False,
+                "god_mod_text": None
+            })
+        )
     await inst_photo_from_photo_handler(message, state)
 
 
@@ -146,7 +184,7 @@ async def start_gen_photo_from_photo_callback(call: types.CallbackQuery, state: 
     await inst_photo_from_photo_handler(call.message, state)
     
     
-@gen_photo_router.message(PhotoFromPhoto.photo, F.photo)
+@gen_photo_router.message(F.photo)
 async def handle_photo(message: types.Message, state: FSMContext):
     user_db = await get_user(str(message.chat.id))
     
@@ -158,6 +196,25 @@ async def handle_photo(message: types.Message, state: FSMContext):
         )
         await message.answer(f"У Вас недостаточно генераций: {user_db.get('count_generations')} 😱", reply_markup=builder.as_markup())
         return
+    
+    if user_db.get("god_mod"):
+        await message.answer(text="Режим бога выключен", reply_markup=get_main_keyboard())
+        asyncio.create_task(
+            update_user(data={
+                "tg_user_id": str(message.chat.id),
+                "god_mod": False,
+                "god_mod_text": None
+            })
+        )
+        
+    if not user_db.get("photo_from_photo"):
+        builder = InlineKeyboardBuilder()
+        builder.button(
+            text="Вкл. Фото по фото",
+            callback_data="on_photofromphoto"
+        )
+        await message.answer(text="Включите режим Фото по фото", reply_markup=builder.as_markup())
+        return
     photo = message.photo[-1]
     file_id = photo.file_id
     await state.update_data(file_id=file_id)
@@ -165,19 +222,19 @@ async def handle_photo(message: types.Message, state: FSMContext):
     builder = InlineKeyboardBuilder()
     builder.button(
         text="Киноэффект",
-        callback_data="Cinematic_effect"
+        callback_data="Cinematic_effectphoto"
     )
     builder.button(
         text="Неон",
-        callback_data="Neonpunk_effect"
+        callback_data="Neonpunk_effectphoto"
     )
     builder.button(
         text="Портретный",
-        callback_data="Photographic_effect"
+        callback_data="Photographic_effectphoto"
     )
     builder.button(
         text="Без эффекта",
-        callback_data="no_effect"
+        callback_data="no_effectphoto"
     )
     
     builder.adjust(1, 1, 1, 1)
@@ -190,30 +247,39 @@ async def handle_photo(message: types.Message, state: FSMContext):
     )
 
 
-@gen_photo_router.callback_query(StateFilter(PhotoFromPhoto.photo), F.data.contains("effect"))
+@gen_photo_router.callback_query(F.data.contains("_effectphoto"))
 async def handle_effect_photo_to_photo_handler(call: types.CallbackQuery, state: FSMContext):
     await call.message.delete()
     
     data = await state.get_data()
     file_id = data.get("file_id")
     
-    # if file_id is None:
-    #     await call.message.answer("Error: File ID is missing. Please try again.")
-    #     return
+    user_db = await get_user(str(call.message.chat.id))
+    if not user_db.get("photo_from_photo"):
+        builder = InlineKeyboardBuilder()
+        builder.button(
+            text="Вкл. Фото по фото",
+            callback_data="on_photofromphoto"
+        )
+        await call.message.answer(text="Включите режим Фото по фото", reply_markup=builder.as_markup())
+        return
     
     file_info = await bot.get_file(file_id)
     image_url = f"https://api.telegram.org/file/bot{bot.token}/{file_info.file_path}"
     
     effect = call.data
     if not effect:
-        effect = "no_effect"
-    if effect != "no_effect":
+        effect = "no_effectphoto"
+    if effect != "no_effectphoto":
         effect = effect.split("_")[0]
     else:
         effect = None
         
     asyncio.create_task(
-        update_user(str(call.message.chat.id), effect=effect)
+        update_user(data={
+            "tg_user_id": str(call.message.chat.id),
+            "effect": effect,
+        })
     )
 
     tunes = await get_tunes(str(call.message.chat.id))
@@ -226,13 +292,15 @@ async def handle_effect_photo_to_photo_handler(call: types.CallbackQuery, state:
         await call.message.answer("У Вас нет аватара, создайте его!", reply_markup=builder.as_markup())
         return
 
-    user_db = await get_user(str(call.message.chat.id))
-
     if not user_db.get("tune_id"):
         user_db["tune_id"] = tunes[0].get("tune_id")
         user_db["gender"] = tunes[0].get("gender")
         asyncio.create_task(
-            update_user(str(call.message.chat.id), tune_id=user_db["tune_id"], gender=user_db["gender"])
+            update_user(data={
+                "tg_user_id": str(call.message.chat.id),
+                "tune_id": user_db["tune_id"],
+                "gender": user_db["gender"]
+            })
         )
     asyncio.create_task(
         generate_photo_from_photo_helper(call=call, user_db=user_db, effect=effect, image_url=image_url)
@@ -261,9 +329,12 @@ async def handle_effect_handler(call: types.CallbackQuery, state: FSMContext):
         effect = effect.split("_")[0]
     else:
         effect = None
-        
+    
     asyncio.create_task(
-        update_user(str(call.message.chat.id), effect=effect)
+        update_user(data={
+            "tg_user_id": str(call.message.chat.id),
+            "effect": effect,
+        })
     )
 
     tunes = await get_tunes(str(call.message.chat.id))
@@ -288,7 +359,10 @@ async def handle_effect_handler(call: types.CallbackQuery, state: FSMContext):
                 user_prompt=god_mod_text
             ))
             asyncio.create_task(
-                update_user(str(call.message.chat.id), god_mod_text=None)
+                update_user(data={
+                    "tg_user_id": str(call.message.chat.id),
+                    "god_mod_text": None,
+                })
             )
             return
         else:
@@ -310,10 +384,10 @@ async def handle_effect_handler(call: types.CallbackQuery, state: FSMContext):
 async def handle_category_handler(call: types.CallbackQuery, state: FSMContext):
     await state.clear()
     asyncio.create_task(
-        update_user(
-            str(call.message.chat.id), 
-            category=call.data
-        )
+        update_user(data={
+            "tg_user_id": str(call.message.chat.id),
+            "category": call.data,
+        })
     )
     builder = InlineKeyboardBuilder()
     builder.button(

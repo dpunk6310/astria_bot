@@ -13,10 +13,12 @@ from handlers.payment import setup as payment_setup
 from handlers.support import setup as support_setup
 from handlers.gen_video import setup as gen_video_setup
 from handlers.referal import setup as referal_setup
+from handlers.faq import setup as faq_setup
 
 
 async def on_startup():
     info_setup(loader.dp)
+    faq_setup(loader.dp)
     gen_photo_setup(loader.dp)
     avatar_setup(loader.dp)
     payment_setup(loader.dp)

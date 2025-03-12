@@ -1,5 +1,5 @@
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, date
 
 from django.utils.timezone import now
 
@@ -26,6 +26,8 @@ class UserDTO(Schema):
     reward_generations: int
     referral_purchases: int
     has_purchased: bool
+    subscribe: Optional[date]
+    maternity_payment_id: Optional[str]
     
     
 class UpdateUserDTO(Schema):
@@ -41,8 +43,8 @@ class UpdateUserDTO(Schema):
     category: Optional[str] = None
     gender: Optional[str] = None
     photo_from_photo: Optional[bool] = None
-    # last_activity: Optional[datetime]
-    # has_purchased: Optional[bool] = True
+    subscribe: Optional[date] = None
+    maternity_payment_id: Optional[str] = None
 
 class CreateUserDTO(Schema):
     tg_user_id: str
