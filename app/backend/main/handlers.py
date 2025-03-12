@@ -86,6 +86,7 @@ async def payment_received(request):
         button_text = "Поехали!"
 
         tg_user = await sync_to_async(TGUser.objects.get)(tg_user_id=payment.tg_user_id)
+        
         if payment.is_first_payment:
             callback_data = "start_upload_photo"
             button_text = "Инструкция"
@@ -98,18 +99,20 @@ async def payment_received(request):
                     await sync_to_async(referal.save)()
             except Exception as err:
                 log.error(err)
+                    
         if payment.subscription_renewal:
             callback_data = "start_upload_photo"
             button_text = "Инструкция"
             tg_user.subscribe = datetime.now() + timedelta(days=30)
             tg_user.attempt = 0
+            tg_user.is_learn_model = bool(payment.learn_model)
         
         if not payment.is_first_payment and payment.learn_model:
             callback_data = "start_upload_photo"
             button_text = "Инструкция"
+            tg_user.is_learn_model = bool(payment.learn_model)
 
         tg_user.count_generations += payment.сount_generations
-        tg_user.is_learn_model = bool(payment.learn_model)
         tg_user.count_video_generations += payment.count_video_generations
         tg_user.has_purchased = True
         await sync_to_async(tg_user.save)()

@@ -40,7 +40,7 @@ def create_recurring_payment(
     })
     signature = calculate_signature(merchant_login, amount, invoice_id, pay_data, merchant_password_1)
     
-    data = {
+    json_data = {
         "MerchantLogin": merchant_login,
         "InvoiceID": invoice_id,
         "PreviousInvoiceID": previous_invoice_id,
@@ -50,5 +50,5 @@ def create_recurring_payment(
         "Receipt": pay_data
     }
 
-    response = requests.post(url=robokassa_recurring_url, data=data)
+    response = requests.post(url=robokassa_recurring_url, data=json_data)
     return response
