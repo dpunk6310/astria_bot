@@ -32,7 +32,7 @@ BUTTON_TEXTS = {
 
 @god_mod_router.message(F.text == "Режим бога")
 async def god_mod_callback(message: types.Message, state: FSMContext):
-    await state.clear()
+    # await state.clear()
     tunes = await get_tunes(str(message.chat.id))
     if not tunes:
         builder = InlineKeyboardBuilder()
@@ -43,6 +43,13 @@ async def god_mod_callback(message: types.Message, state: FSMContext):
         await message.answer("У Вас нет аватара, создайте его!", reply_markup=builder.as_markup())
         return
     user_db = await get_user(str(message.chat.id))
+    if user_db.get("photo_from_photo"):
+        asyncio.create_task(
+            update_user(data={"photo_from_photo": False})
+        )
+        await message.answer(
+            text="Режим Фото по фото выключен",
+        )
     god_mod = user_db.get("god_mod")
     builder = InlineKeyboardBuilder()
     builder.button(
@@ -72,6 +79,7 @@ async def on_god_mod_callback(call: types.CallbackQuery, state: FSMContext):
         update_user(data={
             "tg_user_id": str(call.message.chat.id),
             "god_mod": True,
+            "photo_from_photo": False
         })
     )
     builder = InlineKeyboardBuilder()
@@ -111,29 +119,26 @@ async def off_god_mod_callback(call: types.CallbackQuery, state: FSMContext):
     )
     
     
-@god_mod_router.message(~F.text.in_(BUTTON_TEXTS))
+@god_mod_router.message(F.text, ~F.text.in_(BUTTON_TEXTS))
 async def set_text_in_godmod_callback(message: types.Message, state: FSMContext):
     if message.text in BUTTON_TEXTS:
         return
     
-    await state.clear()
-    
     user_db = await get_user(str(message.chat.id))
     
+    if user_db.get("photo_from_photo") and message.photo or message.document:
+        return
+    
+    if not user_db.get("photo_from_photo") and message.photo or message.document:
+        builder = InlineKeyboardBuilder()
+        builder.button(
+            text="Вкл. Фото по фото",
+            callback_data="on_photofromphoto"
+        )
+        await message.answer(text="Включите режим Фото по фото", reply_markup=builder.as_markup())
+        return
+
     if not user_db.get("god_mod"):
-        if message.photo or message.document:
-            builder = InlineKeyboardBuilder()
-            builder.button(
-                text="Фото по фото",
-                callback_data="inst_photo_from_photo"
-            )
-            builder.adjust(1, 1)
-            await message.answer(
-                'Если вы хотите сделать генерацию как на фото, используйте функцию <i>"Фото по фото"</i>', 
-                parse_mode="HTML",
-                reply_markup=builder.as_markup()
-            )
-            return
         # await message.delete()
         builder = InlineKeyboardBuilder()
         builder.button(

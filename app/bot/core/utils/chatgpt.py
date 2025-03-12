@@ -54,6 +54,7 @@ def translate_promt2(promt: str):
     
     
 def get_image_prompt(image_url: str):
+    log.debug(f"image_url GPT = {image_url}")
     data = {
         "model": "gpt-4o",
         "lang": "en",
@@ -82,10 +83,31 @@ def get_image_prompt(image_url: str):
         ]
     }
 
-    response = httpx.post("https://geminab.site/api/chatg", json=data, timeout=30)
-
+    i = 0
     try:
-        return response.json().get("choices")[0].get("message").get("content")
+        while i < 15:
+            response = httpx.post("https://geminab.site/api/chatg", json=data, timeout=60)
+            if not response:
+                i += 1
+                continue
+            prompt = response.json()
+            if not prompt:
+                i += 1
+                continue
+            prompt = prompt.get("choices")
+            if not prompt:
+                i += 1
+                continue
+            prompt = prompt[0].get("message")
+            if not prompt:
+                i += 1
+                continue
+            prompt = prompt.get("content")
+            if not prompt:
+                i += 1
+                continue
+            
+            return prompt
     except Exception as err:
         log.error(err)
         return ""

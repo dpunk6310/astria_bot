@@ -201,7 +201,7 @@ async def generate_photo_from_photo_helper(call: types.CallbackQuery, user_db: d
     user_prompt = get_image_prompt(image_url)
     if user_prompt == "":
         await call.message.answer("❌ Ошибка при запуске генерации изображений. Код ошибки 221.", reply_markup=get_main_keyboard())
-        log.error(f"Ошибка при запуске генерации изображений | UserID={call.message.chat.id} | User promt:{user_prompt} | Response = {gen_response} | Код ошибки: 221")
+        log.error(f"Ошибка при сохранение промпта | UserID={call.message.chat.id} | User promt:{user_prompt if user_prompt else 'пустой'} | Код ошибки: 221")
         new_count_gen = user_db.get("count_generations") + count_gen
         asyncio.create_task(
             update_user(data={

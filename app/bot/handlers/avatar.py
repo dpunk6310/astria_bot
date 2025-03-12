@@ -53,6 +53,9 @@ async def select_avatar_callback(call: types.CallbackQuery, state: FSMContext):
 @avatar_router.callback_query(F.data == "set_avatar")
 async def avatar_callback(call: types.CallbackQuery, state: FSMContext):
     await state.clear()
+    asyncio.create_task(
+        update_user(data={"photo_from_photo": False})
+    )
     tunes = await get_tunes(str(call.message.chat.id))
     if not tunes:
         builder = InlineKeyboardBuilder()
