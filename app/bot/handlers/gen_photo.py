@@ -138,6 +138,16 @@ async def inst_photo_from_photo_handler(message: types.Message, state: FSMContex
     
 @gen_photo_router.message(F.text == "Фото по фото")
 async def start_gen_photo_from_photo_handler(message: types.Message, state: FSMContext):
+    user_db = await get_user(str(message.chat.id))
+    if user_db.get("god_mod"):
+        await message.answer(text="Режим бога выключен", reply_markup=get_main_keyboard())
+        asyncio.create_task(
+            update_user(data={
+                "tg_user_id": str(message.chat.id),
+                "god_mod": False,
+                "god_mod_text": None
+            })
+        )
     await inst_photo_from_photo_handler(message, state)
 
 
@@ -158,6 +168,16 @@ async def handle_photo(message: types.Message, state: FSMContext):
         )
         await message.answer(f"У Вас недостаточно генераций: {user_db.get('count_generations')} 😱", reply_markup=builder.as_markup())
         return
+    
+    if user_db.get("god_mod"):
+        await message.answer(text="Режим бога выключен", reply_markup=get_main_keyboard())
+        asyncio.create_task(
+            update_user(data={
+                "tg_user_id": str(message.chat.id),
+                "god_mod": False,
+                "god_mod_text": None
+            })
+        )
     photo = message.photo[-1]
     file_id = photo.file_id
     await state.update_data(file_id=file_id)
