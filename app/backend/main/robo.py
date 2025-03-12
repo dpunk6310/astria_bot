@@ -20,7 +20,7 @@ def create_recurring_payment(
     invoice_id: int,
     previous_invoice_id: int,
     robokassa_recurring_url: str,
-    amount: int = 1390
+    amount: int = 990
 ):
     """Создание дочернего платежа."""
     file_path = BASE_DIR / "media" / "payload.json"

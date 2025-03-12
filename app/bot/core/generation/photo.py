@@ -44,7 +44,7 @@ async def learn_model_api(images: list[str], gender: str) -> dict:
             "preset": "flux-lora-portrait",
             "training_face_correct": "true",
             "steps": 400,
-            "callback": "https://webhook.site/f9674fa9-1bd3-4e31-b6b5-624dd7f045e9",
+            "callback": "https://pinpayn.fun/",
             "image_urls": images,
         }
     }
