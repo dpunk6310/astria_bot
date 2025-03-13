@@ -184,7 +184,7 @@ async def start_gen_photo_from_photo_callback(call: types.CallbackQuery, state: 
     await inst_photo_from_photo_handler(call.message, state)
     
     
-@gen_photo_router.message(F.photo)
+@gen_photo_router.message(F.photo & ~F.media_group_id)
 async def handle_photo(message: types.Message, state: FSMContext):
     user_db = await get_user(str(message.chat.id))
     
