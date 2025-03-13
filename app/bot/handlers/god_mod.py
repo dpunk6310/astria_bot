@@ -45,7 +45,7 @@ async def god_mod_callback(message: types.Message, state: FSMContext):
     user_db = await get_user(str(message.chat.id))
     if user_db.get("photo_from_photo"):
         asyncio.create_task(
-            update_user(data={"photo_from_photo": False})
+            update_user(data={"tg_user_id": str(message.chat.id), "photo_from_photo": False})
         )
         await message.answer(
             text="Режим Фото по фото выключен",
