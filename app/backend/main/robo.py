@@ -20,6 +20,7 @@ def create_recurring_payment(
     invoice_id: int,
     previous_invoice_id: int,
     robokassa_recurring_url: str,
+    tg_user_id: str,
     amount: int = 990
 ):
     """Создание дочернего платежа."""
@@ -27,7 +28,7 @@ def create_recurring_payment(
     with open(file_path, 'r', encoding='utf-8') as file:
         data = json.load(file)
     index = 0
-    description = "Продление подписки"
+    description = f"Продление подписки {tg_user_id}"
     for i, v in enumerate(data):
         if v.get("name") == "Продление подписки":
             index = i

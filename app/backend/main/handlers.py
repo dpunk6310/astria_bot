@@ -101,8 +101,6 @@ async def payment_received(request):
                 log.error(err)
                     
         if payment.subscription_renewal:
-            callback_data = "start_upload_photo"
-            button_text = "Инструкция"
             tg_user.subscribe = datetime.now() + timedelta(days=30)
             tg_user.attempt = 0
             tg_user.is_learn_model = bool(payment.learn_model)
@@ -116,8 +114,9 @@ async def payment_received(request):
         tg_user.count_video_generations += payment.count_video_generations
         tg_user.has_purchased = True
         await sync_to_async(tg_user.save)()
-
-        result = send_message_successfully_pay(BOT_TOKEN, payment.tg_user_id, callback_data, button_text)
+        
+        if not payment.subscription_renewal:
+            result = send_message_successfully_pay(BOT_TOKEN, payment.tg_user_id, callback_data, button_text)
 
         return 200, {"status": "ok", "message": "Success"}
     except ObjectDoesNotExist as err:

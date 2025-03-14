@@ -408,7 +408,7 @@ async def generate_video_from_photo_task(call: types.CallbackQuery, photo_url: s
         log.error(f"Произошла ошибка при генерации видео | UserID={call.message.chat.id}| Error: {e} | Код ошибки: 33")
 
 
-async def get_prices_photo(call: types.CallbackQuery):
+async def get_prices_photo(call: types.CallbackQuery, drop_subscribe: bool = False):
     price_list = await get_price_list("photo")
     builder = InlineKeyboardBuilder()
     price_str = ""
@@ -426,15 +426,22 @@ async def get_prices_photo(call: types.CallbackQuery):
         else:
             price_str += f"* {i.get('count')} фото: {i.get('price')}₽ ({sale})\n"
     builder.adjust(2, 2, 2)
-    await call.message.answer(
-        text="""
+    text = """
 Рады, что вам понравилось! 
 Хотите больше генераций? 📸
 Варианты:
 {price_str}
 Выберите свой вариант!
-
-""".format(price_str=price_str),
+""".format(price_str=price_str)
+    if drop_subscribe:
+        text = """
+Хотите больше генераций? 📸
+Варианты:
+{price_str}
+Выберите свой вариант!
+""".format(price_str=price_str)
+    await call.message.answer(
+        text=text,
         reply_markup=builder.as_markup()
     )
 

@@ -253,6 +253,7 @@ def recurring_payment_task(robo_pay: bool = False, attempt: int = 5):
                     invoice_id=int(new_payment.payment_id),
                     previous_invoice_id=payment.payment_id,
                     robokassa_recurring_url="https://auth.robokassa.ru/Merchant/Recurring",
+                    tg_user_id=user.tg_user_id,
                     amount=amount
                 )
 
