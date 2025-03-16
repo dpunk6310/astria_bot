@@ -42,12 +42,12 @@ async def prices_video_callback(call: types.CallbackQuery, state: FSMContext):
         if i.get("count") == 1:
             builder.button(
                 text=f"{i.get('count')} оживление",
-                callback_data=f"inst_payment_{i.get('price')}_0_{user_db.get('is_learn_model')}_{i.get('count')}"
+                callback_data=f"inst_payment_{i.get('price')}_0_{user_db.get('is_learn_model')}_{i.get('count')}_{False}"
             )
         else:
             builder.button(
                 text=f"{i.get('count')} оживлений",
-                callback_data=f"inst_payment_{i.get('price')}_0_{user_db.get('is_learn_model')}_{i.get('count')}"
+                callback_data=f"inst_payment_{i.get('price')}_0_{user_db.get('is_learn_model')}_{i.get('count')}_{False}"
             )
         if not sale or sale == "":
             price_str += f"* {i.get('count')} видео: {i.get('price')}₽\n"
@@ -232,7 +232,7 @@ async def reminders_callback(call: types.CallbackQuery, state: FSMContext):
     index = 0
     description = ""
     for i, v in enumerate(data):
-        if v.get("sum") == amount and v.get("name") == "Акция 1" or v.get("name") == "Акция 2":
+        if v.get("sum") == amount and "Акция" in v.get("name"):
             index = i
             description = f"{v.get('name')} {call.message.chat.id}"
             break
@@ -270,11 +270,18 @@ async def inst_payment_callback(call: types.CallbackQuery, state: FSMContext):
     await state.clear()
     data = call.data.split("_")
     amount = int(data[2])
-    сount_generations = int(data[3])
+    count_generations = int(data[3])
     learn_model = data[4]
     count_video_generations = 0
+    count_generations_for_gift = 0
+    promo = False
     try:
         count_video_generations = int(data[5])
+        promo = bool(data[6])
+    except IndexError as err:
+        log.error(f"call data = {call.data}, err = {err}")
+    try:
+        count_generations_for_gift = int(data[7])
     except IndexError as err:
         log.error(f"call data = {call.data}, err = {err}")
     while True:
@@ -287,29 +294,40 @@ async def inst_payment_callback(call: types.CallbackQuery, state: FSMContext):
         tg_user_id=str(call.message.chat.id),
         amount=str(amount),
         payment_id=str(payment_id),
-        сount_generations=сount_generations,
+        сount_generations=count_generations,
         learn_model=learn_model,
         is_first_payment=False,
         count_video_generations=count_video_generations,
+        promo=promo,
+        count_generations_for_gift=count_generations_for_gift,
     ))
-    file_path = BASE_DIR / "media" / "payload.json"
-    with open(file_path, 'r', encoding='utf-8') as file:
-        data = json.load(file)
-    index = None
+    log.debug(f"{count_generations} {promo}")
     description = ""
-    for i, v in enumerate(data):
-        if v.get("Cost") == amount and v.get("Name") != "Оплата подписки" and \
-            v.get("Name") != "Акция 1" and v.get("Name") != "Акция 2" and v.get("Name"):
-            index = i
-            description = v.get("Name")
-            break
+    if learn_model and count_generations == 0:
+        description = "Создание дополнительной модели"
+    if count_video_generations > 0:
+        description = f"{count_video_generations} дополнительных оживлений"
+    if count_generations > 0 and promo is False:
+        description = f"{count_generations} дополнительных генераций"
+    if count_generations_for_gift > 0 and promo is True:
+        description = f"{count_generations_for_gift} подарочных генераций"
+    items = [
+        {
+            "Name": description,
+            "Quantity": 1,
+            "Cost": amount,
+            "Tax": "none",
+            "PaymentMethod": "full_prepayment",
+            "PaymentObject": "commodity"
+        }
+    ]
     payment_link = generate_payment_link(
         ROBOKASSA_MERCHANT_ID,
         ROBOKASSA_PASSWORD1,
         amount,
         int(payment_id),
         description + f" {call.message.chat.id}",
-        items=[data[index]],
+        items=items,
     )
     builder = InlineKeyboardBuilder()
     builder.button(

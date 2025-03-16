@@ -32,8 +32,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 @gen_photo_router.message(F.text == "Генерации")
-async def generations_stat_callback(message: types.Message, state: FSMContext):
-    await state.clear()
+async def generations_stat_callback(message: types.Message):
     user_db = await get_user(message.chat.id)
     builder = InlineKeyboardBuilder()
     builder.button(

@@ -9,10 +9,9 @@ from asgiref.sync import sync_to_async
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 
-from telegram_api.api import send_message_successfully_pay
+from telegram_api.api import send_message_successfully_pay, send_promo_message
 from config.settings import BOT_TOKEN
 from dto.user import CreateUserDTO, UserDTO, UpdateUserDTO
-from dto.image import CreateImageDTO, ImageDTO
 from dto.payment import PaymentDTO, CreatePaymentDTO
 from dto.tune import TuneListDTO, CreateTuneDTO
 from dto.err import ErrorDTO, SuccessDTO
@@ -21,13 +20,14 @@ from dto.price_list import PriceListDTO
 from dto.tgimage import TGImageDTO, CreateTGImageDTO
 from .models import (
     TGUser, 
-    Image, 
     Payment, 
     Tune, 
     PriceList, 
     Category, 
     TGImage,
+    Promocode,
 )
+from .utils import generate_promo_code
 
 
 router = Router()
@@ -109,13 +109,30 @@ async def payment_received(request):
             callback_data = "start_upload_photo"
             button_text = "Инструкция"
             tg_user.is_learn_model = bool(payment.learn_model)
+        
+        promocode_gen = ""
+        if payment.promo and payment.count_generations_for_gift > 0:
+            promocode_gen = generate_promo_code(10)
+            log.debug(promocode_gen)
+            try:
+                promo = sync_to_async(Promocode.objects.get)(code=promocode_gen) 
+            except ObjectDoesNotExist:
+                promo = sync_to_async(Promocode.objects.create)(
+                    tg_user_id=tg_user.tg_user_id,
+                    code=promocode_gen,
+                    count_generations=payment.count_generations_for_gift,
+                )
+            log.debug(promo)
 
         tg_user.count_generations += payment.сount_generations
         tg_user.count_video_generations += payment.count_video_generations
         tg_user.has_purchased = True
         await sync_to_async(tg_user.save)()
         
-        if not payment.subscription_renewal:
+        if payment.promo and payment.count_generations_for_gift > 0:
+            (BOT_TOKEN, payment.tg_user_id, promocode_gen)
+        
+        if not payment.subscription_renewal and payment.promo is None:
             result = send_message_successfully_pay(BOT_TOKEN, payment.tg_user_id, callback_data, button_text)
 
         return 200, {"status": "ok", "message": "Success"}
@@ -212,24 +229,6 @@ async def update_user(request, req: UpdateUserDTO):
         log.error(f"Error updating user: {err}")
         return {"message": "error", "err": str(err)}
 
-
-@router.post("/create-img-path", response={201: ImageDTO, 400: ErrorDTO})
-async def create_img_path(request, create_image: CreateImageDTO):
-    try:
-        user = await sync_to_async(TGUser.objects.get)(tg_user_id=create_image.image.tg_user_id)
-        images = await sync_to_async(Image.objects.filter)(tg_user=user)
-        if await sync_to_async(images.count)() >= 10:
-            await sync_to_async(images.delete)()
-        cln = await sync_to_async(Image.objects.create)(
-            tg_user=user,
-            img_path=create_image.image.path,
-        )
-        return 201, ImageDTO(path=cln.img_path, tg_user_id=cln.tg_user.tg_user_id)
-    except ObjectDoesNotExist:
-        return 400, {"message": "error", "err": "User not found"}
-    except Exception as err:
-        return 400, {"message": "error", "err": str(err)}
-    
     
 @router.post("/create-tgimg", response={201: TGImageDTO, 400: ErrorDTO})
 def create_tg_img(request, create_image: CreateTGImageDTO):
@@ -265,21 +264,6 @@ def get_tg_img(request, id: int):
         return 400, {"message": "error", "err": str(err)}
 
 
-@router.get("/user-images/{tg_user_id}", response={200: list[ImageDTO], 400: ErrorDTO})
-def get_user_images(request, tg_user_id: str):
-    try:
-        tg_user = TGUser.objects.get(tg_user_id=tg_user_id)
-
-        images = Image.objects.filter(tg_user=tg_user)
-
-        image_dtos = [ImageDTO(path=image.img_path, tg_user_id=image.tg_user.tg_user_id) for image in images]
-
-        return 200, image_dtos
-    except Exception as err:
-        print(err)
-        return 400, {"message": "error", "err": str(err)}
-
-
 @router.get("/categories/{gender}", response={200: list[CategoryDTO], 400: ErrorDTO})
 async def get_categories(request, gender: str):
     try:
@@ -311,19 +295,5 @@ async def get_random_prompt(request, category_slug: str):
             return 400, {"message": "error", "err": "No prompts found in this category"}
 
         return 200, random.choice(prompts)
-    except Exception as err:
-        return 400, {"message": "error", "err": str(err)}
-
-
-@router.delete("/delete-user-images/{tg_user_id}", response={200: dict, 400: ErrorDTO, 404: ErrorDTO})
-async def delete_user_images(request, tg_user_id: str):
-    try:
-        user = await sync_to_async(TGUser.objects.get)(tg_user_id=tg_user_id)
-        deleted_count = await sync_to_async(Image.objects.filter(tg_user=user).delete)()
-        if deleted_count[0] == 0:
-            return 404, {"message": "error", "err": "No images found for this user."}
-        return 200, {"message": "success", "err": f"Deleted {deleted_count[0]} images successfully."}
-    except ObjectDoesNotExist:
-        return 404, {"message": "error", "err": "User not found"}
     except Exception as err:
         return 400, {"message": "error", "err": str(err)}

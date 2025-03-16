@@ -21,3 +21,17 @@ def send_message_successfully_pay(bot_token: str, chat_id: str, callback_data: s
         return response.json()
     except Exception as e:
         return {"err": str(e)}
+
+
+def send_promo_message(bot_token: str, chat_id: str, promocode_gen: str):
+    payload = {
+        "chat_id": chat_id,
+        "text": """Ваш промокод: <code>{promocode_gen}</code>""".format(promocode_gen=promocode_gen),
+        "parse_mode": "HTML"
+    }
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    try:
+        response = httpx.post(url=url, json=payload)
+        return response.json()
+    except Exception as e:
+        return {"err": str(e)}
