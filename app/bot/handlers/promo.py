@@ -21,6 +21,7 @@ async def give_pingvin_handler(message: types.Message):
     price_str = ""
     for i in price_list:
         sale = i.get("sale", None)
+        # TODO: Добавить в модель прайс лист кол-во видео генераций для promo
         builder.button(
             text=f"{i.get('count')} фото",
             callback_data=f"inst_payment_{i.get('price')}_0_{i.get('learn_model')}_0_{True}_{i.get('count')}"
