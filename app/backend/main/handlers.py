@@ -245,23 +245,24 @@ async def update_promo(request, req: UpdatePromoDTO):
         if not promocode:
             log.warning(f"Promocode not found: code={code}")
             return {"message": "error", "err": "Promocode not found"}
-        
-        promocode.status = new_status
-        promocode.tg_user_id = tg_user_id
-        await sync_to_async(promocode.save)()
-        
-        user = await sync_to_async(TGUser.objects.filter(tg_user_id=tg_user_id).first)()
-        if not user:
-            log.warning(f"User not found: tg_user_id={tg_user_id}")
-            return {"message": "error", "err": "User not found"}
         if promocode.status:
+            promocode.status = new_status
+            promocode.tg_user_id = tg_user_id
+            await sync_to_async(promocode.save)()
+            
+            user = await sync_to_async(TGUser.objects.filter(tg_user_id=tg_user_id).first)()
+            if not user:
+                log.warning(f"User not found: tg_user_id={tg_user_id}")
+                return {"message": "error", "err": "User not found"}
+            
             user.count_generations += promocode.count_generations
             user.count_video_generations += promocode.count_video_generations
             user.is_learn_model = promocode.is_learn_model
             await sync_to_async(user.save)()
-        
-        log.info(f"Promocode updated: code={code}, tg_user_id={tg_user_id}, status={new_status}")
-        return {"status": "success"}
+            
+            log.info(f"Promocode updated: code={code}, tg_user_id={tg_user_id}, status={new_status}")
+            return {"status": "success"}
+        return {"status": "unactive"}
     except Exception as err:
         log.error(f"Error updating promocode: {err}")
         return {"message": "error", "err": str(err)}

@@ -284,7 +284,7 @@ class Promocode(models.Model):
         verbose_name="TG User ID"
     )
     code = models.CharField(max_length=200, verbose_name="Код", unique=True)
-    status = models.BooleanField(verbose_name="Status", default=False)
+    status = models.BooleanField(verbose_name="Status", default=True)
     created_at = models.DateTimeField(
         verbose_name="Создан", auto_now_add=True, null=True, blank=True,
     )
