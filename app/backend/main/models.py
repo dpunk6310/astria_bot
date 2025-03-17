@@ -223,6 +223,7 @@ class Tune(models.Model):
         verbose_name="Tune ID"
     )
     gender = models.CharField(verbose_name="Пол", max_length=20)
+    name = models.CharField(verbose_name="Название", max_length=20, null=True, blank=True)
     
     def __str__(self):
         return str(self.tune_id)
@@ -250,9 +251,6 @@ class Payment(models.Model):
     )
     count_video_generations = models.PositiveIntegerField(
         verbose_name="Кол-во генераций видео", default=0
-    )
-    count_learn_model = models.PositiveIntegerField(
-        verbose_name="Кол-во обучений модели", default=0
     )
     count_generations_for_gift = models.PositiveIntegerField(
         verbose_name="Кол-во генераций фото для подарка", default=0

@@ -87,6 +87,7 @@ async def process_learning(
     messages: list[types.Message],
     imgs_url: list[str],
     gender: str,
+    name: str
 ):
     response = await learn_model_api(imgs_url, gender)
     tune_id = response.get("id")
@@ -109,7 +110,7 @@ async def process_learning(
         return
     training_complete = await wait_for_training(tune_id)
     if training_complete:
-        tune_db = await create_tune(tune_id=str(tune_id), tg_user_id=str(messages[-1].chat.id), gender=gender)
+        tune_db = await create_tune(tune_id=str(tune_id), tg_user_id=str(messages[-1].chat.id), gender=gender, name=name)
         if not tune_db:
             await messages[-1].answer(
                 text="Произошла ошибка во время обучения модели. Пожалуйста, обратитесь в техническую поддержку. Код ошибки: 222", 

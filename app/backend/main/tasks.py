@@ -25,7 +25,7 @@ from .models import (
     Category, 
     Promt, 
     Payment,
-    # RecurringPaymentAttempt,
+    PriceList
 )
 from .utils import generate_promo_code, send_messages_newsletters, send_messages_reminders
 from .robo import create_recurring_payment
@@ -269,6 +269,95 @@ def recurring_payment_task(robo_pay: bool = False, attempt: int = 5):
         user.save()
 
         log.debug(f"Пользователь {user.tg_user_id}. Текущее количество попыток: {user.attempt}")
+
+
+@shared_task
+def create_default_price_list():
+    PriceList.objects.all().delete()
+    PriceList.objects.create(
+        price=499,
+        count=1,
+        learn_model=True,
+        sale=None,
+        type_price_list=None
+    )
+    PriceList.objects.create(
+        price=300,
+        count=10,
+        learn_model=False,
+        sale=None,
+        type_price_list="photo"
+    )
+    PriceList.objects.create(
+        price=999,
+        count=50,
+        learn_model=False,
+        sale="-34%",
+        type_price_list="photo"
+    )
+    PriceList.objects.create(
+        price=1990,
+        count=100,
+        learn_model=False,
+        sale="-38%",
+        type_price_list="photo"
+    )
+    PriceList.objects.create(
+        price=4990,
+        count=300,
+        learn_model=False,
+        sale="-44%",
+        type_price_list="photo"
+    )
+    PriceList.objects.create(
+        price=7490,
+        count=500,
+        learn_model=False,
+        sale="-50%",
+        type_price_list="photo"
+    )
+    PriceList.objects.create(
+        price=9990,
+        count=1000,
+        learn_model=False,
+        sale="-66%",
+        type_price_list="photo"
+    )
+    PriceList.objects.create(
+        price=159,
+        count=1,
+        learn_model=False,
+        sale=None,
+        type_price_list="video"
+    )
+    PriceList.objects.create(
+        price=590,
+        count=5,
+        learn_model=False,
+        sale="-26%",
+        type_price_list="video"
+    )
+    PriceList.objects.create(
+        price=890,
+        count=10,
+        learn_model=False,
+        sale="-44%",
+        type_price_list="video"
+    )
+    PriceList.objects.create(
+        price=3990,
+        count=50,
+        learn_model=False,
+        sale="-50%",
+        type_price_list="video"
+    )
+    # PriceList.objects.create(
+    #     price=490,
+    #     count=10,
+    #     learn_model=True,
+    #     sale=None,
+    #     type_price_list="promo"
+    # )
 
 
 @shared_task

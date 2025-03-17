@@ -82,9 +82,9 @@ class PromocodeAdmin(ModelAdmin):
 @admin.register(Tune)
 class TuneAdmin(ModelAdmin):
     list_display = [
-        "id", "tune_id", "tg_user_id"
+        "id", "tune_id", "tg_user_id", "name"
     ]
-    list_display_links = ["tune_id",]
+    list_display_links = ["tune_id", "tg_user_id", "name"]
     search_fields = [
         "tune_id", "tg_user_id"
     ]

@@ -27,6 +27,7 @@ avatar_router = Router()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 class LearnModel(StatesGroup):
+    name = State()
     photo = State()
 
 
@@ -34,7 +35,6 @@ class LearnModel(StatesGroup):
 async def select_avatar_callback(call: types.CallbackQuery, state: FSMContext):
     await state.clear()
     tune_id = call.data.split("_")[1]
-    tune_num = call.data.split("_")[-1]
     tune = await get_tune(str(tune_id))
     asyncio.create_task(
         update_user(data={
@@ -45,7 +45,7 @@ async def select_avatar_callback(call: types.CallbackQuery, state: FSMContext):
     )
     keyboard = get_main_keyboard()
     await call.message.answer(
-        text=f"Смена модели прошла успешно, теперь используется «Модель №{tune_num}» ✅",
+        text=f"Смена аватара прошла успешно ✅",
         reply_markup=keyboard
     )
     
@@ -65,10 +65,10 @@ async def avatar_callback(call: types.CallbackQuery, state: FSMContext):
         )
         await call.message.answer("У Вас нет аватара, создайте его!", reply_markup=builder.as_markup())
     builder = InlineKeyboardBuilder()
-    for i, tune in enumerate(tunes, 1):
+    for tune in tunes:
         builder.button(
-            text=f"Модель {i}",
-            callback_data=f"tune_{tune.get('tune_id')}_{i}"
+            text=tune.get('name'),
+            callback_data=f"tune_{tune.get('tune_id')}"
         )
     builder.adjust(1, 1, 1, 1)
     builder.button(
@@ -76,7 +76,7 @@ async def avatar_callback(call: types.CallbackQuery, state: FSMContext):
         callback_data=f"start_upload_photo"
     )
     await call.message.answer(
-        text="Выберите модель:",
+        text="Выберите аватар:",
         reply_markup=builder.as_markup()
     )
 
@@ -93,10 +93,10 @@ async def avatar_handler(message: types.Message, state: FSMContext):
         )
         await message.answer("У Вас нет аватара, создайте его!", reply_markup=builder.as_markup())
     builder = InlineKeyboardBuilder()
-    for i, tune in enumerate(tunes, 1):
+    for tune in tunes:
         builder.button(
-            text=f"Модель {i}",
-            callback_data=f"tune_{tune.get('tune_id')}_{i}"
+            text=tune.get('name'),
+            callback_data=f"tune_{tune.get('tune_id')}"
         )
     builder.adjust(1, 1, 1, 1)
     builder.button(
@@ -104,14 +104,38 @@ async def avatar_handler(message: types.Message, state: FSMContext):
         callback_data=f"start_upload_photo"
     )
     await message.answer(
-        text="Выберите модель:",
+        text="Выберите аватар:",
         reply_markup=builder.as_markup()
     )
+    
+    
+@avatar_router.message(LearnModel.name)
+async def process_name(message: types.Message, state: FSMContext):
+    name = message.text  # Получаем введённое название
+    await state.update_data(name=name)  # Сохраняем название в состояние
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text="Мужчина",
+        callback_data="man"
+    )
+    builder.button(
+        text="Женщина",
+        callback_data="woman"
+    )
+    await message.answer(
+        text="""Осталось совсем чуть-чуть ❤️
+<b>Для начала выбери пол:</b>""",
+        reply_markup=builder.as_markup(),
+        parse_mode="HTML"
+    )
+    await state.set_state(LearnModel.photo)
 
 
 @avatar_router.message(F.media_group_id, LearnModel.photo)
 @media_group_handler
 async def handle_albums(messages: list[types.Message], state: FSMContext):
+    user_data = await state.get_data()
+    name = user_data.get("name")
     user_db = await get_user(messages[-1].chat.id)
     if not user_db.get("is_learn_model"):
         avatar_price_list = await get_avatar_price_list()
@@ -122,7 +146,7 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
         )
         await messages[-1].answer("Оплатите создание аватара", reply_markup=builder.as_markup())
         return
-    gender = user_db.get("gender")
+    gender = user_data.get("gender") or user_db.get("gender")
     if not gender:
         await messages[-1].answer("Пожалуйста, сначала укажите пол", reply_markup=get_main_keyboard())
         return
@@ -153,20 +177,20 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
         url = await get_user_url_images(m)
         img_urls.append(url)
         
-    asyncio.create_task(process_learning(messages, img_urls, gender))
+    asyncio.create_task(process_learning(messages, img_urls, gender, name))
     
 
 @avatar_router.callback_query(F.data.in_(["man", "woman"]))
-async def gender_selection(call: types.CallbackQuery, state: FSMContext):
-    await state.clear()
-    await state.set_state(LearnModel.photo)
-
+async def gender_selection(call: types.CallbackQuery, state: FSMContext):    
+    await state.update_data(gender=call.data)
+    
     asyncio.create_task(
         update_user(data={
             "tg_user_id": str(call.message.chat.id),
-            "gender": call.data
+            "gender": call.data,
         })
     )
+    
     await call.message.answer_photo(
         photo=types.FSInputFile(BASE_DIR / "media" / "inst.png"),
         caption="""
@@ -187,8 +211,9 @@ async def gender_selection(call: types.CallbackQuery, state: FSMContext):
 Если iPhone предложит «Конвертировать в JPEG», соглашайся 👍
 
 Теперь просто отправь 10 фотографий в бота ⬇️
-
-        """, parse_mode="HTML")
+        """, parse_mode="HTML"
+    )
+    await state.set_state(LearnModel.photo) 
     
     
 @avatar_router.callback_query(F.data == "start_upload_photo")
@@ -204,21 +229,10 @@ async def start_upload_photo_callback(call: types.CallbackQuery, state: FSMConte
         )
         await call.message.answer("Оплатите создание аватара", reply_markup=builder.as_markup())
         return
-    builder = InlineKeyboardBuilder()
-    builder.button(
-        text="Мужчина",
-        callback_data="man"
-    )
-    builder.button(
-        text="Женщина",
-        callback_data="woman"
-    )
-    await call.message.answer(
-        text="""Осталось совсем чуть-чуть ❤️
-<b>Для начала выбери пол:</b>""",
-        reply_markup=builder.as_markup(),
-        parse_mode="HTML"
-    )
+    
+    # Запрашиваем название аватара
+    await call.message.answer("Введите название для вашего аватара:")
+    await state.set_state(LearnModel.name) 
 
 
 def setup(dp):

@@ -27,12 +27,14 @@ async def create_user_db(
 async def create_tune(
     tg_user_id: str,
     tune_id: str,
-    gender: str
+    gender: str,
+    name: str
 ) -> dict:
     response = await client.post_request(url=DJANGO_URL+"/api/main/create-tune", data={
         "tg_user_id": tg_user_id,
         "tune_id": tune_id,
-        "gender": gender
+        "gender": gender,
+        "name": name
     })
     return response
 
