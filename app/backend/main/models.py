@@ -255,7 +255,10 @@ class Payment(models.Model):
         verbose_name="Кол-во обучений модели", default=0
     )
     count_generations_for_gift = models.PositiveIntegerField(
-        verbose_name="Кол-во генераций для подарка", default=0
+        verbose_name="Кол-во генераций фото для подарка", default=0
+    )
+    count_generations_video_for_gift = models.PositiveIntegerField(
+        verbose_name="Кол-во генераций видео для подарка", default=0
     )
     promo = models.BooleanField(verbose_name="Промо", default=False)
     amount = models.CharField(max_length=20, verbose_name="Сумма")
@@ -285,7 +288,9 @@ class Promocode(models.Model):
     created_at = models.DateTimeField(
         verbose_name="Создан", auto_now_add=True, null=True, blank=True,
     )
-    count_generations = models.PositiveIntegerField(default=False)
+    count_generations = models.PositiveIntegerField(default=0, verbose_name="Кол-во генераций фото")
+    count_video_generations = models.PositiveIntegerField(default=0, verbose_name="Кол-во генераций видео")
+    is_learn_model = models.BooleanField(default=False, verbose_name="Обучение модели")
 
     def __str__(self):
         return str(self.code)

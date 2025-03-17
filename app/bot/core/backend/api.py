@@ -45,6 +45,14 @@ async def update_user(
     return response
 
 
+async def update_promo(
+    data: dict
+) -> dict:
+    log.debug(data)
+    response = await client.post_request(url=DJANGO_URL + "/api/main/update-promo", data=data)
+    return response
+
+
 async def get_tunes(
     tg_user_id: str,
 ) -> dict:

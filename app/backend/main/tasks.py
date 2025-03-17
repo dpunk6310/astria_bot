@@ -21,7 +21,6 @@ from .models import (
     Category, 
     Promt, 
     Payment,
-    # RecurringPaymentAttempt,
 )
 from .utils import send_messages_newsletters, send_messages_reminders
 from .robo import create_recurring_payment
@@ -265,4 +264,3 @@ def recurring_payment_task(robo_pay: bool = False, attempt: int = 5):
         user.save()
 
         log.debug(f"Пользователь {user.tg_user_id}. Текущее количество попыток: {user.attempt}")
-                

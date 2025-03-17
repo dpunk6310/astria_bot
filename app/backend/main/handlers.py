@@ -16,6 +16,7 @@ from dto.payment import PaymentDTO, CreatePaymentDTO
 from dto.tune import TuneListDTO, CreateTuneDTO
 from dto.err import ErrorDTO, SuccessDTO
 from dto.category import CategoryDTO
+from dto.promo import UpdatePromoDTO
 from dto.price_list import PriceListDTO
 from dto.tgimage import TGImageDTO, CreateTGImageDTO
 from .models import (
@@ -87,7 +88,7 @@ async def payment_received(request):
 
         tg_user = await sync_to_async(TGUser.objects.get)(tg_user_id=payment.tg_user_id)
         
-        if payment.is_first_payment:
+        if payment.is_first_payment and payment.promo is None:
             callback_data = "start_upload_photo"
             button_text = "Инструкция"
             tg_user.maternity_payment_id = payment.payment_id
@@ -100,18 +101,18 @@ async def payment_received(request):
             except Exception as err:
                 log.error(err)
                     
-        if payment.subscription_renewal:
+        if payment.subscription_renewal and payment.promo is None:
             tg_user.subscribe = datetime.now() + timedelta(days=30)
             tg_user.attempt = 0
             tg_user.is_learn_model = bool(payment.learn_model)
         
-        if not payment.is_first_payment and payment.learn_model:
+        if not payment.is_first_payment and payment.learn_model and payment.promo is None:
             callback_data = "start_upload_photo"
             button_text = "Инструкция"
             tg_user.is_learn_model = bool(payment.learn_model)
         
         promocode_gen = ""
-        if payment.promo and payment.count_generations_for_gift > 0:
+        if payment.promo:
             promocode_gen = generate_promo_code(10)
             log.debug(promocode_gen)
             try:
@@ -121,6 +122,8 @@ async def payment_received(request):
                     tg_user_id=tg_user.tg_user_id,
                     code=promocode_gen,
                     count_generations=payment.count_generations_for_gift,
+                    count_video_generations=payment.count_generations_video_for_gift,
+                    is_learn_model=payment.learn_model,
                 )
             log.debug(promo)
 
@@ -130,7 +133,7 @@ async def payment_received(request):
         await sync_to_async(tg_user.save)()
         
         if payment.promo and payment.count_generations_for_gift > 0:
-            (BOT_TOKEN, payment.tg_user_id, promocode_gen)
+            send_promo_message(BOT_TOKEN, payment.tg_user_id, promocode_gen)
         
         if not payment.subscription_renewal and payment.promo is None:
             result = send_message_successfully_pay(BOT_TOKEN, payment.tg_user_id, callback_data, button_text)
@@ -227,6 +230,40 @@ async def update_user(request, req: UpdateUserDTO):
         return {"status": "success"}
     except Exception as err:
         log.error(f"Error updating user: {err}")
+        return {"message": "error", "err": str(err)}
+    
+    
+@router.post("/update-promo")
+async def update_promo(request, req: UpdatePromoDTO):
+    try:
+        code = req.code
+        tg_user_id = req.tg_user_id
+        new_status = req.status
+
+        promocode = await sync_to_async(Promocode.objects.filter(code=code).first)()
+        
+        if not promocode:
+            log.warning(f"Promocode not found: code={code}")
+            return {"message": "error", "err": "Promocode not found"}
+        
+        promocode.status = new_status
+        promocode.tg_user_id = tg_user_id
+        await sync_to_async(promocode.save)()
+        
+        user = await sync_to_async(TGUser.objects.filter(tg_user_id=tg_user_id).first)()
+        if not user:
+            log.warning(f"User not found: tg_user_id={tg_user_id}")
+            return {"message": "error", "err": "User not found"}
+        if promocode.status:
+            user.count_generations += promocode.count_generations
+            user.count_video_generations += promocode.count_video_generations
+            user.is_learn_model = promocode.is_learn_model
+            await sync_to_async(user.save)()
+        
+        log.info(f"Promocode updated: code={code}, tg_user_id={tg_user_id}, status={new_status}")
+        return {"status": "success"}
+    except Exception as err:
+        log.error(f"Error updating promocode: {err}")
         return {"message": "error", "err": str(err)}
 
     

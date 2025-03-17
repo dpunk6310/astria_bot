@@ -77,4 +77,4 @@ async def _send_message_photo(user_id: int, text: str, reply_markup, photo_url: 
 def generate_promo_code(length=8):
     characters = string.ascii_uppercase + string.digits
     promo_code = ''.join(random.choice(characters) for _ in range(length))
-    return promo_code
+    return "PROMO_" + promo_code

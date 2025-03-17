@@ -4,6 +4,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from core.backend.api import (
     get_user,
+    update_promo,
     get_price_list
 )
 from core.logger.logger import get_logger
@@ -19,14 +20,12 @@ async def give_pingvin_handler(message: types.Message):
     builder = InlineKeyboardBuilder()
     price_str = ""
     for i in price_list:
-        if i.get("learn_model"):
-            continue
         sale = i.get("sale", None)
         builder.button(
             text=f"{i.get('count')} фото",
-            callback_data=f"inst_payment_{i.get('price')}_0_{False}_0_{True}_{i.get('count')}"
+            callback_data=f"inst_payment_{i.get('price')}_0_{i.get('learn_model')}_0_{True}_{i.get('count')}"
         )
-        log.debug(f"inst_payment_{i.get('price')}_0_{False}_0_{True}_{i.get('count')}")
+        log.debug(f"inst_payment_{i.get('price')}_0_{i.get('learn_model')}_0_{True}_{i.get('count')}")
         if not sale or sale == "":
             price_str += f"* {i.get('count')} фото: {i.get('price')}₽\n"
         else:
@@ -41,6 +40,16 @@ async def give_pingvin_handler(message: types.Message):
         text=text,
         reply_markup=builder.as_markup()
     )
+    
+    
+@promo_router.message(F.text.contains("PROMO_"))
+async def activate_promo_handler(message: types.Message):
+    response = await update_promo(data={
+        "code": message.text,
+        "tg_user_id": str(message.chat.id),
+        "status": False,
+    })
+    log.debug(response)
 
 
 def setup(dp):
