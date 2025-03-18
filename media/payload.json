@@ -99,15 +99,15 @@
     {
         "Name": "100 подарочных генераций",
         "Quantity": 1,
-        "Cost": 1990,
+        "Cost": 1390,
         "Tax": "none",
         "PaymentMethod": "full_prepayment",
         "PaymentObject": "commodity"
     },
     {
-        "Name": "50 подарочных генераций",
+        "Name": "80 подарочных генераций",
         "Quantity": 1,
-        "Cost": 999,
+        "Cost": 990,
         "Tax": "none",
         "PaymentMethod": "full_prepayment",
         "PaymentObject": "commodity"
@@ -115,7 +115,7 @@
     {
         "Name": "10 подарочных генераций",
         "Quantity": 1,
-        "Cost": 300,
+        "Cost": 490,
         "Tax": "none",
         "PaymentMethod": "full_prepayment",
         "PaymentObject": "commodity"

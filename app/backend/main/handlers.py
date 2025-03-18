@@ -116,9 +116,9 @@ async def payment_received(request):
             promocode_gen = generate_promo_code(10)
             log.debug(promocode_gen)
             try:
-                promo = sync_to_async(Promocode.objects.get)(code=promocode_gen) 
+                promo = await sync_to_async(Promocode.objects.get)(code=promocode_gen) 
             except ObjectDoesNotExist:
-                promo = sync_to_async(Promocode.objects.create)(
+                promo = await sync_to_async(Promocode.objects.create)(
                     tg_user_id=tg_user.tg_user_id,
                     code=promocode_gen,
                     count_generations=payment.count_generations_for_gift,
@@ -132,8 +132,9 @@ async def payment_received(request):
         tg_user.has_purchased = True
         await sync_to_async(tg_user.save)()
         
-        if payment.promo and payment.count_generations_for_gift > 0:
-            send_promo_message(BOT_TOKEN, payment.tg_user_id, promocode_gen)
+        if payment.promo or promocode_gen != "":
+            result = send_promo_message(BOT_TOKEN, payment.tg_user_id, promocode_gen)
+            log.debug(result)
         
         if not payment.subscription_renewal and payment.promo is None:
             result = send_message_successfully_pay(BOT_TOKEN, payment.tg_user_id, callback_data, button_text)
