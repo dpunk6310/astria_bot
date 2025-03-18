@@ -70,11 +70,12 @@ async def avatar_callback(call: types.CallbackQuery, state: FSMContext):
             text=tune.get('name'),
             callback_data=f"tune_{tune.get('tune_id')}"
         )
-    builder.adjust(1, 1, 1, 1)
+    
     builder.button(
         text=f"Добавить аватар",
         callback_data=f"start_upload_photo"
     )
+    builder.adjust(1, 1, 1, 1)
     await call.message.answer(
         text="Выберите аватар:",
         reply_markup=builder.as_markup()
@@ -98,11 +99,13 @@ async def avatar_handler(message: types.Message, state: FSMContext):
             text=tune.get('name'),
             callback_data=f"tune_{tune.get('tune_id')}"
         )
-    builder.adjust(1, 1, 1, 1)
+    
     builder.button(
         text=f"Добавить аватар",
         callback_data=f"start_upload_photo"
     )
+    builder.adjust(1, 1, 1, 1)
+    
     await message.answer(
         text="Выберите аватар:",
         reply_markup=builder.as_markup()
