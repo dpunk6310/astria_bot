@@ -89,6 +89,7 @@ async def create_payment(
     count_video_generations: int = 0,
     promo: bool = False,
     count_generations_for_gift: int = 0,
+    count_generations_video_for_gift: int = 0
 ) -> dict:
     response = await client.post_request(url=DJANGO_URL+"/api/main/create-payment", data={
         "tg_user_id": tg_user_id,
@@ -99,7 +100,8 @@ async def create_payment(
         "is_first_payment": is_first_payment,
         "count_video_generations": count_video_generations,
         "promo": promo,
-        "count_generations_for_gift": count_generations_for_gift
+        "count_generations_for_gift": count_generations_for_gift,
+        "count_generations_video_for_gift": count_generations_video_for_gift
     })
     return response
 

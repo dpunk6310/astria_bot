@@ -150,7 +150,9 @@ async def payment_received(request):
 @router.get("/get-avatar-price-list", response={200: PriceListDTO, 400: ErrorDTO})
 async def get_avatar_pay(request):
     try:
-        price_list = await sync_to_async(PriceList.objects.get)(learn_model=True, type_price_list__ne="promo")
+        price_list = await sync_to_async(PriceList.objects.filter(learn_model=True).exclude(type_price_list="promo").first)()
+        if not price_list:
+            return 400, {"message": "error", "err": "Price list not found"}
         return 200, price_list
     except ObjectDoesNotExist:
         return 400, {"message": "error", "err": "Price list not found"}

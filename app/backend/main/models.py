@@ -171,9 +171,10 @@ class Promt(models.Model):
         
 class PriceList(models.Model):
     price = models.CharField(verbose_name="Цена", max_length=20)
-    count = models.PositiveIntegerField(verbose_name="Кол-во", default=20)
+    count = models.PositiveIntegerField(verbose_name="Кол-во", default=1)
+    count_video = models.PositiveIntegerField(verbose_name="Кол-во видео", default=1)
     learn_model = models.BooleanField(verbose_name="Обучение модели", default=False)
-    sale = models.CharField(verbose_name="Скидка", null=True, blank=True, default="", help_text="Например: 30%")
+    sale = models.CharField(verbose_name="Скидка", null=True, blank=True, default="", help_text="Например: -30%")
     type_price_list = models.CharField(
         verbose_name="Тип списка цен", 
         choices=TYPE_PRICE_CHOICES, 

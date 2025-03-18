@@ -23,18 +23,6 @@ async def learn_model_api(images: list[str], gender: str) -> dict:
     delay: int = 5
     max_attempts: int = 5
 
-    # Подготовка данных для запроса
-    # data = {
-    #     "tune[title]": model_title,
-    #     "tune[name]": gender,
-    #     "tune[base_tune_id]": 1504944,
-    #     "tune[model_type]": "lora",
-    #     "tune[preset]": "flux-lora-portrait",
-    #     "tune[training_face_correct]": "true",
-    #     "tune[steps]": 400,
-    #     "tune[callback]": "https://webhook.site/f9674fa9-1bd3-4e31-b6b5-624dd7f045e9",
-    # }
-
     data = {
         "tune": {
             "title": model_title,

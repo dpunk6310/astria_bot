@@ -42,12 +42,12 @@ async def prices_video_callback(call: types.CallbackQuery, state: FSMContext):
         if i.get("count") == 1:
             builder.button(
                 text=f"{i.get('count')} оживление",
-                callback_data=f"inst_payment_{i.get('price')}_0_{user_db.get('is_learn_model')}_{i.get('count')}_{False}"
+                callback_data=f"inst_payment_{i.get('price')}_0_{user_db.get('is_learn_model')}_{i.get('count')}_0_0_0"
             )
         else:
             builder.button(
                 text=f"{i.get('count')} оживлений",
-                callback_data=f"inst_payment_{i.get('price')}_0_{user_db.get('is_learn_model')}_{i.get('count')}_{False}"
+                callback_data=f"inst_payment_{i.get('price')}_0_{user_db.get('is_learn_model')}_{i.get('count')}_0_0_0"
             )
         if not sale or sale == "":
             price_str += f"* {i.get('count')} видео: {i.get('price')}₽\n"
@@ -271,19 +271,19 @@ async def inst_payment_callback(call: types.CallbackQuery, state: FSMContext):
     data = call.data.split("_")
     amount = int(data[2])
     count_generations = int(data[3])
-    learn_model = data[4]
+    learn_model = bool(data[4])
     count_video_generations = 0
     count_generations_for_gift = 0
+    count_generations_video_for_gift = 0
     promo = False
     try:
         count_video_generations = int(data[5])
         promo = bool(data[6])
-    except IndexError as err:
-        log.error(f"call data = {call.data}, err = {err}")
-    try:
         count_generations_for_gift = int(data[7])
+        count_generations_video_for_gift = int(data[8])
     except IndexError as err:
         log.error(f"call data = {call.data}, err = {err}")
+        
     while True:
         payment_id = random.randint(10, 214748347)
         pay_db = await get_payment(str(payment_id))
@@ -300,17 +300,18 @@ async def inst_payment_callback(call: types.CallbackQuery, state: FSMContext):
         count_video_generations=count_video_generations,
         promo=promo,
         count_generations_for_gift=count_generations_for_gift,
+        count_generations_video_for_gift=count_generations_video_for_gift,
     ))
-    log.debug(f"{count_generations} {promo}")
     description = ""
     if learn_model and count_generations == 0:
         description = "Создание дополнительной модели"
     if count_video_generations > 0:
         description = f"{count_video_generations} дополнительных оживлений"
-    if count_generations > 0 and promo is False:
+    if count_generations > 0:
         description = f"{count_generations} дополнительных генераций"
     if count_generations_for_gift > 0 and promo is True:
         description = f"{count_generations_for_gift} подарочных генераций"
+    
     items = [
         {
             "Name": description,
