@@ -42,12 +42,12 @@ async def prices_video_callback(call: types.CallbackQuery, state: FSMContext):
         if i.get("count") == 1:
             builder.button(
                 text=f"{i.get('count')} оживление",
-                callback_data=f"inst_payment_{i.get('price')}_0_{user_db.get('is_learn_model')}_{i.get('count')}"
+                callback_data=f"inst_payment_{i.get('price')}_0_{user_db.get('is_learn_model')}_{i.get('count')}_0_0_0"
             )
         else:
             builder.button(
                 text=f"{i.get('count')} оживлений",
-                callback_data=f"inst_payment_{i.get('price')}_0_{user_db.get('is_learn_model')}_{i.get('count')}"
+                callback_data=f"inst_payment_{i.get('price')}_0_{user_db.get('is_learn_model')}_{i.get('count')}_0_0_0"
             )
         if not sale or sale == "":
             price_str += f"* {i.get('count')} видео: {i.get('price')}₽\n"
@@ -60,10 +60,13 @@ async def prices_video_callback(call: types.CallbackQuery, state: FSMContext):
 Хотите больше генераций? 📹
 Варианты:
 {price_str}
-Выберите свой вариант!
+<b>Выберите свой вариант!</b>
+
+Если у вас есть промокод, введите его в <b>сообщение</b> ниже.
 
 """.format(price_str=price_str),
-        reply_markup=builder.as_markup()
+        reply_markup=builder.as_markup(),
+        parse_mode="HTML"
     )
     
     
@@ -195,7 +198,9 @@ async def first_payment_callback(call: types.CallbackQuery, state: FSMContext):
     builder.adjust(1,1,1)
     await call.message.answer(
         text="""
-Теперь самое время перейти к оплате! Можно оплатить как с карты РФ, так и с зарубежной.""",
+Теперь самое время перейти к оплате! <b>Можно оплатить как с карты РФ, так и с зарубежной.</b>
+
+Если у вас есть промокод, введите его в <b>сообщение</b> ниже.""",
         reply_markup=builder.as_markup(),
         parse_mode="HTML"
     )
@@ -232,7 +237,7 @@ async def reminders_callback(call: types.CallbackQuery, state: FSMContext):
     index = 0
     description = ""
     for i, v in enumerate(data):
-        if v.get("sum") == amount and v.get("name") == "Акция 1" or v.get("name") == "Акция 2":
+        if v.get("sum") == amount and "Акция" in v.get("name"):
             index = i
             description = f"{v.get('name')} {call.message.chat.id}"
             break
@@ -270,13 +275,20 @@ async def inst_payment_callback(call: types.CallbackQuery, state: FSMContext):
     await state.clear()
     data = call.data.split("_")
     amount = int(data[2])
-    сount_generations = int(data[3])
-    learn_model = data[4]
+    count_generations = int(data[3])
+    learn_model = bool(data[4])
     count_video_generations = 0
+    count_generations_for_gift = 0
+    count_generations_video_for_gift = 0
+    promo = False
     try:
         count_video_generations = int(data[5])
+        promo = bool(data[6])
+        count_generations_for_gift = int(data[7])
+        count_generations_video_for_gift = int(data[8])
     except IndexError as err:
         log.error(f"call data = {call.data}, err = {err}")
+        
     while True:
         payment_id = random.randint(10, 214748347)
         pay_db = await get_payment(str(payment_id))
@@ -287,29 +299,41 @@ async def inst_payment_callback(call: types.CallbackQuery, state: FSMContext):
         tg_user_id=str(call.message.chat.id),
         amount=str(amount),
         payment_id=str(payment_id),
-        сount_generations=сount_generations,
+        сount_generations=count_generations,
         learn_model=learn_model,
         is_first_payment=False,
         count_video_generations=count_video_generations,
+        promo=promo,
+        count_generations_for_gift=count_generations_for_gift,
+        count_generations_video_for_gift=count_generations_video_for_gift,
     ))
-    file_path = BASE_DIR / "media" / "payload.json"
-    with open(file_path, 'r', encoding='utf-8') as file:
-        data = json.load(file)
-    index = None
     description = ""
-    for i, v in enumerate(data):
-        if v.get("Cost") == amount and v.get("Name") != "Оплата подписки" and \
-            v.get("Name") != "Акция 1" and v.get("Name") != "Акция 2" and v.get("Name"):
-            index = i
-            description = v.get("Name")
-            break
+    if learn_model and count_generations == 0:
+        description = "Создание дополнительной модели"
+    if count_video_generations > 0:
+        description = f"{count_video_generations} дополнительных оживлений"
+    if count_generations > 0:
+        description = f"{count_generations} дополнительных генераций"
+    if count_generations_for_gift > 0 and promo is True:
+        description = f"{count_generations_for_gift} подарочных генераций"
+    
+    items = [
+        {
+            "Name": description,
+            "Quantity": 1,
+            "Cost": amount,
+            "Tax": "none",
+            "PaymentMethod": "full_prepayment",
+            "PaymentObject": "commodity"
+        }
+    ]
     payment_link = generate_payment_link(
         ROBOKASSA_MERCHANT_ID,
         ROBOKASSA_PASSWORD1,
         amount,
         int(payment_id),
         description + f" {call.message.chat.id}",
-        items=[data[index]],
+        items=items,
     )
     builder = InlineKeyboardBuilder()
     builder.button(

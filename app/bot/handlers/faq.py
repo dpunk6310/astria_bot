@@ -219,7 +219,7 @@ async def drop_subscribe_2_callback(call: types.CallbackQuery):
 Нам очень жаль с вами расставаться, поэтому предлагаем разовые пакеты генераций. 😔""".format(first_name=call.message.chat.first_name),
         parse_mode="HTML"
     )
-    await get_prices_photo(call=call)
+    await get_prices_photo(call=call, drop_subscribe=True)
 
 
 def setup(dp):

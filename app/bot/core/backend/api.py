@@ -27,12 +27,14 @@ async def create_user_db(
 async def create_tune(
     tg_user_id: str,
     tune_id: str,
-    gender: str
+    gender: str,
+    name: str
 ) -> dict:
     response = await client.post_request(url=DJANGO_URL+"/api/main/create-tune", data={
         "tg_user_id": tg_user_id,
         "tune_id": tune_id,
-        "gender": gender
+        "gender": gender,
+        "name": name
     })
     return response
 
@@ -42,6 +44,14 @@ async def update_user(
 ) -> dict:
     log.debug(data)
     response = await client.post_request(url=DJANGO_URL + "/api/main/update-user", data=data)
+    return response
+
+
+async def update_promo(
+    data: dict
+) -> dict:
+    log.debug(data)
+    response = await client.post_request(url=DJANGO_URL + "/api/main/update-promo", data=data)
     return response
 
 
@@ -77,6 +87,9 @@ async def create_payment(
     learn_model: bool = False,
     is_first_payment: bool = False,
     count_video_generations: int = 0,
+    promo: bool = False,
+    count_generations_for_gift: int = 0,
+    count_generations_video_for_gift: int = 0
 ) -> dict:
     response = await client.post_request(url=DJANGO_URL+"/api/main/create-payment", data={
         "tg_user_id": tg_user_id,
@@ -85,7 +98,10 @@ async def create_payment(
         "amount": amount,
         "learn_model": learn_model,
         "is_first_payment": is_first_payment,
-        "count_video_generations": count_video_generations
+        "count_video_generations": count_video_generations,
+        "promo": promo,
+        "count_generations_for_gift": count_generations_for_gift,
+        "count_generations_video_for_gift": count_generations_video_for_gift
     })
     return response
 

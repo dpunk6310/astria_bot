@@ -11,6 +11,9 @@ class CreatePaymentDTO(Schema):
     amount: str
     learn_model: bool
     is_first_payment: bool
+    promo: bool
+    count_generations_for_gift: int
+    count_generations_video_for_gift: Optional[int]
 
     
 class PaymentDTO(Schema):
@@ -19,3 +22,6 @@ class PaymentDTO(Schema):
     status: bool
     сount_generations: int
     amount: str
+    promo: bool
+    count_generations_for_gift: int
+    count_generations_video_for_gift: Optional[int]

@@ -12,6 +12,7 @@ GENDER_CHOICES = [
 TYPE_PRICE_CHOICES = [
     ('photo', 'photo'),
     ('video', 'video'),
+    ('promo', 'promo'),
 ]
 
 
@@ -170,9 +171,10 @@ class Promt(models.Model):
         
 class PriceList(models.Model):
     price = models.CharField(verbose_name="Цена", max_length=20)
-    count = models.PositiveIntegerField(verbose_name="Кол-во", default=20)
+    count = models.PositiveIntegerField(verbose_name="Кол-во", default=1)
+    count_video = models.PositiveIntegerField(verbose_name="Кол-во видео", default=1)
     learn_model = models.BooleanField(verbose_name="Обучение модели", default=False)
-    sale = models.CharField(verbose_name="Скидка", null=True, blank=True, default="", help_text="Например: 30%")
+    sale = models.CharField(verbose_name="Скидка", null=True, blank=True, default="", help_text="Например: -30%")
     type_price_list = models.CharField(
         verbose_name="Тип списка цен", 
         choices=TYPE_PRICE_CHOICES, 
@@ -188,29 +190,6 @@ class PriceList(models.Model):
         verbose_name_plural = "Prices List"
         db_table = "prices_list"
     
-
-class Image(models.Model):
-    tg_user = models.ForeignKey(
-        TGUser, 
-        on_delete=models.CASCADE, 
-        related_name="images", 
-        verbose_name="TG User"
-    )
-    img_path = models.CharField(
-        max_length=500, 
-        null=True, 
-        blank=True, 
-        verbose_name="Image path",
-    )
-    
-    def __str__(self):
-        return str(self.tg_user)
-    
-    class Meta:
-        verbose_name = "Image"
-        verbose_name_plural = "Images"
-        db_table = "images"
-        
         
 class TGImage(models.Model):
     tg_user = models.ForeignKey(
@@ -245,6 +224,7 @@ class Tune(models.Model):
         verbose_name="Tune ID"
     )
     gender = models.CharField(verbose_name="Пол", max_length=20)
+    name = models.CharField(verbose_name="Название", max_length=20, null=True, blank=True)
     
     def __str__(self):
         return str(self.tune_id)
@@ -265,6 +245,7 @@ class Payment(models.Model):
         unique=True,
         verbose_name="Payment ID"
     )
+    description = models.CharField(verbose_name="Описание", null=True, blank=True)
     status = models.BooleanField(verbose_name="Status", default=False)
     сount_generations = models.PositiveIntegerField(
         verbose_name="Кол-во генераций", default=0
@@ -272,6 +253,13 @@ class Payment(models.Model):
     count_video_generations = models.PositiveIntegerField(
         verbose_name="Кол-во генераций видео", default=0
     )
+    count_generations_for_gift = models.PositiveIntegerField(
+        verbose_name="Кол-во генераций фото для подарка", default=0
+    )
+    count_generations_video_for_gift = models.PositiveIntegerField(
+        verbose_name="Кол-во генераций видео для подарка", default=0
+    )
+    promo = models.BooleanField(verbose_name="Промо", default=False)
     amount = models.CharField(max_length=20, verbose_name="Сумма")
     learn_model = models.BooleanField(verbose_name="Обучение модели", default=False)
     is_first_payment = models.BooleanField(verbose_name="Первый платеж", default=False)
@@ -284,26 +272,29 @@ class Payment(models.Model):
         return str(self.payment_id)
     
     class Meta:
-        verbose_name = "Payment"
-        verbose_name_plural = "Payments"
+        verbose_name = "Платеж"
+        verbose_name_plural = "Платежи"
         db_table = "payments"
         
         
-# class RecurringPaymentAttempt(models.Model):
-#     tg_user = models.ForeignKey(
-#         TGUser, 
-#         on_delete=models.CASCADE, 
-#         verbose_name="Пользователь",
-#         related_name="recurring_payment_attempts"
-#     )
-#     attempt_date = models.DateField(verbose_name="Дата попытки")
-#     status = models.BooleanField(verbose_name="Статус попытки", default=False)
-#     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
-    
-#     def __str__(self):
-#         return str(self.tg_user.tg_user_id)
+class Promocode(models.Model):
+    tg_user_id = models.CharField(
+        max_length=30,
+        verbose_name="TG User ID"
+    )
+    code = models.CharField(max_length=200, verbose_name="Код", unique=True)
+    status = models.BooleanField(verbose_name="Status", default=True)
+    created_at = models.DateTimeField(
+        verbose_name="Создан", auto_now_add=True, null=True, blank=True,
+    )
+    count_generations = models.PositiveIntegerField(default=0, verbose_name="Кол-во генераций фото")
+    count_video_generations = models.PositiveIntegerField(default=0, verbose_name="Кол-во генераций видео")
+    is_learn_model = models.BooleanField(default=False, verbose_name="Обучение модели")
 
-#     class Meta:
-#         verbose_name = "Попытка автосписания"
-#         verbose_name_plural = "Попытки автосписания"
-#         db_table = "recurring_payment_attempts"
+    def __str__(self):
+        return str(self.code)
+    
+    class Meta:
+        verbose_name = "Промокод"
+        verbose_name_plural = "Промокоды"
+        db_table = "promocodes"

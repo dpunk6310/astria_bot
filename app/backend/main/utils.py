@@ -1,4 +1,6 @@
 import asyncio
+import random
+import string
 from pathlib import Path
 
 from loguru import logger as log
@@ -70,3 +72,9 @@ async def _send_message_photo(user_id: int, text: str, reply_markup, photo_url: 
         )
     except TelegramAPIError as e:
         log.error(f"Ошибка при отправке {user_id}: {e}")
+
+
+def generate_promo_code(length=8):
+    characters = string.ascii_uppercase + string.digits
+    promo_code = ''.join(random.choice(characters) for _ in range(length))
+    return "PROMO_" + promo_code

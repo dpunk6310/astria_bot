@@ -87,6 +87,7 @@ async def process_learning(
     messages: list[types.Message],
     imgs_url: list[str],
     gender: str,
+    name: str
 ):
     response = await learn_model_api(imgs_url, gender)
     tune_id = response.get("id")
@@ -109,7 +110,7 @@ async def process_learning(
         return
     training_complete = await wait_for_training(tune_id)
     if training_complete:
-        tune_db = await create_tune(tune_id=str(tune_id), tg_user_id=str(messages[-1].chat.id), gender=gender)
+        tune_db = await create_tune(tune_id=str(tune_id), tg_user_id=str(messages[-1].chat.id), gender=gender, name=name)
         if not tune_db:
             await messages[-1].answer(
                 text="Произошла ошибка во время обучения модели. Пожалуйста, обратитесь в техническую поддержку. Код ошибки: 222", 
@@ -408,7 +409,7 @@ async def generate_video_from_photo_task(call: types.CallbackQuery, photo_url: s
         log.error(f"Произошла ошибка при генерации видео | UserID={call.message.chat.id}| Error: {e} | Код ошибки: 33")
 
 
-async def get_prices_photo(call: types.CallbackQuery):
+async def get_prices_photo(call: types.CallbackQuery, drop_subscribe: bool = False):
     price_list = await get_price_list("photo")
     builder = InlineKeyboardBuilder()
     price_str = ""
@@ -419,23 +420,33 @@ async def get_prices_photo(call: types.CallbackQuery):
         sale = i.get("sale", None)
         builder.button(
             text=f"{i.get('count')} фото",
-            callback_data=f"inst_payment_{i.get('price')}_{i.get('count')}_{user_db.get('is_learn_model')}_0"
+            callback_data=f"inst_payment_{i.get('price')}_{i.get('count')}_{user_db.get('is_learn_model')}_0_0_0_0"
         )
         if not sale or sale == "":
             price_str += f"* {i.get('count')} фото: {i.get('price')}₽\n"
         else:
             price_str += f"* {i.get('count')} фото: {i.get('price')}₽ ({sale})\n"
     builder.adjust(2, 2, 2)
-    await call.message.answer(
-        text="""
+    text = """
 Рады, что вам понравилось! 
 Хотите больше генераций? 📸
 Варианты:
 {price_str}
-Выберите свой вариант!
+<b>Выберите свой вариант!</b>
 
-""".format(price_str=price_str),
-        reply_markup=builder.as_markup()
+Если у вас есть промокод, введите его в <b>сообщение</b> ниже.
+""".format(price_str=price_str)
+    if drop_subscribe:
+        text = """
+Хотите больше генераций? 📸
+Варианты:
+{price_str}
+Выберите свой вариант!
+""".format(price_str=price_str)
+    await call.message.answer(
+        text=text,
+        reply_markup=builder.as_markup(),
+        parse_mode="HTML"
     )
 
 
@@ -445,7 +456,8 @@ def get_main_keyboard():
             [types.KeyboardButton(text="Стили"), types.KeyboardButton(text="Режим бога")],
             [types.KeyboardButton(text="Выбор аватара"), types.KeyboardButton(text="Фото по фото")],
             [types.KeyboardButton(text="Генерации"), types.KeyboardButton(text="Служба поддержки")],
-            [types.KeyboardButton(text="Партнёрская программа"), types.KeyboardButton(text="FAQ")]
+            [types.KeyboardButton(text="Партнёрская программа"), types.KeyboardButton(text="FAQ")],
+            [types.KeyboardButton(text="Подарить Пингвин ИИ")],
         ],
         resize_keyboard=True
     )

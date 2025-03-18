@@ -1,16 +1,8 @@
 from django.contrib import admin
-# from django_celery_beat.models import (
-#     PeriodicTask, 
-#     IntervalSchedule, 
-#     CrontabSchedule, 
-#     SolarSchedule
-# )
-
 from django.contrib.admin import ModelAdmin, TabularInline
 
 from .models import (
     TGUser, 
-    Image, 
     Payment, 
     Tune, 
     PriceList, 
@@ -18,22 +10,9 @@ from .models import (
     Promt,
     Newsletter,
     TGImage,
-    # RecurringPaymentAttempt,
+    Promocode
 )
 
-
-@admin.register(Image)
-class ImageAdmin(ModelAdmin):
-    list_display = [
-        "id", "tg_user", "img_path"
-    ]
-    list_display_links = ["tg_user",]
-    search_fields = [
-        "tg_user",
-    ]
-    save_as = True
-    save_on_top = True
-    
     
 @admin.register(TGImage)
 class TGImageAdmin(ModelAdmin):
@@ -61,19 +40,6 @@ class NewsletterAdmin(ModelAdmin):
     save_on_top = True
     
     
-# @admin.register(RecurringPaymentAttempt)
-# class RecurringPaymentAttemptAdmin(ModelAdmin):
-#     list_display = [
-#         "id", "tg_user.tg_user_id", "attempt_date", "status", "created_at"
-#     ]
-#     list_display_links = ["tg_user.tg_user_id",]
-#     search_fields = [
-#         "tg_user.tg_user_id",
-#     ]
-#     save_as = True
-#     save_on_top = True
-    
-    
 @admin.register(PriceList)
 class PriceListAdmin(ModelAdmin):
     list_display = [
@@ -90,7 +56,7 @@ class PriceListAdmin(ModelAdmin):
 @admin.register(Payment)
 class PaymentAdmin(ModelAdmin):
     list_display = [
-        "id", "payment_id", "tg_user_id", "amount", "is_first_payment", "status"
+        "id", "payment_id", "tg_user_id", "amount", "is_first_payment", "status", "description"
     ]
     list_display_links = ["payment_id",]
     search_fields = [
@@ -100,12 +66,25 @@ class PaymentAdmin(ModelAdmin):
     save_on_top = True
     
     
+@admin.register(Promocode)
+class PromocodeAdmin(ModelAdmin):
+    list_display = [
+        "id", "tg_user_id", "code", "status", "created_at"
+    ]
+    list_display_links = ["tg_user_id", "code"]
+    search_fields = [
+        "tg_user_id", "code"
+    ]
+    save_as = True
+    save_on_top = True
+    
+    
 @admin.register(Tune)
 class TuneAdmin(ModelAdmin):
     list_display = [
-        "id", "tune_id", "tg_user_id"
+        "id", "tune_id", "tg_user_id", "name"
     ]
-    list_display_links = ["tune_id",]
+    list_display_links = ["tune_id", "tg_user_id", "name"]
     search_fields = [
         "tune_id", "tg_user_id"
     ]

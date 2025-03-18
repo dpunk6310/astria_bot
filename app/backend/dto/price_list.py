@@ -8,3 +8,4 @@ class PriceListDTO(Schema):
     count: int
     learn_model: bool
     sale: Optional[str]
+    count_video: int

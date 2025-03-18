@@ -5,9 +5,11 @@ class CreateTuneDTO(Schema):
     tg_user_id: str
     tune_id: str
     gender: str
+    name: str
 
 
 class TuneListDTO(Schema):
     tg_user_id: str
     tune_id: str
     gender: str
+    name: str

@@ -95,6 +95,32 @@
         "PaymentMethod": "full_prepayment",
         "PaymentObject": "commodity"
     },
+
+    {
+        "Name": "100 подарочных генераций",
+        "Quantity": 1,
+        "Cost": 1990,
+        "Tax": "none",
+        "PaymentMethod": "full_prepayment",
+        "PaymentObject": "commodity"
+    },
+    {
+        "Name": "50 подарочных генераций",
+        "Quantity": 1,
+        "Cost": 999,
+        "Tax": "none",
+        "PaymentMethod": "full_prepayment",
+        "PaymentObject": "commodity"
+    },
+    {
+        "Name": "10 подарочных генераций",
+        "Quantity": 1,
+        "Cost": 300,
+        "Tax": "none",
+        "PaymentMethod": "full_prepayment",
+        "PaymentObject": "commodity"
+    },
+
     {
         "Name": "1 дополнительных оживлений",
         "Quantity": 1,
