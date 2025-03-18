@@ -111,8 +111,11 @@ async def avatar_handler(message: types.Message, state: FSMContext):
     
 @avatar_router.message(LearnModel.name)
 async def process_name(message: types.Message, state: FSMContext):
-    name = message.text  # Получаем введённое название
-    await state.update_data(name=name)  # Сохраняем название в состояние
+    name = message.text 
+    if len(name) > 20:
+        await message.answer("Название аватара не должно превышать 20 символов. Пожалуйста, введите название ещё раз.")
+        return 
+    await state.update_data(name=name) 
     builder = InlineKeyboardBuilder()
     builder.button(
         text="Мужчина",

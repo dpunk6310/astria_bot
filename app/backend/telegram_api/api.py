@@ -26,7 +26,15 @@ def send_message_successfully_pay(bot_token: str, chat_id: str, callback_data: s
 def send_promo_message(bot_token: str, chat_id: str, promocode_gen: str):
     payload = {
         "chat_id": chat_id,
-        "text": """Ваш промокод: <code>{promocode_gen}</code>""".format(promocode_gen=promocode_gen),
+        "text": """
+<b>Ваш промокод создан!</b> 🪪
+
+Нажмите и скопируйте его: <code>{promocode_gen}</code>
+
+Передайте этот промокод получателю – он активирует его в нашем боте.
+
+<b>Обратите внимание, промокод можно ввести только ОДИН раз</b>
+        """.format(promocode_gen=promocode_gen),
         "parse_mode": "HTML"
     }
     url = f"https://api.telegram.org/bot{bot_token}/sendMessage"

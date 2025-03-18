@@ -432,7 +432,9 @@ async def get_prices_photo(call: types.CallbackQuery, drop_subscribe: bool = Fal
 Хотите больше генераций? 📸
 Варианты:
 {price_str}
-Выберите свой вариант!
+<b>Выберите свой вариант!</b>
+
+Если у вас есть промокод, введите его в <b>сообщение</b> ниже.
 """.format(price_str=price_str)
     if drop_subscribe:
         text = """
@@ -443,7 +445,8 @@ async def get_prices_photo(call: types.CallbackQuery, drop_subscribe: bool = Fal
 """.format(price_str=price_str)
     await call.message.answer(
         text=text,
-        reply_markup=builder.as_markup()
+        reply_markup=builder.as_markup(),
+        parse_mode="HTML"
     )
 
 
@@ -452,9 +455,9 @@ def get_main_keyboard():
         keyboard=[
             [types.KeyboardButton(text="Стили"), types.KeyboardButton(text="Режим бога")],
             [types.KeyboardButton(text="Выбор аватара"), types.KeyboardButton(text="Фото по фото")],
-            [types.KeyboardButton(text="Подарить Пингвин ИИ")],
             [types.KeyboardButton(text="Генерации"), types.KeyboardButton(text="Служба поддержки")],
-            [types.KeyboardButton(text="Партнёрская программа"), types.KeyboardButton(text="FAQ")]
+            [types.KeyboardButton(text="Партнёрская программа"), types.KeyboardButton(text="FAQ")],
+            [types.KeyboardButton(text="Подарить Пингвин ИИ")],
         ],
         resize_keyboard=True
     )

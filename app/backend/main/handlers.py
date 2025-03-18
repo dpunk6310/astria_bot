@@ -259,11 +259,18 @@ async def update_promo(request, req: UpdatePromoDTO):
             
             user.count_generations += promocode.count_generations
             user.count_video_generations += promocode.count_video_generations
-            user.is_learn_model = promocode.is_learn_model
+            if not user.is_learn_model:
+                user.is_learn_model = promocode.is_learn_model
             await sync_to_async(user.save)()
             
             log.info(f"Promocode updated: code={code}, tg_user_id={tg_user_id}, status={new_status}")
-            return {"status": "success"}
+            return {
+                "code": promocode.code,
+                "status": promocode.status,
+                "count_generations": promocode.count_generations,
+                "count_video_generations": promocode.count_video_generations,
+                "is_learn_model": promocode.is_learn_model,
+            }
         return {"status": "unactive"}
     except Exception as err:
         log.error(f"Error updating promocode: {err}")

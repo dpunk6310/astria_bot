@@ -49,7 +49,30 @@ async def activate_promo_handler(message: types.Message):
         "tg_user_id": str(message.chat.id),
         "status": False,
     })
-    log.debug(response)
+    if not response or not response.get("code"):
+        await message.answer(text="Такого промода не существует, либо он уже активирован 😕")
+        return
+    # code = response.get("code")
+    # status = response.get("status")
+    count_generations = response.get("count_generations")
+    count_video_generations = response.get("count_video_generations")
+    is_learn_model = bool(response.get("is_learn_model"))
+    
+    help_text = f"{count_generations} фото, {count_video_generations} оживление"
+    if is_learn_model:
+        help_text = f"{count_generations} фото, 1 аватар, {count_video_generations} оживление"
+    if count_video_generations == 0:
+        help_text = f"{count_generations} фото, 1 аватар"
+    if not is_learn_model and count_video_generations == 0:
+        help_text = f"{count_generations} фото"
+    await message.answer(
+        text="""<b>Ваш промокод успешно активирован!</b> 🐧
+
+Вам начислено:
+
+{help_text}
+""".format(help_text=help_text), parse_mode="HTML"
+    )
 
 
 def setup(dp):

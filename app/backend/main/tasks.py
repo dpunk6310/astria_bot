@@ -25,7 +25,8 @@ from .models import (
     Category, 
     Promt, 
     Payment,
-    PriceList
+    PriceList,
+    Tune
 )
 from .utils import generate_promo_code, send_messages_newsletters, send_messages_reminders
 from .robo import create_recurring_payment
@@ -361,22 +362,11 @@ def create_default_price_list():
 
 
 @shared_task
-def test_task(payment_id: str):
-    payment = Payment.objects.get(payment_id=payment_id)
-    tg_user = TGUser.objects.get(tg_user_id=payment.tg_user_id)
-    if payment.promo and payment.count_generations_for_gift > 0:
-        promocode_gen = generate_promo_code(10)
-        log.debug(promocode_gen)
-        try:
-            promo = Promocode.objects.get(code=promocode_gen) 
-        except Exception:
-            promo = Promocode.objects.create(
-                tg_user_id=tg_user.tg_user_id,
-                code=promocode_gen,
-                count_generations=payment.count_generations_for_gift,
-                count_video_generations=payment.count_generations_video_for_gift,
-                is_learn_model=payment.learn_model,
-            )
-        log.debug(promo)
-    if payment.promo and payment.count_generations_for_gift > 0:
-        send_promo_message(BOT_TOKEN, payment.tg_user_id, promocode_gen)
+def update_tune_names_per_user():
+    users = Tune.objects.values_list('tg_user_id', flat=True).distinct()
+    
+    for user_id in users:
+        tunes = Tune.objects.filter(tg_user_id=user_id).exclude(name__isnull=False).order_by('id')
+        for index, tune in enumerate(tunes, start=1):
+            tune.name = f"Модель {index}"
+        Tune.objects.bulk_update(tunes, ['name'])
