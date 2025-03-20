@@ -420,7 +420,7 @@ async def get_prices_photo(call: types.CallbackQuery, drop_subscribe: bool = Fal
         sale = i.get("sale", None)
         builder.button(
             text=f"{i.get('count')} фото",
-            callback_data=f"inst_payment_{i.get('price')}_{i.get('count')}_{user_db.get('is_learn_model')}_0_0_0_0"
+            callback_data=f"inst_payment_{i.get('price')}_{i.get('count')}_{user_db.get('is_learn_model')}_0"
         )
         if not sale or sale == "":
             price_str += f"* {i.get('count')} фото: {i.get('price')}₽\n"
