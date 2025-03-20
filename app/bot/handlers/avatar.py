@@ -148,7 +148,7 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
         builder = InlineKeyboardBuilder()
         builder.button(
             text=f"{avatar_price_list.get('count')} модель",
-            callback_data=f"inst_payment_{avatar_price_list.get('price')}_0_{avatar_price_list.get('learn_model')}_0_0_0_0"
+            callback_data=f"inst_payment_{avatar_price_list.get('price')}_0_{avatar_price_list.get('learn_model')}_0"
         )
         await messages[-1].answer("Оплатите создание аватара", reply_markup=builder.as_markup())
         return
@@ -231,7 +231,7 @@ async def start_upload_photo_callback(call: types.CallbackQuery, state: FSMConte
         builder = InlineKeyboardBuilder()
         builder.button(
             text=f"{avatar_price_list.get('count')} модель",
-            callback_data=f"inst_payment_{avatar_price_list.get('price')}_0_{avatar_price_list.get('learn_model')}_0_0_0_0"
+            callback_data=f"inst_payment_{avatar_price_list.get('price')}_0_{avatar_price_list.get('learn_model')}_0"
         )
         await call.message.answer("Оплатите создание аватара", reply_markup=builder.as_markup())
         return
