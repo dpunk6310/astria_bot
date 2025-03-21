@@ -204,8 +204,6 @@ async def drop_subscribe_1_callback(call: types.CallbackQuery):
 @faq_router.callback_query(F.data == "drop_subscribe_2")
 async def drop_subscribe_2_callback(call: types.CallbackQuery):
     await call.message.delete()
-    # user_db = await get_user(str(call.message.chat.id))
-    # if not user_db.get("maternity_payment_id"):
     asyncio.create_task(
         update_user(data={
             "tg_user_id": str(call.message.chat.id),
