@@ -91,8 +91,9 @@ async def process_learning(
 ):
     response = await learn_model_api(imgs_url, gender)
     tune_id = response.get("id")
+    builder = InlineKeyboardBuilder()
     if not tune_id:
-        builder = InlineKeyboardBuilder()
+        
         builder.button(
             text="Служба поддержки",
             callback_data="support"
