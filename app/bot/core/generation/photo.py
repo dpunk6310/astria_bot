@@ -61,12 +61,6 @@ async def learn_model_api(images: list[str], gender: str) -> dict:
                 log.warning(f"Достигнуто максимальное количество попыток ({max_attempts}). Обучение модели прервано.")
 
     return None
-
-
-
-def load_image(file_path):
-    with open(file_path, "rb") as f:
-        return f.read()
     
     
 async def generate_images(tune_id: int, prompt: str, effect: str = None, num_images: int = 3) -> dict:
@@ -112,7 +106,6 @@ async def generate_images(tune_id: int, prompt: str, effect: str = None, num_ima
     return None
 
 
-
 async def generate_images_from_image(tune_id: int, prompt: str, image_url: str, effect: str = None, num_images: int = 2) -> dict:
     attempts = 0
     delay = 8
@@ -156,12 +149,6 @@ async def generate_images_from_image(tune_id: int, prompt: str, image_url: str, 
                     log.warning("Достигнуто максимальное количество попыток. Генерация изображений прервана.")
     return None
                     
-
-
-def load_image(file_path):
-    with open(file_path, "rb") as f:
-        return f.read()
-    
     
 async def wait_for_generation(prompt_id: int):
     """ Асинхронное ожидание завершения генерации изображения по указанному prompt_id.
