@@ -14,6 +14,7 @@ from core.backend.api import (
     get_tunes,
     get_tune
 )
+from core.logger.logger import get_logger
 
 from .utils import (
     get_user_url_images,
@@ -23,6 +24,7 @@ from .utils import (
 
 
 avatar_router = Router()
+log = get_logger()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -182,7 +184,7 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
     for m in messages:
         url = await get_user_url_images(m)
         img_urls.append(url)
-        
+    log.debug(img_urls)
     asyncio.create_task(process_learning(messages, img_urls, gender, name))
     
 
