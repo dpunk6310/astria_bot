@@ -1,6 +1,6 @@
 import json
 import random
-from datetime import timedelta, date
+from datetime import timedelta, date, datetime
 from pathlib import Path
 
 from asgiref.sync import async_to_sync
@@ -14,6 +14,8 @@ from django.db.models import DecimalField
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from django.db.utils import IntegrityError
 from celery import shared_task
+
+from django.utils import timezone
 
 from telegram_api.api import send_message_successfully_pay, send_promo_message
 from config.settings import BOT_TOKEN
@@ -368,3 +370,23 @@ def update_tune_names_per_user():
         for index, tune in enumerate(tunes, start=1):
             tune.name = f"Модель {index}"
         Tune.objects.bulk_update(tunes, ['name'])
+
+
+@shared_task
+def update_payments_user(start_date_str: str = "2025-02-28", if_update: bool = False):
+    start_date = timezone.make_aware(datetime.strptime(start_date_str, "%Y-%m-%d"))
+
+    first_payments = Payment.objects.filter(
+        created_at__gte=start_date,
+        is_first_payment=True,
+        status=True,
+    ).distinct('tg_user_id')
+    log.debug(len(first_payments))
+    if if_update:
+        for payment in first_payments:
+            user = TGUser.objects.filter(tg_user_id=payment.tg_user_id).first()
+            
+            if user:
+                user.maternity_payment_id = payment.payment_id
+                user.subscribe = payment.created_at + timedelta(days=30)
+                user.save()
