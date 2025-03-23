@@ -88,7 +88,8 @@ async def payment_received(request):
 
         tg_user = await sync_to_async(TGUser.objects.get)(tg_user_id=payment.tg_user_id)
         
-        if payment.is_first_payment and payment.promo is None or payment.promo is False:
+        # Первый платеж
+        if payment.is_first_payment:
             callback_data = "start_upload_photo"
             button_text = "Инструкция"
             tg_user.maternity_payment_id = payment.payment_id
@@ -100,18 +101,34 @@ async def payment_received(request):
                     await sync_to_async(referal.save)()
             except Exception as err:
                 log.error(err)
-                    
-        if payment.subscription_renewal and payment.promo is None or payment.promo is False:
+            tg_user.count_generations += payment.сount_generations
+            tg_user.count_video_generations += payment.count_video_generations
+            tg_user.has_purchased = True
+            await sync_to_async(tg_user.save)()
+            result = send_message_successfully_pay(BOT_TOKEN, payment.tg_user_id, callback_data, button_text)
+            return 200, {"status": "ok", "message": "Success"}
+        
+        # Продление подписки
+        if payment.subscription_renewal:
             tg_user.subscribe = datetime.now() + timedelta(days=30)
             tg_user.attempt = 0
             tg_user.is_learn_model = bool(payment.learn_model)
+            tg_user.count_generations += payment.сount_generations
+            tg_user.count_video_generations += payment.count_video_generations
+            tg_user.has_purchased = True
+            await sync_to_async(tg_user.save)()
+            return 200, {"status": "ok", "message": "Success"}
         
-        if not payment.is_first_payment and payment.learn_model and payment.promo is None or payment.promo is False:
+        # Оплата обучения
+        if not payment.is_first_payment and not payment.subscription_renewal and payment.learn_model and not payment.promo:
             callback_data = "start_upload_photo"
             button_text = "Инструкция"
             tg_user.is_learn_model = bool(payment.learn_model)
-        
-        promocode_gen = ""
+            result = send_message_successfully_pay(BOT_TOKEN, payment.tg_user_id, callback_data, button_text)
+            await sync_to_async(tg_user.save)()
+            return 200, {"status": "ok", "message": "Success"}
+            
+        # Покупка промокода
         if payment.promo is True:
             promocode_gen = generate_promo_code(10)
             log.debug(promocode_gen)
@@ -126,18 +143,16 @@ async def payment_received(request):
                     is_learn_model=payment.learn_model,
                 )
             log.debug(promo)
+            result = send_promo_message(BOT_TOKEN, payment.tg_user_id, promocode_gen)
+            log.debug(result)
+            return 200, {"status": "ok", "message": "Success"}
 
         tg_user.count_generations += payment.сount_generations
         tg_user.count_video_generations += payment.count_video_generations
         tg_user.has_purchased = True
         await sync_to_async(tg_user.save)()
         
-        if payment.promo is True or promocode_gen != "":
-            result = send_promo_message(BOT_TOKEN, payment.tg_user_id, promocode_gen)
-            log.debug(result)
-        
-        if not payment.subscription_renewal or not payment.promo or payment.promo is None:
-            result = send_message_successfully_pay(BOT_TOKEN, payment.tg_user_id, callback_data, button_text)
+        result = send_message_successfully_pay(BOT_TOKEN, payment.tg_user_id, callback_data, button_text)
 
         return 200, {"status": "ok", "message": "Success"}
     except ObjectDoesNotExist as err:

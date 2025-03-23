@@ -235,9 +235,7 @@ def recurring_payment_task(robo_pay: bool = False, attempt: int = 5):
                 break
 
         amount = int(payment.amount)
-        if amount == 1390:
-            amount = 990
-        
+
         new_payment = Payment.objects.create(
             tg_user_id=user.tg_user_id,
             payment_id=cr_payment_id,
