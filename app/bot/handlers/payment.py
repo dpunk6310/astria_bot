@@ -42,12 +42,12 @@ async def prices_video_callback(call: types.CallbackQuery, state: FSMContext):
         if i.get("count") == 1:
             builder.button(
                 text=f"{i.get('count')} оживление",
-                callback_data=f"inst_payment_{i.get('price')}_0_{user_db.get('is_learn_model')}_{i.get('count')}_0_0_0"
+                callback_data=f"inst_payment_{i.get('price')}_0_{user_db.get('is_learn_model')}_{i.get('count')}"
             )
         else:
             builder.button(
                 text=f"{i.get('count')} оживлений",
-                callback_data=f"inst_payment_{i.get('price')}_0_{user_db.get('is_learn_model')}_{i.get('count')}_0_0_0"
+                callback_data=f"inst_payment_{i.get('price')}_0_{user_db.get('is_learn_model')}_{i.get('count')}"
             )
         if not sale or sale == "":
             price_str += f"* {i.get('count')} видео: {i.get('price')}₽\n"
@@ -276,11 +276,12 @@ async def inst_payment_callback(call: types.CallbackQuery, state: FSMContext):
     data = call.data.split("_")
     amount = int(data[2])
     count_generations = int(data[3])
-    learn_model = bool(data[4])
+    learn_model = True if data[4] == "True" else False
     count_video_generations = 0
     count_generations_for_gift = 0
     count_generations_video_for_gift = 0
     promo = False
+    log.debug(data)
     try:
         count_video_generations = int(data[5])
         promo = bool(data[6])
