@@ -8,13 +8,13 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.filters import StateFilter
 
 from core.backend.api import (
+    get_random_prompt,
     get_user,
     get_tunes,
     update_user,
     get_categories
 )
 from .utils import (
-    run_generation_photo,
     generate_photos_helper,
     get_main_keyboard,
     generate_photo_from_photo_helper,
@@ -71,7 +71,7 @@ async def styles_effect_handler(message: types.Message, state: FSMContext):
         )
 
     tunes = await get_tunes(str(message.chat.id))
-    if not tunes or not user_db.get("gender"):
+    if not tunes:
         builder = InlineKeyboardBuilder()
         builder.button(
             text=f"Добавить аватар",
@@ -79,6 +79,13 @@ async def styles_effect_handler(message: types.Message, state: FSMContext):
         )
         await message.answer("У Вас нет аватара, создайте его!", reply_markup=builder.as_markup())
         return
+    
+    if not user_db.get("gender"):
+        user_db = await update_user(data={
+            "tg_user_id": str(message.chat.id),
+            "gender": tunes[0].get('gender'),
+            "tune_id": tunes[0].get("tune_id")
+        })
 
     categories = await get_categories(gender=user_db.get("gender"))
     builder = InlineKeyboardBuilder()
@@ -327,7 +334,7 @@ async def handle_effect_handler(call: types.CallbackQuery, state: FSMContext):
     if effect != "no_effect":
         effect = effect.split("_")[0]
     else:
-        effect = None
+        effect = ""
     
     asyncio.create_task(
         update_user(data={
@@ -350,7 +357,6 @@ async def handle_effect_handler(call: types.CallbackQuery, state: FSMContext):
     if user_db.get("god_mod"):
         if user_db.get("god_mod_text"):
             god_mod_text = f"sks {user_db.get('gender')} {user_db.get('god_mod_text')}"
-            await call.message.answer("Создаем ваше фото, немного подождите")
             asyncio.create_task(generate_photos_helper(
                 call=call,
                 effect=effect,
@@ -374,9 +380,14 @@ async def handle_effect_handler(call: types.CallbackQuery, state: FSMContext):
             return
     if not user_db.get("tune_id"):
         user_db["tune_id"] = tunes[0].get("tune_id")
-    asyncio.create_task(
-        run_generation_photo(call, user_db, effect)
-    )
+    user_prompt = await get_random_prompt(category_slug=user_db.get("category"))
+    tune_id = user_db.get('tune_id') if user_db.get("tune_id") else tunes[0].get("tune_id")
+    asyncio.create_task(generate_photos_helper(
+        call=call,
+        effect=effect,
+        tune_id=int(tune_id),
+        user_prompt=user_prompt
+    ))
     
    
 @gen_photo_router.callback_query(F.data.contains("category_"))

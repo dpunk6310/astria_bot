@@ -17,7 +17,6 @@ from core.backend.api import (
 from core.logger.logger import get_logger
 
 from .utils import (
-    get_user_url_images,
     process_learning,
     get_main_keyboard,
 )
@@ -180,12 +179,7 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
 
 Там мы публикуем оригинальные идеи стилей и промтов для твоих новых фотографий, а также актуальные новости.
 """)
-    img_urls = []
-    for m in messages:
-        url = await get_user_url_images(m)
-        img_urls.append(url)
-    log.debug(img_urls)
-    asyncio.create_task(process_learning(messages, img_urls, gender, name))
+    asyncio.create_task(process_learning(messages, gender, name))    
     
 
 @avatar_router.callback_query(F.data.in_(["man", "woman"]))

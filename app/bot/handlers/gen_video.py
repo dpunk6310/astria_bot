@@ -5,14 +5,13 @@ from aiogram import types, Router, F
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.fsm.context import FSMContext
 
+from core.generation.video import generate_video
 from core.backend.api import (
     get_user,
     get_tgimage,
+    update_user
 )
 from core.logger.logger import get_logger
-from .utils import (
-    generate_video_from_photo_task
-)
 from loader import bot
 
 
@@ -48,7 +47,18 @@ async def bring_photo_to_life(call: types.CallbackQuery, state: FSMContext):
 Начинаю обработку...
 <b>Это займет примерно 5 минут</b>""", parse_mode="HTML")
     
-    asyncio.create_task(generate_video_from_photo_task(call, photo_url, user_db))
+    response = await generate_video(call.message.chat.id, photo_url)
+    if not response:
+        await call.message.answer("Произошла ошибка при генерации видео. Попробуйте еще раз 😢. Код ошибки: 3")
+        new_count_gen = user_db.get("count_video_generations") + 1
+        asyncio.create_task(
+            update_user(data={
+                "tg_user_id": str(call.message.chat.id), 
+                "count_video_generations": new_count_gen, 
+            })
+        )
+        log.error(f"Произошла ошибка при генерации видео | UserID={call.message.chat.id} | Код ошибки: 3")
+        return
 
 
 def setup(dp):

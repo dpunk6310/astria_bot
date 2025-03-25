@@ -5,22 +5,26 @@ HEADERS = {
     "Authorization": "Bearer HU7g7_jkbvjv6342JBKb_edjfn3gkj_3242kjbgkdkjgb_6568uyV_iyg"
 }
 
-GENERATE_VIDEO_URL = "http://212.237.217.54:82/api/generate-video"
+TRAIN_MODEL_URL = "http://212.237.217.54:82/api/create-train"
 
 
-async def generate_video(
+async def create_train(
     chat_id: int, 
-    image_url: str,
+    images: list[str],
+    gender: str,
+    name: str,
 ):
     payload = {
-        "api_name": "falai",
+        "api_name": "astria",
+        "images": images,
+        "gender": gender,
         "chat_id": chat_id,
-        "image_url": image_url,
+        "name": name,
     }
 
     async with httpx.AsyncClient() as client:
         response = await client.post(
-            url=GENERATE_VIDEO_URL,
+            url=TRAIN_MODEL_URL,
             headers=HEADERS,
             json=payload,
         )
