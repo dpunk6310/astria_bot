@@ -1,33 +1,25 @@
-import os
 import asyncio
-from pathlib import Path
 
 from aiogram import types
 
+from core.generation.pfp import generate_pfp_v2
 from core.backend.api import (
     get_user,
     update_user,
-    create_tg_image,
     get_price_list,
 )
 from core.generation.train import create_train
 from core.logger.logger import get_logger
-from aiogram.utils.media_group import MediaGroupBuilder
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from core.utils.chatgpt import translate_promt2, get_image_prompt
-from core.generation.photo import (
-    generate_images_from_image,
-    wait_for_generation,
-)
+from core.utils.chatgpt import translate_promt2
 from core.generation.photo_v2 import (
     generate_images_v2
 )
-from core.generation.video import generate_video
 from loader import bot
 
 
-# BASE_DIR = Path(__file__).resolve().parent.parent
 log = get_logger()
+
 
 async def create_referal(user_db: dict, message: types.Message) -> dict:
     if not user_db.get("referal"):
@@ -40,36 +32,6 @@ async def create_referal(user_db: dict, message: types.Message) -> dict:
                     "referal": referal,
                 })
 
- 
-# async def download_user_images(m: types.Message):
-#     photos_path = BASE_DIR / "media" / "photos"
-    
-#     if not os.path.exists(photos_path):
-#         os.makedirs(photos_path)
-        
-#     if m.photo:
-#         photo = await bot.get_file(m.photo[-1].file_id)
-#         file_path = photo.file_path
-#         output_filename = f"{photos_path}/{uuid4()}_{file_path.replace('photos/', '')}"
-#         await m.bot.download_file(
-#             file_path, destination=output_filename
-#         )
-#         await create_img_path(
-#             tg_user_id=str(m.chat.id),
-#             path=output_filename
-#         )
-#     if m.document:
-#         photo = await m.bot.get_file(m.document.file_id)
-#         file_path = photo.file_path
-#         output_filename = f"{photos_path}/{uuid4()}_{file_path.replace('documents/', '')}"
-#         await m.bot.download_file(
-#             file_path, destination=output_filename
-#         )
-#         await create_img_path(
-#             tg_user_id=str(m.chat.id),
-#             path=output_filename
-#         )
-        
         
 async def get_user_url_images(m: types.Message):
     if m.photo:
@@ -161,29 +123,16 @@ async def generate_photo_from_photo_helper(call: types.CallbackQuery, user_db: d
 
 Начинаю обработку...
 <b>Это займет примерно 55 секунд</b>""", parse_mode="HTML")
-    user_prompt = get_image_prompt(image_url)
-    if user_prompt == "":
-        await call.message.answer("❌ Ошибка при запуске генерации изображений. Код ошибки 221.", reply_markup=get_main_keyboard())
-        log.error(f"Ошибка при сохранение промпта | UserID={call.message.chat.id} | User promt:{user_prompt if user_prompt else 'пустой'} | Код ошибки: 221")
-        new_count_gen = user_db.get("count_generations") + count_gen
-        asyncio.create_task(
-            update_user(data={
-                "tg_user_id": str(call.message.chat.id), 
-                "count_generations": new_count_gen, 
-            })
-        )
-        return
-    log.warning(effect)
-    gen_response = await generate_images_from_image(
-        tune_id=int(user_db.get("tune_id")), 
-        prompt=f"sks {user_db.get('gender')} " + user_prompt,
-        effect=effect,
-        num_images=count_gen,
+    gen_response = await generate_pfp_v2(
         image_url=image_url,
+        chat_id=call.message.chat.id,
+        effect=effect,
+        tune_id=int(user_db.get("tune_id")),
+        gender=user_db.get("gender")
     )
-    if not gen_response or "id" not in gen_response:
+    if not gen_response:
         await call.message.answer("❌ Ошибка при запуске генерации изображений. Код ошибки 21.", reply_markup=get_main_keyboard())
-        log.error(f"Ошибка при запуске генерации изображений | UserID={call.message.chat.id} | User promt:{user_prompt} | Response = {gen_response} | Код ошибки: 21")
+        log.error(f"Ошибка при запуске генерации изображений | UserID={call.message.chat.id} | Response = {gen_response} | Код ошибки: 21")
         new_count_gen = user_db.get("count_generations") + count_gen
         asyncio.create_task(
             update_user(data={
@@ -194,7 +143,6 @@ async def generate_photo_from_photo_helper(call: types.CallbackQuery, user_db: d
         return
 
     user_db = await get_user(str(call.message.chat.id))
-    prompt_id = gen_response.get("id")
     if user_db.get("count_generations") < 3:
         await call.message.answer("""
 <b>У Вас осталось {count_gen} генераций!</b>
@@ -219,33 +167,6 @@ async def generate_photo_from_photo_helper(call: types.CallbackQuery, user_db: d
 *Instagram принадлежит компании Meta, признанной экстремистской организацией и запрещенной в РФ""".format(
     count_gen=user_db.get("count_generations"), user_tg_id=str(call.message.chat.id)), parse_mode="HTML",
 )
-
-    image_urls = await wait_for_generation(prompt_id)
-    media_group = MediaGroupBuilder(caption='<a href="https://t.me/photopingvin_bot?start">🖼 Создано в Пингвин ИИ</a>')
-    
-    if image_urls:
-        for i in image_urls:
-            media_group.add(type="photo", media=i, parse_mode="HTML")
-    else:
-        await call.message.answer("❌ Ошибка генерации изображения. Код ошибки: 211")
-        log.error(f"Ошибка при запуске генерации изображений | UserID={call.message.chat.id} | not image urls(wait gen) | Код ошибки: 121")
-        return
-    
-    messages = await bot.send_media_group(chat_id=call.message.chat.id, media=media_group.build())
-    
-    builder = InlineKeyboardBuilder()
-    for i, message in enumerate(messages, 1):
-        if message.photo:
-            file_id = message.photo[-1].file_id
-            img_response = await create_tg_image(str(call.message.chat.id), file_id)
-            log.debug(img_response)
-            
-            builder.button(
-                text=f"Фото {i}",
-                callback_data=f"tovideo&&{img_response.get('id')}"
-            )
-    
-    await call.message.answer(text="Превратить в видео 📹", reply_markup=builder.as_markup())
     
     
 async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_prompt: str, effect: str):
