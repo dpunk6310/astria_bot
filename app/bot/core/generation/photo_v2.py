@@ -13,9 +13,10 @@ async def generate_images_v2(
     chat_id: int, 
     effect: str,
     tune_id: int,
+    api_name: str = "astria",
 ):
     payload = {
-        "api_name": "astria",
+        "api_name": api_name,
         "tune_id": tune_id,
         "prompt": prompt,
         "effect": effect,

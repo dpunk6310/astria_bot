@@ -24,25 +24,9 @@ async def create_user_db(
     return response
 
 
-async def create_tune(
-    tg_user_id: str,
-    tune_id: str,
-    gender: str,
-    name: str
-) -> dict:
-    response = await client.post_request(url=DJANGO_URL+"/api/main/create-tune", data={
-        "tg_user_id": tg_user_id,
-        "tune_id": tune_id,
-        "gender": gender,
-        "name": name
-    })
-    return response
-
-
 async def update_user(
     data: dict
 ) -> dict:
-    log.debug(data)
     response = await client.post_request(url=DJANGO_URL + "/api/main/update-user", data=data)
     return response
 
@@ -50,7 +34,6 @@ async def update_user(
 async def update_promo(
     data: dict
 ) -> dict:
-    log.debug(data)
     response = await client.post_request(url=DJANGO_URL + "/api/main/update-promo", data=data)
     return response
 
@@ -75,7 +58,6 @@ async def get_tune(
     tune_id: str,
 ) -> dict:
     response = await client.get_request(url=DJANGO_URL+f"/api/main/get-tune/{tune_id}")
-    log.debug(response)
     return response
 
 
@@ -117,17 +99,6 @@ async def get_tgimage(
     img_id: int,
 ) -> dict:
     response = await client.get_request(url=DJANGO_URL+f"/api/main/get-tgimg/{img_id}")
-    return response
-
-
-async def create_tg_image(
-    tg_user_id: str,
-    image_hash: str,
-) -> dict:
-    response = await client.post_request(url=DJANGO_URL+"/api/main/create-tgimg", data={
-        "tg_user_id": tg_user_id,
-        "tg_hash": image_hash
-    })
     return response
 
 

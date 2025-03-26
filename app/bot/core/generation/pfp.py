@@ -16,9 +16,10 @@ async def generate_pfp_v2(
     gender: str,
     w: str = "",
     h: str = "",
+    api_name: str = "astria",
 ):
     payload = {
-        "api_name": "astria",
+        "api_name": api_name,
         "tune_id": tune_id,
         "gender": gender,
         "effect": effect,

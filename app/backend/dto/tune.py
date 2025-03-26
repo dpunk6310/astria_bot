@@ -6,6 +6,7 @@ class CreateTuneDTO(Schema):
     tune_id: str
     gender: str
     name: str
+    api_name: str
 
 
 class TuneListDTO(Schema):
@@ -13,3 +14,4 @@ class TuneListDTO(Schema):
     tune_id: str
     gender: str
     name: str
+    api_name: str

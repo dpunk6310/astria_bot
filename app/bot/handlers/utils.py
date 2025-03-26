@@ -47,7 +47,8 @@ async def get_user_url_images(m: types.Message):
 async def process_learning(
     messages: list[types.Message],
     gender: str,
-    name: str
+    name: str,
+    api_name: str,
 ):
     builder = InlineKeyboardBuilder()
     
@@ -60,7 +61,8 @@ async def process_learning(
         gender=gender, 
         chat_id=messages[0].chat.id, 
         images=img_urls,
-        name=name
+        name=name,
+        api_name=api_name,
     )
     
     if not response:
@@ -123,12 +125,16 @@ async def generate_photo_from_photo_helper(call: types.CallbackQuery, user_db: d
 
 Начинаю обработку...
 <b>Это займет примерно 55 секунд</b>""", parse_mode="HTML")
+    
+    api_name = user_db.get("api_name", "astria")
+    
     gen_response = await generate_pfp_v2(
         image_url=image_url,
         chat_id=call.message.chat.id,
         effect=effect,
         tune_id=int(user_db.get("tune_id")),
-        gender=user_db.get("gender")
+        gender=user_db.get("gender"),
+        api_name=api_name
     )
     if not gen_response:
         await call.message.answer("❌ Ошибка при запуске генерации изображений. Код ошибки 21.", reply_markup=get_main_keyboard())
@@ -182,11 +188,13 @@ async def generate_photos_helper(call: types.CallbackQuery, tune_id: str, user_p
             "count_generations": new_count_gen, 
         })
     )
+    api_name = user_db.get("api_name", "astria")
     gen_response = await generate_images_v2(
         tune_id=int(tune_id), 
         prompt=user_prompt,
         effect=effect,
-        chat_id=call.message.chat.id
+        chat_id=call.message.chat.id,
+        api_name=api_name
     )
     if not gen_response:
         await call.message.answer("❌ Ошибка при запуске генерации изображений. Код ошибки 1.", reply_markup=get_main_keyboard())

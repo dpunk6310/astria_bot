@@ -28,6 +28,7 @@ class UserDTO(Schema):
     has_purchased: bool
     subscribe: Optional[date]
     maternity_payment_id: Optional[str]
+    api_name: str
     
     
 class UpdateUserDTO(Schema):
@@ -45,6 +46,7 @@ class UpdateUserDTO(Schema):
     photo_from_photo: Optional[bool] = None
     subscribe: Optional[date] = None
     maternity_payment_id: Optional[str] = None
+
 
 class CreateUserDTO(Schema):
     tg_user_id: str

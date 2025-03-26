@@ -13,9 +13,10 @@ async def create_train(
     images: list[str],
     gender: str,
     name: str,
+    api_name: str = "astria"
 ):
     payload = {
-        "api_name": "astria",
+        "api_name": api_name,
         "images": images,
         "gender": gender,
         "chat_id": chat_id,

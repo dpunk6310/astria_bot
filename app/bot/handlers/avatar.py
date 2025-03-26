@@ -143,6 +143,7 @@ async def process_name(message: types.Message, state: FSMContext):
 async def handle_albums(messages: list[types.Message], state: FSMContext):
     user_data = await state.get_data()
     name = user_data.get("name")
+    
     user_db = await get_user(messages[-1].chat.id)
     if not user_db.get("is_learn_model"):
         avatar_price_list = await get_avatar_price_list()
@@ -179,7 +180,10 @@ async def handle_albums(messages: list[types.Message], state: FSMContext):
 
 Там мы публикуем оригинальные идеи стилей и промтов для твоих новых фотографий, а также актуальные новости.
 """)
-    asyncio.create_task(process_learning(messages, gender, name))    
+    
+    api_name = user_db.get("api_name", "astria")
+    
+    asyncio.create_task(process_learning(messages, gender, name, api_name))    
     
 
 @avatar_router.callback_query(F.data.in_(["man", "woman"]))

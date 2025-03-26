@@ -96,6 +96,7 @@ class TGUser(models.Model):
         default=0
     )
     attempt = models.PositiveIntegerField(verbose_name="Попытка", default=0)
+    api_name =models.CharField(verbose_name="API", default="astria")
     
     def __str__(self):
         return str(self.tg_user_id)
@@ -225,6 +226,7 @@ class Tune(models.Model):
     )
     gender = models.CharField(verbose_name="Пол", max_length=20)
     name = models.CharField(verbose_name="Название", max_length=20, null=True, blank=True)
+    api_name =models.CharField(verbose_name="API", default="astria")
     
     def __str__(self):
         return str(self.tune_id)
@@ -233,6 +235,29 @@ class Tune(models.Model):
         verbose_name = "Tune"
         verbose_name_plural = "Tunes"
         db_table = "tunes"
+        
+        
+# class UseAPI(models.Model):
+#     tg_user_id = models.CharField(
+#         max_length=30,
+#         verbose_name="TG User ID"
+#     )
+#     tune_id = models.CharField(
+#         max_length=200,
+#         unique=True,
+#         verbose_name="Tune ID"
+#     )
+#     gender = models.CharField(verbose_name="Пол", max_length=20)
+#     name = models.CharField(verbose_name="Название", max_length=20, null=True, blank=True)
+#     api_name =models.CharField(verbose_name="API", default="astria")
+    
+#     def __str__(self):
+#         return str(self.tune_id)
+    
+#     class Meta:
+#         verbose_name = "API"
+#         verbose_name_plural = "APIs"
+#         db_table = "apis"
         
         
 class Payment(models.Model):
