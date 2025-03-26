@@ -41,7 +41,8 @@ async def select_avatar_callback(call: types.CallbackQuery, state: FSMContext):
         update_user(data={
             "tg_user_id": str(call.message.chat.id),
             "tune_id": str(tune_id),
-            "gender": tune.get("gender")
+            "gender": tune.get("gender"),
+            "api_name": tune.get("api_name", "astria")
         })
     )
     keyboard = get_main_keyboard()
